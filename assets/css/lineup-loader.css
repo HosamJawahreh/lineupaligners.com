@@ -1,0 +1,72 @@
+/**
+ * LineUp — iOS-style activity indicator (12 fading radial bars)
+ */
+
+body.lineup-app .page-loader-wrapper.lineup-page-loader {
+    background: #fff !important;
+    z-index: 999999;
+}
+
+body.lineup-app .page-loader-wrapper.lineup-page-loader .loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+body.lineup-app .page-loader-wrapper.lineup-page-loader .loader p,
+body.lineup-app .page-loader-wrapper.lineup-page-loader .loader img {
+    display: none !important;
+}
+
+/* ── 12-bar spinner ── */
+.lineup-ios-spinner {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto;
+}
+
+.lineup-ios-spinner > span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3px;
+    height: 10px;
+    margin-left: -1.5px;
+    margin-top: -19px;
+    border-radius: 3px;
+    background-color: #1a1a1a;
+    transform-origin: center 19px;
+    opacity: 0.12;
+    animation: lineup-ios-spinner-fade 1s linear infinite;
+}
+
+.lineup-ios-spinner > span:nth-child(1)  { transform: rotate(0deg);   animation-delay: -0.9167s; }
+.lineup-ios-spinner > span:nth-child(2)  { transform: rotate(30deg);  animation-delay: -0.8333s; }
+.lineup-ios-spinner > span:nth-child(3)  { transform: rotate(60deg);  animation-delay: -0.75s; }
+.lineup-ios-spinner > span:nth-child(4)  { transform: rotate(90deg);  animation-delay: -0.6667s; }
+.lineup-ios-spinner > span:nth-child(5)  { transform: rotate(120deg); animation-delay: -0.5833s; }
+.lineup-ios-spinner > span:nth-child(6)  { transform: rotate(150deg); animation-delay: -0.5s; }
+.lineup-ios-spinner > span:nth-child(7)  { transform: rotate(180deg); animation-delay: -0.4167s; }
+.lineup-ios-spinner > span:nth-child(8)  { transform: rotate(210deg); animation-delay: -0.3333s; }
+.lineup-ios-spinner > span:nth-child(9)  { transform: rotate(240deg); animation-delay: -0.25s; }
+.lineup-ios-spinner > span:nth-child(10) { transform: rotate(270deg); animation-delay: -0.1667s; }
+.lineup-ios-spinner > span:nth-child(11) { transform: rotate(300deg); animation-delay: -0.0833s; }
+.lineup-ios-spinner > span:nth-child(12) { transform: rotate(330deg); animation-delay: 0s; }
+
+@keyframes lineup-ios-spinner-fade {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.12;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lineup-ios-spinner > span {
+        animation-duration: 1.4s;
+    }
+}

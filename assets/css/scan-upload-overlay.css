@@ -1,0 +1,70 @@
+/**
+ * Full-page overlay while large 3D scan files upload.
+ */
+
+body.scan-upload-overlay-open {
+    overflow: hidden;
+}
+
+.scan-upload-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(4px);
+}
+
+.scan-upload-overlay__panel {
+    width: 100%;
+    max-width: 420px;
+    padding: 32px 28px;
+    text-align: center;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.scan-upload-overlay__spinner {
+    margin: 0 auto 20px;
+}
+
+.scan-upload-overlay__title {
+    margin: 0 0 8px;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.scan-upload-overlay__detail {
+    margin: 0 0 16px;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #64748b;
+}
+
+.scan-upload-overlay__files {
+    margin: 0;
+    padding: 12px 14px;
+    list-style: none;
+    text-align: left;
+    font-size: 0.8125rem;
+    color: #334155;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.scan-upload-overlay__files li + li {
+    margin-top: 6px;
+}
+
+.scan-upload-overlay__hint {
+    display: block;
+    margin-top: 14px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+}

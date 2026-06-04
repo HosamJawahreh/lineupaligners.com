@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('doctor_roles', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->text('description')->nullable();
+            $table->json('permissions')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->unsignedSmallInteger('sort_order')->default(0);
+            $table->timestamps();
+        });
+
+        Schema::table('doctors', function (Blueprint $table) {
+            $table->foreignId('doctor_role_id')->nullable()->after('user_id')->constrained()->nullOnDelete();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('doctors', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('doctor_role_id');
+        });
+
+        Schema::dropIfExists('doctor_roles');
+    }
+};

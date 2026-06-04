@@ -1,0 +1,90 @@
+.settings-panel .card {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.settings-panel .card:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.settings-panel .card h6 {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    margin-bottom: 15px;
+    color: #777;
+}
+
+.settings-panel .theme-light-dark label.btn {
+    cursor: pointer;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.settings-panel .theme-light-dark label.btn.active {
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.15);
+}
+
+.skin-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 0;
+    margin: 0;
+}
+
+.skin-swatches li {
+    list-style: none;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    min-width: 64px;
+}
+
+.skin-swatches li.active .skin-swatch {
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px #333;
+}
+
+.skin-swatches li.active::after {
+    content: '\2713';
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.skin-swatch-label {
+    cursor: pointer;
+    display: block;
+}
+
+.skin-swatch {
+    display: block;
+    width: 48px;
+    height: 36px;
+    border-radius: 6px;
+    margin: 0 auto 6px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.2s ease;
+}
+
+.skin-swatch-name {
+    display: block;
+    color: #666;
+    font-size: 11px;
+    text-transform: capitalize;
+}
+
+.right-sidebar .skin-swatches li {
+    min-width: 48px;
+}
+
+.right-sidebar .skin-swatch {
+    width: 30px;
+    height: 25px;
+}

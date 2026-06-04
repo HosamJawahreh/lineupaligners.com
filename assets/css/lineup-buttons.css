@@ -1,0 +1,186 @@
+/**
+ * LineUp — neutral professional buttons (SaaS outline style)
+ * Matches cases Export: white fill, light gray border, dark slate text.
+ */
+
+:root {
+    --lineup-btn-bg: #fff;
+    --lineup-btn-border: #d9dfe8;
+    --lineup-btn-text: #334155;
+    --lineup-btn-text-muted: #4a5568;
+    --lineup-btn-hover-bg: #f8fafc;
+    --lineup-btn-hover-border: #b8c4d4;
+    --lineup-btn-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --lineup-btn-hover-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    --lineup-btn-radius: 4px;
+}
+
+/* ── Standard Bootstrap / app buttons ── */
+body.lineup-app .btn:not(.btn-icon):not(.btn-circle),
+body.lineup-app .cases-btn:not(.cases-btn-icon),
+body.authentication .btn:not(.btn-icon):not(.btn-circle) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    border-radius: var(--lineup-btn-radius) !important;
+    border: 1px solid var(--lineup-btn-border) !important;
+    background: var(--lineup-btn-bg) !important;
+    color: var(--lineup-btn-text) !important;
+    box-shadow: var(--lineup-btn-shadow) !important;
+    text-decoration: none !important;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+body.lineup-app[class*="theme-"] .btn-primary:active,
+body.lineup-app[class*="theme-"] .btn-primary:focus,
+body.lineup-app[class*="theme-"] .btn-primary:hover,
+body.lineup-app .btn:not(.btn-icon):not(.btn-circle):hover,
+body.lineup-app .btn:not(.btn-icon):not(.btn-circle):focus,
+body.lineup-app .cases-btn:not(.cases-btn-icon):hover,
+body.lineup-app .cases-btn:not(.cases-btn-icon):focus,
+body.authentication .btn:not(.btn-icon):not(.btn-circle):hover,
+body.authentication .btn:not(.btn-icon):not(.btn-circle):focus {
+    background: var(--lineup-btn-hover-bg) !important;
+    border-color: var(--lineup-btn-hover-border) !important;
+    color: var(--lineup-btn-text) !important;
+    box-shadow: var(--lineup-btn-hover-shadow) !important;
+    filter: none !important;
+}
+
+body.lineup-app[class*="theme-"] .btn-primary,
+body.lineup-app[class*="theme-"] .btn-success,
+body.lineup-app[class*="theme-"] .btn-info,
+body.lineup-app[class*="theme-"] .btn-warning,
+body.lineup-app[class*="theme-"] .btn-danger,
+body.lineup-app[class*="theme-"] .btn-secondary,
+body.lineup-app[class*="theme-"] .btn-default,
+body.lineup-app[class*="theme-"] .btn-primary.btn-simple,
+body.lineup-app[class*="theme-"] .btn-success.btn-simple,
+body.lineup-app[class*="theme-"] .btn-danger.btn-simple,
+body.lineup-app .btn-primary,
+body.lineup-app .btn-success,
+body.lineup-app .btn-info,
+body.lineup-app .btn-warning,
+body.lineup-app .btn-danger,
+body.lineup-app .cases-btn-primary:not(.cases-btn-icon),
+body.lineup-app .cases-btn-outline:not(.cases-btn-icon),
+body.authentication[class*="theme-"] .btn-primary,
+body.authentication .btn-primary {
+    background: var(--lineup-btn-bg) !important;
+    border-color: var(--lineup-btn-border) !important;
+    color: var(--lineup-btn-text-muted) !important;
+}
+
+body.lineup-app .btn-lg:not(.btn-icon),
+body.lineup-app .btn.btn-lg:not(.btn-icon) {
+    min-height: 42px;
+    padding: 0 22px;
+    font-size: 14px;
+}
+
+body.lineup-app .btn-sm:not(.btn-icon),
+body.lineup-app .btn.btn-sm:not(.btn-icon) {
+    min-height: 30px;
+    padding: 0 12px;
+    font-size: 12px;
+}
+
+body.lineup-app .btn-block:not(.btn-icon) {
+    width: 100%;
+}
+
+body.lineup-app label.btn.active,
+body.lineup-app .btn.active:not(.dropdown-toggle):not(.show) {
+    background: var(--lineup-btn-hover-bg) !important;
+    border-color: var(--lineup-btn-hover-border) !important;
+    color: var(--lineup-btn-text) !important;
+    box-shadow: var(--lineup-btn-hover-shadow) !important;
+}
+
+body.lineup-app .btn:disabled,
+body.lineup-app .btn.disabled,
+body.lineup-app .cases-btn:not(.cases-btn-icon):disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+body.lineup-app .cases-btn-icon {
+    border: 1px solid var(--lineup-btn-border) !important;
+    background: var(--lineup-btn-bg) !important;
+    color: var(--lineup-btn-text-muted) !important;
+    box-shadow: var(--lineup-btn-shadow) !important;
+}
+
+body.lineup-app .cases-btn-icon:hover:not(:disabled) {
+    background: var(--lineup-btn-hover-bg) !important;
+    border-color: var(--lineup-btn-hover-border) !important;
+    color: var(--lineup-btn-text) !important;
+}
+
+/* Icon-only controls — minimal, no filled chip */
+body.lineup-app .btn.btn-icon,
+body.lineup-app .btn.btn-icon.btn-round,
+body.lineup-app .btn.btn-circle {
+    min-height: unset;
+    padding: 0;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--lineup-btn-text-muted) !important;
+}
+
+body.lineup-app .btn.btn-icon:hover,
+body.lineup-app .btn.btn-icon.btn-round:hover {
+    background: #eef1f5 !important;
+    color: var(--lineup-btn-text) !important;
+}
+
+/* Cases / table action icon buttons */
+body.lineup-app .cases-action-btn {
+    border-radius: var(--lineup-btn-radius);
+}
+
+body.lineup-app .cases-action-btn:hover {
+    background: #eef1f5 !important;
+    color: var(--lineup-btn-text-muted) !important;
+}
+
+/* Pagination — cases list (non-DataTables); DataTables uses lineup-datatables.css */
+body.lineup-app .cases-pagination .page-item.active .page-link {
+    background: var(--lineup-skin, #0d9488) !important;
+    border-color: var(--lineup-skin, #0d9488) !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+body.lineup-app .cases-pagination .page-link:hover {
+    background: var(--lineup-btn-hover-bg) !important;
+    border-color: var(--lineup-btn-hover-border) !important;
+    color: var(--lineup-btn-text) !important;
+}
+
+/* SweetAlert confirm / cancel */
+.swal2-popup .swal2-styled.swal2-confirm,
+.swal2-popup .swal2-styled.swal2-cancel {
+    border-radius: var(--lineup-btn-radius) !important;
+    border: 1px solid var(--lineup-btn-border) !important;
+    background: var(--lineup-btn-bg) !important;
+    color: var(--lineup-btn-text-muted) !important;
+    box-shadow: var(--lineup-btn-shadow) !important;
+    font-weight: 500 !important;
+    font-size: 13px !important;
+    padding: 8px 18px !important;
+}
+
+.swal2-popup .swal2-styled.swal2-confirm:hover,
+.swal2-popup .swal2-styled.swal2-cancel:hover {
+    background: var(--lineup-btn-hover-bg) !important;
+    border-color: var(--lineup-btn-hover-border) !important;
+    color: var(--lineup-btn-text) !important;
+}

@@ -1,0 +1,33 @@
+/* SweetAlert2 toast — prevent bootstrap-select "Nothing selected" bleed-in */
+.swal2-container {
+    z-index: 200000 !important;
+}
+
+.swal2-popup.swal2-toast {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+    font-family: var(--lineup-font-sans, 'Cairo', sans-serif) !important;
+    padding: 12px 16px !important;
+}
+
+.swal2-popup.swal2-toast .swal2-title {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+}
+
+.swal2-popup.swal2-toast #swal2-html-container,
+.swal2-popup.swal2-toast select,
+.swal2-popup.swal2-toast .bootstrap-select,
+.swal2-popup.swal2-toast .dropdown-menu {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+.swal2-popup.swal2-toast .swal2-actions {
+    display: none !important;
+}

@@ -1,0 +1,177 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Patient;
+use App\Models\PatientCaseModification;
+use App\Services\CaseWorkflowService;
+use App\Services\LineUpNotifier;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+
+class PatientCaseModificationController extends Controller
+{
+    private const SCAN_EXTENSIONS = ['stl', 'obj', 'ply'];
+
+    private const SCAN_MAX_KB = 102400;
+
+    public function __construct(
+        protected CaseWorkflowService $workflow
+    ) {}
+
+    public function store(Request $request, Patient $patient): RedirectResponse
+    {
+        $this->authorize('requestModification', $patient);
+
+        $stageNumber = $patient->isDividedStages()
+            ? (int) $request->input('stage_number')
+            : null;
+
+        if (! $patient->canRequestModification($stageNumber)) {
+            return $this->redirectToTab(
+                $patient,
+                'You can request a modification only after the treatment plan for this scope is approved, and while no modification is already in progress.',
+                'error'
+            );
+        }
+
+        $validated = $request->validate([
+            'stage_number' => $patient->isDividedStages()
+                ? ['required', 'integer', 'min:1', 'max:99']
+                : ['nullable'],
+            'notes' => ['required', 'string', 'min:10', 'max:10000'],
+            'upper_jaw_scan' => ['nullable', 'file', Rule::file()->extensions(self::SCAN_EXTENSIONS)->max(self::SCAN_MAX_KB)],
+            'lower_jaw_scan' => ['nullable', 'file', Rule::file()->extensions(self::SCAN_EXTENSIONS)->max(self::SCAN_MAX_KB)],
+        ]);
+
+        if (! $request->hasFile('upper_jaw_scan') && ! $request->hasFile('lower_jaw_scan')) {
+            return $this->redirectToTab(
+                $patient,
+                'Upload at least one 3D file (upper or lower jaw) with your modification request.',
+                'error'
+            );
+        }
+
+        $plan = $patient->isDividedStages()
+            ? $patient->currentTreatmentPlanForStage($stageNumber)
+            : $patient->currentFullTreatmentPlan();
+
+        DB::transaction(function () use ($patient, $request, $validated, $stageNumber, $plan) {
+            PatientCaseModification::query()
+                ->where('patient_id', $patient->id)
+                ->where('is_current', true)
+                ->when($stageNumber === null, fn ($q) => $q->whereNull('stage_number'))
+                ->when($stageNumber !== null, fn ($q) => $q->where('stage_number', $stageNumber))
+                ->update(['is_current' => false]);
+
+            $version = (int) PatientCaseModification::query()
+                ->where('patient_id', $patient->id)
+                ->when($stageNumber === null, fn ($q) => $q->whereNull('stage_number'))
+                ->when($stageNumber !== null, fn ($q) => $q->where('stage_number', $stageNumber))
+                ->max('version') + 1;
+
+            $modification = PatientCaseModification::create([
+                'patient_id' => $patient->id,
+                'stage_number' => $stageNumber,
+                'version' => max(1, $version),
+                'is_current' => true,
+                'notes' => $validated['notes'],
+                'requested_by' => auth()->id(),
+                'treatment_plan_id' => $plan?->id,
+            ]);
+
+            if ($request->hasFile('upper_jaw_scan')) {
+                $this->storeModificationScan($modification, 'upper_jaw_scan', $request->file('upper_jaw_scan'));
+            }
+
+            if ($request->hasFile('lower_jaw_scan')) {
+                $this->storeModificationScan($modification, 'lower_jaw_scan', $request->file('lower_jaw_scan'));
+            }
+
+            $this->workflow->afterModificationRequested($patient->fresh());
+        });
+
+        app(LineUpNotifier::class)->modificationRequested($patient, auth()->user());
+
+        $scope = $stageNumber !== null ? "stage {$stageNumber}" : 'this case';
+
+        return $this->redirectToTab(
+            $patient,
+            "Modification request submitted for {$scope}. LineUp will upload a revised plan for your review. After you approve it, you can request another modification if needed.",
+            'success'
+        );
+    }
+
+    public function downloadScan(Request $request, Patient $patient, PatientCaseModification $modification, string $scan): BinaryFileResponse
+    {
+        $this->authorize('view', $patient);
+
+        if ($modification->patient_id !== $patient->id) {
+            abort(404);
+        }
+
+        $field = $scan === 'upper' ? 'upper_jaw_scan' : 'lower_jaw_scan';
+        $path = $modification->{$field};
+
+        if (! $path) {
+            abort(404);
+        }
+
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+
+        if (! $disk->exists($path)) {
+            abort(404, 'Scan file not found.');
+        }
+
+        $nameField = $field === 'upper_jaw_scan' ? 'upper_jaw_scan_name' : 'lower_jaw_scan_name';
+        $filename = $modification->{$nameField}
+            ? basename($modification->{$nameField})
+            : basename($path);
+
+        $absolutePath = $disk->path($path);
+        $mime = match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
+            'obj' => 'model/obj',
+            'ply' => 'application/octet-stream',
+            default => 'model/stl',
+        };
+
+        if ($request->boolean('download')) {
+            return response()->download($absolutePath, $filename, ['Content-Type' => $mime]);
+        }
+
+        return response()->file($absolutePath, ['Content-Type' => $mime]);
+    }
+
+    protected function storeModificationScan(PatientCaseModification $modification, string $field, UploadedFile $file): void
+    {
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'stl');
+        if (! in_array($ext, self::SCAN_EXTENSIONS, true)) {
+            $ext = 'stl';
+        }
+
+        $base = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) ?: 'scan';
+        $filename = $base.'_mod'.$modification->id.'.'.$ext;
+        $dir = "patients/{$modification->patient_id}/modifications/{$modification->id}";
+
+        $path = $file->storeAs($dir, $filename, 'public');
+        $nameField = $field === 'upper_jaw_scan' ? 'upper_jaw_scan_name' : 'lower_jaw_scan_name';
+
+        $modification->update([
+            $field => $path,
+            $nameField => $file->getClientOriginalName(),
+        ]);
+    }
+
+    protected function redirectToTab(Patient $patient, string $message, string $type = 'success'): RedirectResponse
+    {
+        return redirect()
+            ->route('patients.show', $patient)
+            ->with($type, $message)
+            ->with('open_tab', 'modification');
+    }
+}

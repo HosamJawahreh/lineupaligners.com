@@ -1,0 +1,122 @@
+/**
+ * LineUp — UI typography (Cairo)
+ */
+
+body.lineup-app {
+    --lineup-font-sans: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif;
+    --lineup-font-display: var(--lineup-font-sans);
+    font-family: var(--lineup-font-sans) !important;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.55;
+    letter-spacing: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+body.lineup-app h1,
+body.lineup-app h2,
+body.lineup-app h3,
+body.lineup-app h4,
+body.lineup-app h5,
+body.lineup-app h6,
+body.lineup-app .block-header h2,
+body.lineup-app .cases-panel-head h1 {
+    font-family: var(--lineup-font-display) !important;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.3;
+}
+
+body.lineup-app button,
+body.lineup-app input,
+body.lineup-app select,
+body.lineup-app textarea,
+body.lineup-app optgroup,
+body.lineup-app label,
+body.lineup-app .btn,
+body.lineup-app .cases-btn,
+body.lineup-app .form-control,
+body.lineup-app .table,
+body.lineup-app .card,
+body.lineup-app .navbar,
+body.lineup-app .sidebar,
+body.lineup-app .dropdown-menu,
+body.lineup-app .modal,
+body.lineup-app .breadcrumb,
+body.lineup-app .pagination,
+body.lineup-app .nav-tabs,
+body.lineup-app .tab-content,
+body.lineup-app .dataTables_wrapper,
+body.lineup-app .lineup-topbar,
+body.lineup-app .lineup-nav,
+body.lineup-app .settings-page,
+body.lineup-app .swal2-popup,
+body.lineup-app p,
+body.lineup-app small,
+body.lineup-app .text-muted {
+    font-family: var(--lineup-font-sans) !important;
+}
+
+body.lineup-app .lineup-topbar-brand-name {
+    font-weight: 700;
+}
+
+body.lineup-app .lineup-topbar-brand-tagline {
+    font-weight: 600;
+}
+
+body.lineup-app .lineup-topbar-user-name {
+    font-weight: 600;
+}
+
+body.lineup-app .lineup-topbar-user-role {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+body.lineup-app .lineup-nav a span {
+    font-weight: 600;
+    font-size: 11px;
+}
+
+body.lineup-app .settings-page .settings-tabs-nav .nav-link {
+    font-weight: 600;
+}
+
+body.lineup-app .cases-table thead th {
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+body.lineup-app .cases-table tbody td {
+    font-weight: 400;
+}
+
+body.lineup-app .btn,
+body.lineup-app .cases-btn {
+    font-weight: 600;
+}
+
+body.lineup-app .form-control,
+body.lineup-app select.form-control {
+    font-weight: 400;
+}
+
+body.authentication {
+    --lineup-font-sans: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif;
+    font-family: var(--lineup-font-sans) !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body.authentication .btn,
+body.authentication .form-control,
+body.authentication h1,
+body.authentication h2,
+body.authentication p {
+    font-family: var(--lineup-font-sans) !important;
+}

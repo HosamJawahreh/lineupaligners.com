@@ -1,0 +1,276 @@
+/* Settings page layout */
+.settings-page .settings-card {
+    border: none;
+    box-shadow: 0 2px 18px rgba(0, 0, 0, 0.06);
+    margin-bottom: 0;
+    border-radius: 0;
+    overflow: visible;
+}
+
+.settings-page .settings-card .body,
+.settings-page .inner-card {
+    overflow: visible;
+    border-radius: 0;
+}
+
+.settings-page .settings-actions .btn {
+    border-radius: 4px !important;
+}
+
+/* ── Settings tab navigation (formal, neutral) ── */
+body.lineup-app .settings-page .settings-card > .header.settings-tabs-header {
+    background: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding: 0 !important;
+    color: inherit !important;
+}
+
+body.lineup-app .settings-page .settings-tabs-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0;
+    border-bottom: none !important;
+    margin: 0;
+    padding: 0 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+body.lineup-app .settings-page .settings-tabs-nav .nav-item {
+    flex-shrink: 0;
+    margin-bottom: 0;
+}
+
+body.lineup-app .settings-page .settings-tabs-nav .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    background: transparent !important;
+    color: #64748b !important;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    padding: 16px 20px !important;
+    margin-bottom: 0;
+    border-radius: 0;
+    white-space: nowrap;
+    transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+
+body.lineup-app .settings-page .settings-tabs-nav .nav-link i {
+    margin-right: 0;
+    font-size: 17px;
+    line-height: 1;
+    opacity: 0.85;
+}
+
+body.lineup-app .settings-page .settings-tabs-nav .nav-link:hover {
+    color: #334155 !important;
+    background: rgba(255, 255, 255, 0.7) !important;
+}
+
+body.lineup-app .settings-page .settings-tabs-nav .nav-link.active {
+    color: #0f172a !important;
+    background: #fff !important;
+    border-bottom-color: #0f172a !important;
+    box-shadow: inset 0 -1px 0 #fff;
+}
+
+body.lineup-app .settings-page .settings-tabs-nav .nav-link.active i {
+    opacity: 1;
+}
+
+.settings-page .settings-card > .body {
+    padding: 28px 30px;
+    min-height: 420px;
+}
+
+.settings-page .settings-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #999;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.settings-page .settings-logo-box {
+    background: #f8f9fa;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+}
+
+.settings-page .settings-logo-box:hover {
+    border-color: #b8c4d4;
+}
+
+.settings-page .settings-logo-box img {
+    max-height: 100px;
+    max-width: 200px;
+    object-fit: contain;
+}
+
+.settings-page .settings-profile-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+.settings-page .settings-summary-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.settings-page .settings-summary-card .summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+}
+
+.settings-page .settings-summary-card .summary-item:last-child,
+.settings-page .inner-card .summary-item:last-child {
+    border-bottom: none;
+}
+
+.settings-page .inner-card .summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+
+.settings-page .inner-card .summary-item span:first-child {
+    color: #888;
+}
+
+.settings-page .inner-card .summary-item span:last-child {
+    font-weight: 500;
+    color: #444;
+}
+
+.settings-page .settings-summary-card .summary-item:last-child {
+    border-bottom: none;
+}
+
+.settings-page .settings-summary-card .summary-item span:first-child {
+    color: #888;
+}
+
+.settings-page .settings-summary-card .summary-item span:last-child {
+    font-weight: 500;
+    color: #444;
+}
+
+.settings-page .settings-actions {
+    background: #fafbfc;
+    border-top: 1px solid #e2e8f0;
+    padding: 16px 30px;
+    margin: 0 -30px -28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.settings-page .settings-panel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.settings-page .settings-panel-grid .inner-card {
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #f0f0f0;
+}
+
+.settings-page .settings-panel-grid .inner-card h6 {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: #888;
+    margin-bottom: 16px;
+}
+
+/* SweetAlert2 toast — no dropdown / no bootstrap-select bleed */
+.swal2-container {
+    z-index: 200000 !important;
+}
+
+.swal2-popup.swal2-toast {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+    font-family: var(--lineup-font-sans, 'Cairo', sans-serif) !important;
+    padding: 12px 16px !important;
+}
+
+.swal2-popup.swal2-toast .swal2-title {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+}
+
+.swal2-popup.swal2-toast #swal2-html-container,
+.swal2-popup.swal2-toast select,
+.swal2-popup.swal2-toast .bootstrap-select,
+.swal2-popup.swal2-toast .dropdown-menu {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+.swal2-popup.swal2-toast .swal2-actions {
+    display: none !important;
+}
+
+.settings-page .doctor-role-card {
+    border: 1px solid #eee;
+}
+
+.settings-page .doctor-role-card h6 {
+    font-weight: 600;
+}
+
+.settings-page .doctor-role-delete-form {
+    border-top: 1px dashed #eee;
+    padding-top: 10px;
+}
+
+@media (max-width: 767px) {
+    body.lineup-app .settings-page .settings-tabs-nav .nav-link {
+        padding: 14px 14px !important;
+        font-size: 12px;
+    }
+
+    .settings-page .settings-card > .body {
+        padding: 20px 16px;
+    }
+
+    .settings-page .settings-actions {
+        margin: 0 -16px -20px;
+        padding: 14px 16px;
+        flex-wrap: wrap;
+    }
+}

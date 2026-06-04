@@ -1,0 +1,211 @@
+/**
+ * LineUp — DataTables footer (info + pagination)
+ */
+
+body.lineup-app .lineup-dt-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    padding: 16px 0 10px;
+    border-top: 1px solid #eef1f5;
+    margin-top: 4px;
+}
+
+body.lineup-app .lineup-dt-bottom .dataTables_info {
+    float: none;
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+body.lineup-app .lineup-dt-bottom .dataTables_paginate {
+    float: none;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+body.lineup-app .lineup-dt-bottom .dataTables_paginate .pagination {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Shared: span buttons (legacy) + Bootstrap page-link */
+body.lineup-app .dataTables_paginate .paginate_button,
+body.lineup-app .dataTables_paginate .page-item .page-link {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 12px !important;
+    margin: 0 !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+    color: #475569 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+}
+
+body.lineup-app .dataTables_paginate .paginate_button:hover,
+body.lineup-app .dataTables_paginate .page-item:not(.disabled) .page-link:hover {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
+body.lineup-app .dataTables_paginate .paginate_button.current,
+body.lineup-app .dataTables_paginate .paginate_button.current:hover,
+body.lineup-app .dataTables_paginate .page-item.active .page-link,
+body.lineup-app .dataTables_paginate .page-item.active .page-link:hover {
+    background: var(--lineup-skin, #0d9488) !important;
+    border-color: var(--lineup-skin, #0d9488) !important;
+    color: #fff !important;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--lineup-skin, #0d9488) 35%, transparent);
+    cursor: default;
+}
+
+body.lineup-app .dataTables_paginate .paginate_button.disabled,
+body.lineup-app .dataTables_paginate .paginate_button.disabled:hover,
+body.lineup-app .dataTables_paginate .page-item.disabled .page-link,
+body.lineup-app .dataTables_paginate .page-item.disabled .page-link:hover {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    color: #cbd5e1 !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+body.lineup-app .dataTables_paginate .paginate_button.previous,
+body.lineup-app .dataTables_paginate .paginate_button.next,
+body.lineup-app .dataTables_paginate .paginate_button.first,
+body.lineup-app .dataTables_paginate .paginate_button.last {
+    min-width: 40px;
+    font-size: 0 !important;
+    position: relative;
+}
+
+body.lineup-app .dataTables_paginate .paginate_button.previous::before,
+body.lineup-app .dataTables_paginate .paginate_button.next::before,
+body.lineup-app .dataTables_paginate .paginate_button.first::before,
+body.lineup-app .dataTables_paginate .paginate_button.last::before {
+    font-family: 'Material-Design-Iconic-Font';
+    font-size: 20px;
+    font-weight: normal;
+    line-height: 1;
+    color: inherit;
+}
+
+body.lineup-app .dataTables_paginate .paginate_button.previous::before {
+    content: '\f2fa';
+}
+
+body.lineup-app .dataTables_paginate .paginate_button.next::before {
+    content: '\f2fb';
+}
+
+body.lineup-app .dataTables_paginate .paginate_button.first::before {
+    content: '\f3b5';
+}
+
+body.lineup-app .dataTables_paginate .paginate_button.last::before {
+    content: '\f3b4';
+}
+
+body.lineup-app .dataTables_paginate .page-item.previous .page-link,
+body.lineup-app .dataTables_paginate .page-item.next .page-link,
+body.lineup-app .dataTables_paginate .page-item.first .page-link,
+body.lineup-app .dataTables_paginate .page-item.last .page-link {
+    font-size: 0 !important;
+    min-width: 40px;
+    position: relative;
+}
+
+body.lineup-app .dataTables_paginate .page-item.previous .page-link::before,
+body.lineup-app .dataTables_paginate .page-item.next .page-link::before,
+body.lineup-app .dataTables_paginate .page-item.first .page-link::before,
+body.lineup-app .dataTables_paginate .page-item.last .page-link::before {
+    font-family: 'Material-Design-Iconic-Font';
+    font-size: 20px;
+    font-weight: normal;
+    line-height: 1;
+}
+
+body.lineup-app .dataTables_paginate .page-item.previous .page-link::before {
+    content: '\f2fa';
+}
+
+body.lineup-app .dataTables_paginate .page-item.next .page-link::before {
+    content: '\f2fb';
+}
+
+body.lineup-app .dataTables_paginate .page-item.first .page-link::before {
+    content: '\f3b5';
+}
+
+body.lineup-app .dataTables_paginate .page-item.last .page-link::before {
+    content: '\f3b4';
+}
+
+body.lineup-app .dataTables_paginate .paginate_button.ellipsis,
+body.lineup-app .dataTables_paginate .page-item.disabled.ellipsis .page-link {
+    min-width: 32px;
+    padding: 0 6px !important;
+    font-size: 14px !important;
+    color: #94a3b8 !important;
+    border-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    cursor: default;
+}
+
+body.lineup-app .dataTables_paginate .paginate_button.ellipsis::before,
+body.lineup-app .dataTables_paginate .page-item.disabled.ellipsis .page-link::before {
+    content: none;
+}
+
+/* Cases panel — match panel padding */
+body.lineup-app .cases-panel .lineup-dt-bottom {
+    padding: 14px 24px 18px;
+    margin-top: 0;
+    border-top: 1px solid #eef1f5;
+}
+
+@media (max-width: 767px) {
+    body.lineup-app .lineup-dt-bottom {
+        justify-content: center;
+        text-align: center;
+    }
+
+    body.lineup-app .lineup-dt-bottom .dataTables_info {
+        width: 100%;
+        text-align: center;
+    }
+
+    body.lineup-app .lineup-dt-bottom .dataTables_paginate {
+        width: 100%;
+        justify-content: center;
+    }
+}

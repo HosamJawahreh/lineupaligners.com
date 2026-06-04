@@ -1,0 +1,89 @@
+/**
+ * LineUp — squared native form controls (no bootstrap-select duplicates)
+ */
+
+:root {
+    --lineup-input-radius: 0;
+    --lineup-input-border: #dce3ea;
+    --lineup-input-focus: var(--lineup-skin, #00cfd1);
+}
+
+/* Remove bootstrap-select widgets entirely */
+.bootstrap-select {
+    display: none !important;
+}
+
+/* ── Squared form controls ── */
+body.lineup-app .form-control,
+body.lineup-app input[type="text"],
+body.lineup-app input[type="email"],
+body.lineup-app input[type="password"],
+body.lineup-app input[type="number"],
+body.lineup-app input[type="tel"],
+body.lineup-app input[type="date"],
+body.lineup-app input[type="search"],
+body.lineup-app textarea.form-control,
+body.lineup-app select.form-control {
+    border-radius: var(--lineup-input-radius) !important;
+    border: 1px solid var(--lineup-input-border) !important;
+    box-shadow: none !important;
+    background-color: #fff !important;
+}
+
+body.lineup-app select.form-control {
+    display: block !important;
+    width: 100% !important;
+    height: 38px !important;
+    padding: 6px 12px !important;
+    appearance: auto;
+    -webkit-appearance: menulist;
+    line-height: 1.5;
+}
+
+body.lineup-app textarea.form-control {
+    height: auto;
+    min-height: 80px;
+}
+
+body.lineup-app .form-control:focus,
+body.lineup-app select.form-control:focus {
+    border-color: var(--lineup-input-focus) !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* One field per form-group — hide stray duplicates */
+body.lineup-app .form-group > select.form-control ~ select.form-control {
+    display: none !important;
+}
+
+/* button radius — lineup-buttons.css (--lineup-btn-radius) */
+
+body.lineup-app .cases-panel,
+body.lineup-app .cases-filters,
+body.lineup-app .card .body,
+body.lineup-app .form-group {
+    overflow: visible;
+}
+
+section.content .form-group > label,
+.cases-filters .cases-filter-label {
+    display: block;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.form-file-field,
+.scan-upload-box,
+.case-photos-dropzone {
+    border-radius: var(--lineup-input-radius) !important;
+}
+
+.dataTables_length select {
+    border-radius: var(--lineup-input-radius) !important;
+    height: 32px !important;
+    border: 1px solid var(--lineup-input-border);
+    padding: 4px 8px;
+}
