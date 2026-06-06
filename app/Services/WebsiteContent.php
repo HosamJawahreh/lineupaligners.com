@@ -483,6 +483,8 @@ class WebsiteContent
             if ($url !== null) {
                 return $url;
             }
+
+            return $this->smilizAsset('images/banner-slider-img/slider-01-slide1.jpg');
         }
 
         if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, '/')) {
@@ -506,6 +508,8 @@ class WebsiteContent
             if ($url !== null) {
                 return $url;
             }
+
+            return $this->smilizAsset('images/homepage-1/service/service-01.jpg');
         }
 
         if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, '/')) {
@@ -531,6 +535,8 @@ class WebsiteContent
             if ($url !== null) {
                 return $url;
             }
+
+            return asset($fallback);
         }
 
         if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, '/')) {
@@ -554,6 +560,8 @@ class WebsiteContent
             if ($url !== null) {
                 return $url;
             }
+
+            return $this->smilizAsset('images/homepage-2/blog/blog-01.jpg');
         }
 
         if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, '/')) {
@@ -988,6 +996,8 @@ class WebsiteContent
             if ($url !== null) {
                 return $url;
             }
+
+            return $this->smilizAsset($fallback);
         }
 
         if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, '/')) {

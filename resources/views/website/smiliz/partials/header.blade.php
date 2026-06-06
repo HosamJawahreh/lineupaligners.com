@@ -123,16 +123,6 @@
                                 </nav>
                             </div>
                             <div class="pbmit-right-box d-flex align-items-center">
-                                @if(filled($content['contact']['address']))
-                                <div class="lineup-header-location-mobile d-lg-none">
-                                    <a href="https://www.google.com/maps/search/?api=1&amp;query={{ urlencode($content['contact']['address']) }}" target="_blank" rel="noopener noreferrer" class="lineup-header-location-mobile__link">
-                                        <span class="lineup-header-location-mobile__icon" aria-hidden="true">
-                                            <i class="pbmit-base-icon-location-1"></i>
-                                        </span>
-                                        <span class="lineup-header-location-mobile__text">{{ $content['contact']['address'] }}</span>
-                                    </a>
-                                </div>
-                                @endif
                                 <div class="lineup-header-lang-desktop d-none d-xl-inline-flex">
                                     @include('website.smiliz.partials.language-switcher')
                                 </div>
