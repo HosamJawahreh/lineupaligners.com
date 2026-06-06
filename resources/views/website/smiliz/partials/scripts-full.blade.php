@@ -40,6 +40,8 @@
 
 <script src="{{ asset('assets/smiliz/js/scripts.js') }}" defer></script>
 
+<script src="{{ asset('assets/js/lineup-smiliz-cases.js') }}?v=1" defer></script>
+
 <script src="{{ asset('assets/js/lineup-website-loader.js') }}?v=3" defer></script>
 
 <script src="{{ asset('assets/js/lineup-smiliz-forms.js') }}?v=3" defer></script>

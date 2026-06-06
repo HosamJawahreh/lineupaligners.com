@@ -1095,6 +1095,43 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
         padding-top: 60px;
         padding-bottom: 70px;
     }
+
+    .lineup-smiliz-site .lineup-cases-section .pbmit-heading-subheading.style-2 {
+        display: block;
+        margin-bottom: 28px;
+    }
+
+    .lineup-smiliz-site .lineup-cases-section .pbmit-heading-subheading .pbmit-heading-desc {
+        margin-right: 0;
+        margin-top: 12px;
+    }
+
+    .lineup-smiliz-site .lineup-cases-section .swiper-slide {
+        width: 100% !important;
+        max-width: 100%;
+        height: auto;
+    }
+
+    .lineup-smiliz-site .lineup-cases-section .pbmit-portfolio-style-2 .pbminfotech-post-content .row {
+        display: block;
+    }
+
+    .lineup-smiliz-site .lineup-cases-section .pbmit-portfolio-style-2 .pbminfotech-box-content {
+        width: 100%;
+        padding: 24px 16px !important;
+    }
+
+    .lineup-smiliz-site .lineup-cases-section .pbmit-portfolio-style-2 .pbmit-ele-before-after-inner img {
+        width: 100%;
+        height: auto;
+        min-height: 220px;
+        max-height: 300px;
+    }
+
+    .lineup-smiliz-site .lineup-cases-section .swiper-pagination {
+        position: relative;
+        margin-top: 24px;
+    }
 }
 
 /* CMS about photo — clean image only, no highlight overlay */

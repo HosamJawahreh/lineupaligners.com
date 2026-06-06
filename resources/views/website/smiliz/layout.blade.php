@@ -80,7 +80,7 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/lineup-lang-switcher.css') }}?v=5">
 
-    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-overrides.css') }}?v=57">
+    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-overrides.css') }}?v=58">
 
     <link rel="stylesheet" href="{{ asset('assets/css/lineup-brand-system.css') }}?v=3">
 

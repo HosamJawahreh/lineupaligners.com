@@ -1,7 +1,7 @@
 @if($content['sections']['portfolio'] ?? true)
 <section class="pbmit-bg-color-secondary bottom-radius transform-top-sec portfolio-section-two lineup-cases-section" id="cases">
     <div class="container" data-aos="fade-up" data-aos-duration="800">
-        <div class="swiper-slider" data-autoplay="true" data-loop="{{ count($portfolioItems) > 2 ? 'true' : 'false' }}" data-dots="true" data-arrows="true" data-columns="2" data-allow-touch="false" data-margin="30" data-effect="slide">
+        <div class="swiper-slider lineup-cases-swiper" data-autoplay="true" data-loop="{{ count($portfolioItems) > 2 ? 'true' : 'false' }}" data-dots="true" data-arrows="true" data-columns="2" data-allow-touch="true" data-margin="30" data-effect="slide">
             <div class="pbmit-heading-subheading style-2 animation-style2">
                 <div>
                     <h4 class="pbmit-subtitle">{{ $content['treatments']['subtitle'] }}</h4>
