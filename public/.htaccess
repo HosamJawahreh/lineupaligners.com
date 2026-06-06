@@ -1,15 +1,12 @@
-<IfModule mod_php.c>
-    php_value upload_max_filesize 128M
-    php_value post_max_size 132M
-    php_value max_execution_time 300
-</IfModule>
-
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>
 
     RewriteEngine On
+
+    # Uncomment and set if the site lives in a subfolder, e.g. /doctors/public
+    # RewriteBase /
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
@@ -28,4 +25,11 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+</IfModule>
+
+# PHP upload limits (only when Apache mod_php is used; FPM hosts use public/.user.ini)
+<IfModule mod_php.c>
+    php_value upload_max_filesize 128M
+    php_value post_max_size 132M
+    php_value max_execution_time 300
 </IfModule>
