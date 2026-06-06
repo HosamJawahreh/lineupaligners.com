@@ -156,7 +156,7 @@ HTACCESS;
             $this->line('  Logo setting: '.($accessible ? 'OK' : 'MISSING on disk — re-upload in Settings → Branding'));
         }
 
-        $appUrl = (string) config('app.url');
+        $appUrl = rtrim((string) config('app.url'), '/');
 
         if (! str_starts_with($appUrl, 'https://')) {
             $this->components->warn('Set APP_URL=https://lineupaligner.com in .env and enable SSL in Hostinger hPanel.');
@@ -164,7 +164,7 @@ HTACCESS;
 
         $this->newLine();
         $this->line('Test in browser:');
-        $this->line('  '.$appUrl.'/assets/images/logo.svg');
+        $this->line('  '.$appUrl.'/assets/smiliz/images/logo.svg');
         $this->line('  '.$appUrl.'/storage/settings/ (should not 403)');
         $this->newLine();
         $this->components->warn('Uploaded files are NOT in git. After deploy, re-upload logo/photos in admin OR copy storage/app/public/* from your computer.');

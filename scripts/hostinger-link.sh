@@ -53,7 +53,6 @@ link_path() {
 link_path "storage" "../storage/app/public"
 link_path "assets" "../assets"
 
-echo ""
 echo "Symlinks ready. Test URLs:"
-echo "  /assets/images/logo.svg"
+echo "  /assets/smiliz/images/logo.svg"
 echo "  /storage/settings/"

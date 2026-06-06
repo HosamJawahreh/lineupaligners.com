@@ -1,5 +1,5 @@
 @php
-    $logoFallback = asset('assets/images/logo.svg');
+    $logoFallback = \App\Models\Setting::defaultLogoAsset();
     $resolvedLogo = \App\Support\PublicStorageUrl::url(
         trim((string) \App\Models\Setting::get('logo', '')),
         $logoFallback

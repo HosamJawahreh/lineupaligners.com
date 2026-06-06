@@ -53,12 +53,23 @@ class Setting extends Model
         }
     }
 
+    public static function defaultLogoAsset(): string
+    {
+        $smilizLogo = 'assets/smiliz/images/logo.svg';
+
+        if (is_file(public_path($smilizLogo))) {
+            return asset($smilizLogo);
+        }
+
+        return asset('assets/images/logo.svg');
+    }
+
     public static function logoUrl(): string
     {
         $logo = trim((string) static::get('logo', ''));
+        $fallback = static::defaultLogoAsset();
 
-        return PublicStorageUrl::url($logo, asset('assets/images/logo.svg'))
-            ?? asset('assets/images/logo.svg');
+        return PublicStorageUrl::url($logo, $fallback) ?? $fallback;
     }
 
     public static function projectName(): string
