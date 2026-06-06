@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Setting;
 use App\Models\WebsiteShowcase;
+use App\Support\PublicStorageUrl;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -442,11 +443,7 @@ class WebsiteContent
     {
         $path = Setting::get('website_hero_image');
 
-        if ($path && Storage::disk('public')->exists($path)) {
-            return asset('storage/'.$path);
-        }
-
-        return null;
+        return PublicStorageUrl::url(is_string($path) ? $path : null);
     }
 
     public function heroVideoUrl(): string
@@ -457,8 +454,12 @@ class WebsiteContent
             $path = config('website.default_hero_video', 'videos/primecare-video.mp4');
         }
 
-        if (str_starts_with($path, 'website/') && Storage::disk('public')->exists($path)) {
-            return asset('storage/'.$path);
+        if (str_starts_with($path, 'website/')) {
+            $url = PublicStorageUrl::url($path);
+
+            if ($url !== null) {
+                return $url;
+            }
         }
 
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '/')) {
@@ -476,8 +477,12 @@ class WebsiteContent
             return $this->smilizAsset('images/banner-slider-img/slider-01-slide1.jpg');
         }
 
-        if (str_starts_with($image, 'website/') && Storage::disk('public')->exists($image)) {
-            return asset('storage/'.$image);
+        if (str_starts_with($image, 'website/')) {
+            $url = PublicStorageUrl::url($image);
+
+            if ($url !== null) {
+                return $url;
+            }
         }
 
         if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, '/')) {
@@ -495,8 +500,12 @@ class WebsiteContent
             return $this->smilizAsset('images/homepage-1/service/service-01.jpg');
         }
 
-        if (str_starts_with($image, 'website/') && Storage::disk('public')->exists($image)) {
-            return asset('storage/'.$image);
+        if (str_starts_with($image, 'website/')) {
+            $url = PublicStorageUrl::url($image);
+
+            if ($url !== null) {
+                return $url;
+            }
         }
 
         if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, '/')) {
@@ -516,8 +525,12 @@ class WebsiteContent
             return asset($fallback);
         }
 
-        if (str_starts_with($image, 'website/') && Storage::disk('public')->exists($image)) {
-            return asset('storage/'.$image);
+        if (str_starts_with($image, 'website/')) {
+            $url = PublicStorageUrl::url($image);
+
+            if ($url !== null) {
+                return $url;
+            }
         }
 
         if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, '/')) {
@@ -535,8 +548,12 @@ class WebsiteContent
             return $this->smilizAsset('images/homepage-2/blog/blog-01.jpg');
         }
 
-        if (str_starts_with($image, 'website/') && Storage::disk('public')->exists($image)) {
-            return asset('storage/'.$image);
+        if (str_starts_with($image, 'website/')) {
+            $url = PublicStorageUrl::url($image);
+
+            if ($url !== null) {
+                return $url;
+            }
         }
 
         if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, '/')) {
@@ -919,8 +936,12 @@ class WebsiteContent
     {
         $path = trim((string) Setting::get('website_about_image'));
 
-        if ($path !== '' && str_starts_with($path, 'website/') && Storage::disk('public')->exists($path)) {
-            return '/storage/'.$path;
+        if ($path !== '' && str_starts_with($path, 'website/')) {
+            $url = PublicStorageUrl::url($path);
+
+            if ($url !== null) {
+                return $url;
+            }
         }
 
         if ($path !== '' && ! str_starts_with($path, 'website/')) {
@@ -944,7 +965,7 @@ class WebsiteContent
         }
 
         if (str_starts_with($path, 'website/')) {
-            return Storage::disk('public')->exists($path);
+            return PublicStorageUrl::isPubliclyAccessible($path);
         }
 
         return true;
@@ -961,8 +982,12 @@ class WebsiteContent
             return $this->smilizAsset($fallback);
         }
 
-        if (str_starts_with($image, 'website/') && Storage::disk('public')->exists($image)) {
-            return asset('storage/'.$image);
+        if (str_starts_with($image, 'website/')) {
+            $url = PublicStorageUrl::url($image);
+
+            if ($url !== null) {
+                return $url;
+            }
         }
 
         if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, '/')) {
@@ -2917,8 +2942,12 @@ class WebsiteContent
     {
         $path = trim((string) ($path ?? ''));
 
-        if ($path !== '' && str_starts_with($path, 'website/') && Storage::disk('public')->exists($path)) {
-            return asset('storage/'.$path);
+        if ($path !== '' && str_starts_with($path, 'website/')) {
+            $url = PublicStorageUrl::url($path);
+
+            if ($url !== null) {
+                return $url;
+            }
         }
 
         if ($path !== '' && ! str_starts_with($path, 'website/')) {

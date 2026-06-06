@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\PublicStorageUrl;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class WebsiteShowcase extends Model
 {
@@ -54,11 +54,7 @@ class WebsiteShowcase extends Model
 
     private function imageUrl(?string $path): ?string
     {
-        if (! $path || ! Storage::disk('public')->exists($path)) {
-            return null;
-        }
-
-        return asset('storage/'.$path);
+        return PublicStorageUrl::url($path);
     }
 
     public static function nextSortOrder(): int

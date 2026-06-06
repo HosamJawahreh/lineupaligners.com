@@ -1,11 +1,15 @@
 @php
     $logoFallback = asset('assets/images/logo.svg');
+    $resolvedLogo = \App\Support\PublicStorageUrl::url(
+        trim((string) \App\Models\Setting::get('logo', '')),
+        $logoFallback
+    ) ?? ($logoUrl ?? $logoFallback);
     $logoClass = trim($class ?? 'logo-img');
     $logoWidth = (int) ($width ?? 180);
     $logoHeight = (int) ($height ?? 96);
 @endphp
 <img class="{{ $logoClass }}"
-     src="{{ $logoUrl }}"
+     src="{{ $resolvedLogo }}"
      alt="{{ $projectName }}"
      width="{{ $logoWidth }}"
      height="{{ $logoHeight }}"

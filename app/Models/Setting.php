@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PublicStorageUrl;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -56,15 +57,8 @@ class Setting extends Model
     {
         $logo = trim((string) static::get('logo', ''));
 
-        if ($logo !== '') {
-            $publicFile = 'storage/'.$logo;
-
-            if (Storage::disk('public')->exists($logo) || is_file(public_path($publicFile))) {
-                return asset($publicFile);
-            }
-        }
-
-        return asset('assets/images/logo.svg');
+        return PublicStorageUrl::url($logo, asset('assets/images/logo.svg'))
+            ?? asset('assets/images/logo.svg');
     }
 
     public static function projectName(): string
