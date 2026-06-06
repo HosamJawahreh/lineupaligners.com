@@ -8,6 +8,9 @@
 @php
     $aboutPhotoUrl = $websiteContent->aboutImageUrl($content['template'] ?? null);
     $customAboutPhoto = $websiteContent->hasCustomAboutImage();
+    $aboutRightboxPhoto = $customAboutPhoto
+        ? $aboutPhotoUrl
+        : $websiteContent->smilizAsset('images/homepage-1/about-img-1.jpg');
 @endphp
 
 <div class="page-content pbmit-bg-color-white">
@@ -55,6 +58,7 @@
                     <div class="col-md-6 full-width-1200">
                         <div class="about-one-rightbox @if($customAboutPhoto) is-custom-photo @endif"
                              @if($customAboutPhoto) style="background-image: url('{{ $aboutPhotoUrl }}');" @endif>
+                            <div class="about-one-rightbox__photo d-md-none" style="background-image: url('{{ $aboutRightboxPhoto }}');" aria-hidden="true"></div>
                             @unless($customAboutPhoto)
                             <div class="ihbox-style-area">
                                 <div class="row">

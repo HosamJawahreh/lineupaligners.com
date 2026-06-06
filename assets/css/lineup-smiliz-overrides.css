@@ -1109,6 +1109,53 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
     display: none;
 }
 
+/* About section (homepage 1) — mobile: photo on top, highlights below (not overlaid) */
+@media (max-width: 767px) {
+    .lineup-smiliz-site .about-section-one .about-one-rightbox {
+        padding: 0;
+        height: auto;
+        margin-top: 32px;
+        background-image: none !important;
+        display: flex;
+        flex-direction: column;
+        border-radius: 24px;
+        overflow: hidden;
+    }
+
+    .lineup-smiliz-site .about-section-one .about-one-rightbox.is-custom-photo {
+        min-height: 0;
+    }
+
+    .lineup-smiliz-site .about-section-one .about-one-rightbox__photo {
+        aspect-ratio: 4 / 3;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        width: 100%;
+        flex-shrink: 0;
+    }
+
+    .lineup-smiliz-site .about-section-one .about-one-rightbox .ihbox-style-area {
+        position: static;
+        width: 100%;
+        max-width: none;
+        padding: 24px 20px 28px;
+        background: rgba(8, 18, 32, 0.97);
+    }
+
+    .lineup-smiliz-site .about-section-one .about-one-rightbox .pbmit-ihbox-style-1 .pbmit-element-title {
+        color: #fff;
+    }
+
+    .lineup-smiliz-site .about-section-one .about-one-rightbox .pbmit-ihbox-style-1 .pbmit-heading-desc {
+        color: rgba(255, 255, 255, 0.78);
+    }
+
+    .lineup-smiliz-site .about-section-one .about-bg1-img {
+        display: none;
+    }
+}
+
 /* Smiliz icon font in CMS service cards (homepage 2) */
 .lineup-smiliz-site .pbmit-service-icon .pbmit-smiliz-icon {
     font-size: 48px;
