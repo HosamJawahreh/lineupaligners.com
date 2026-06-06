@@ -2,12 +2,12 @@
     Options +FollowSymLinks -MultiViews -Indexes
     RewriteEngine On
 
-    # Block direct web access to Laravel internals (when doc root is project folder).
-    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor)(/|$) - [F,L]
-
-    # Route everything through public/ (shared hosting fallback).
+    # Route all web traffic through public/ (shared hosting when doc root is project folder).
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteRule ^(.*)$ public/$1 [L]
+
+    # Block direct web access to Laravel internals at project root (not public/storage URLs above).
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|tests|vendor)(/|$) - [F,L]
 </IfModule>
 
 ## EXPIRES CACHING ##
