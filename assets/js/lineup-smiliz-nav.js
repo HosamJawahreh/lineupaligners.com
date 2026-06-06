@@ -12,7 +12,7 @@
 
         $body.toggleClass('active', isOpen);
         $body.toggleClass('lineup-mobile-nav-open', isOpen);
-        $('.pbmit-navbar > div').first().toggleClass('active', isOpen);
+        $('.pbmit-navbar > div').toggleClass('active', isOpen);
         $('#menu-toggle, #menu-toggle2').attr('aria-expanded', isOpen ? 'true' : 'false');
     }
 
@@ -20,9 +20,7 @@
         setMenuOpen(!$('body').hasClass('active'));
     }
 
-    function ensureClosePanel() {
-        var $panel = $('.pbmit-navbar > div').first();
-
+    function appendClosePanel($panel) {
         if (!$panel.length || $panel.children('.closepanel').length) {
             return;
         }
@@ -37,6 +35,12 @@
         );
     }
 
+    function ensureClosePanels() {
+        $('.pbmit-navbar > div').each(function () {
+            appendClosePanel($(this));
+        });
+    }
+
     $(function () {
         var $toggle = $('#menu-toggle');
 
@@ -44,7 +48,9 @@
             return;
         }
 
-        ensureClosePanel();
+        ensureClosePanels();
+
+        $(window).on('load.lineupNav', ensureClosePanels);
 
         $toggle.attr({
             'aria-controls': 'pbmit-top-menu',
@@ -58,14 +64,15 @@
 
         $(document).on('click.lineupNav', '#menu-toggle2', function (event) {
             event.preventDefault();
+            event.stopImmediatePropagation();
             toggleMenu();
         });
 
-        $(document).on('click.lineupNav', '.lineup-mobile-menu-backdrop, .pbmit-navbar > div > .closepanel', function () {
+        $(document).on('click.lineupNav', '.lineup-mobile-menu-backdrop, .pbmit-mobile-menu-bg, .pbmit-navbar > div > .closepanel', function () {
             setMenuOpen(false);
         });
 
-        $(document).on('click.lineupNav', '#pbmit-top-menu a', function () {
+        $(document).on('click.lineupNav', '.pbmit-navbar .navigation a', function () {
             if (isMobileNav()) {
                 setMenuOpen(false);
             }

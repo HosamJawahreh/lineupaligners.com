@@ -23,9 +23,11 @@
 			var header_html = jQuery('#masthead .pbmit-main-header-area').html();
 			jQuery('.pbmit-sticky-header').append(header_html);
 			jQuery('.pbmit-sticky-header #menu-toggle').attr('id', 'menu-toggle2');
-			jQuery('#menu-toggle2').on('click', function() {
-				jQuery("#menu-toggle").trigger("click");
-			});
+			if (!window.lineupSmilizNavManaged) {
+				jQuery('#menu-toggle2').on('click', function() {
+					jQuery("#menu-toggle").trigger("click");
+				});
+			}
 			jQuery('.pbmit-sticky-header .main-navigation ul, .pbmit-sticky-header .main-navigation ul li, .pbmit-sticky-header .main-navigation ul li a').removeAttr('id');
 			jQuery('.pbmit-sticky-header h1').each(function() {
 				var thisele = jQuery(this);

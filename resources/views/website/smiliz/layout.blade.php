@@ -78,9 +78,9 @@
 
     @endif
 
-    <link rel="stylesheet" href="{{ asset('assets/css/lineup-lang-switcher.css') }}?v=4">
+    <link rel="stylesheet" href="{{ asset('assets/css/lineup-lang-switcher.css') }}?v=5">
 
-    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-overrides.css') }}?v=52">
+    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-overrides.css') }}?v=54">
 
     <link rel="stylesheet" href="{{ asset('assets/css/lineup-brand-system.css') }}?v=3">
 
@@ -90,7 +90,7 @@
 
     @if(($websiteDir ?? 'ltr') === 'rtl')
 
-    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-rtl.css') }}?v=4">
+    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-rtl.css') }}?v=5">
 
     @endif
 

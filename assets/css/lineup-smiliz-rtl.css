@@ -336,6 +336,12 @@
     text-align: right;
 }
 
+@media (max-width: 1199px) {
+    .lineup-smiliz-site--rtl .lineup-nav-lang-item > a {
+        justify-content: flex-start;
+    }
+}
+
 .lineup-smiliz-site--rtl .lineup-partners-section__head {
     text-align: right;
 }

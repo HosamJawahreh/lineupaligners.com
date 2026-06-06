@@ -133,7 +133,9 @@
                                     </a>
                                 </div>
                                 @endif
-                                @include('website.smiliz.partials.language-switcher')
+                                <div class="lineup-header-lang-desktop d-none d-xl-inline-flex">
+                                    @include('website.smiliz.partials.language-switcher')
+                                </div>
                                 <div class="pbmit-button-box">
                                     <a class="pbmit-btn" href="{{ $loginUrl }}">
                                         <span class="pbmit-icon-hover"></span>

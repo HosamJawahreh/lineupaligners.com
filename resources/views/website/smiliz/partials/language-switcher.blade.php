@@ -1,9 +1,12 @@
-@if(count($websiteLocales ?? []) > 1)
 @php
-    $localeSwitcherItems = collect($websiteLocales)->mapWithKeys(fn ($meta, $code) => [
-        $code => array_merge($meta, ['url' => $websiteLocaleService->switchUrl($code)]),
-    ])->all();
+    $localeService = $websiteLocaleService ?? app(\App\Services\WebsiteLocale::class);
+    $localeSwitcherItems = collect($websiteLocales ?? $localeService->enabled())
+        ->mapWithKeys(fn ($meta, $code) => [
+            $code => array_merge($meta, ['url' => $localeService->switchUrl($code)]),
+        ])
+        ->all();
 @endphp
+@if(count($localeSwitcherItems) > 1)
 @include('partials.locale-switcher-pill', [
     'items' => $localeSwitcherItems,
     'active' => $websiteLocale ?? 'en',
