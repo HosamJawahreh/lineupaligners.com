@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Setting;
+use App\Support\PublicStorageUrl;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -91,10 +92,12 @@ class Doctor extends Model
 
     public function photoUrl(): string
     {
+        $fallback = asset('assets/images/xs/avatar2.jpg');
+
         if ($this->photo) {
-            return asset('storage/'.$this->photo);
+            return PublicStorageUrl::url($this->photo, $fallback) ?? $fallback;
         }
 
-        return asset('assets/images/xs/avatar2.jpg');
+        return $fallback;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Patient;
+use App\Support\PublicStorageUrl;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -89,14 +90,16 @@ class User extends Authenticatable
 
     public function photoUrl(): string
     {
+        $fallback = asset('assets/images/profile_av.jpg');
+
         if ($this->photo) {
-            return asset('storage/'.$this->photo);
+            return PublicStorageUrl::url($this->photo, $fallback) ?? $fallback;
         }
 
         if ($this->isDoctor() && $this->doctor?->photo) {
             return $this->doctor->photoUrl();
         }
 
-        return asset('assets/images/profile_av.jpg');
+        return $fallback;
     }
 }

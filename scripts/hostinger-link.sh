@@ -6,10 +6,10 @@ PUBLIC="${ROOT}/public"
 
 mkdir -p "${ROOT}/storage/app/public/profiles"
 mkdir -p "${ROOT}/storage/app/public/settings"
-mkdir -p "${ROOT}/storage/app/public/website"
+mkdir -p "${ROOT}/storage/app/public/website/images"
+mkdir -p "${ROOT}/storage/app/public/website/videos"
 
-if [[ ! -f "${ROOT}/storage/app/public/.htaccess" ]]; then
-    cat > "${ROOT}/storage/app/public/.htaccess" <<'EOF'
+cat > "${ROOT}/storage/app/public/.htaccess" <<'EOF'
 <IfModule mod_authz_core.c>
     Require all granted
 </IfModule>
@@ -17,24 +17,33 @@ if [[ ! -f "${ROOT}/storage/app/public/.htaccess" ]]; then
     Order allow,deny
     Allow from all
 </IfModule>
+
 Options -Indexes
 EOF
-    echo "Created storage/app/public/.htaccess"
-fi
+echo "OK  storage/app/public/.htaccess"
+
+chmod 755 "${ROOT}/storage/app/public" "${ROOT}/storage/app/public/profiles" \
+    "${ROOT}/storage/app/public/settings" "${ROOT}/storage/app/public/website" 2>/dev/null || true
+chmod 644 "${ROOT}/storage/app/public/.htaccess" 2>/dev/null || true
 
 link_path() {
     local name="$1"
     local relative_target="$2"
     local link="${PUBLIC}/${name}"
 
-    if [[ -L "$link" ]] && [[ "$(readlink -f "$link")" == "$(readlink -f "${PUBLIC}/${relative_target}")" ]] || [[ -L "$link" ]] && [[ "$(readlink "${PUBLIC}/${name}")" == "${relative_target}" ]]; then
-        echo "OK  ${link}"
+    if [[ -L "${link}" ]] && [[ "$(readlink "${link}")" == "${relative_target}" ]]; then
+        echo "OK  ${link} -> ${relative_target}"
         return 0
     fi
 
-    if [[ -e "$link" ]]; then
-        echo "Skip ${link} (exists). Remove it first if you need to recreate the link."
-        return 0
+    if [[ -e "${link}" && ! -L "${link}" ]]; then
+        echo "ERROR ${link} exists and is not a symlink."
+        echo "      Remove it manually, then re-run this script."
+        return 1
+    fi
+
+    if [[ -L "${link}" ]]; then
+        rm "${link}"
     fi
 
     (cd "${PUBLIC}" && ln -s "${relative_target}" "${name}")
@@ -44,6 +53,7 @@ link_path() {
 link_path "storage" "../storage/app/public"
 link_path "assets" "../assets"
 
-echo "Done. Test in browser:"
+echo ""
+echo "Symlinks ready. Test URLs:"
 echo "  /assets/images/logo.svg"
-echo "  /storage/"
+echo "  /storage/settings/"
