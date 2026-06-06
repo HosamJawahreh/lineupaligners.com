@@ -159,7 +159,11 @@ HTACCESS;
         $appUrl = rtrim((string) config('app.url'), '/');
 
         if (! str_starts_with($appUrl, 'https://')) {
-            $this->components->warn('Set APP_URL=https://lineupaligner.com in .env and enable SSL in Hostinger hPanel.');
+            $this->components->warn('Set APP_URL=https://lineupaligner.com and APP_ENV=production in .env, then run: php artisan config:cache');
+        } elseif (config('app.env') !== 'production') {
+            $this->components->warn('Set APP_ENV=production in .env for live HTTPS cookies and URL forcing.');
+        } else {
+            $this->line('  HTTPS config: APP_URL uses https, production mode active.');
         }
 
         $this->newLine();

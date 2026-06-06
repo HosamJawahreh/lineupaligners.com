@@ -19,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Hostinger / shared hosting terminates SSL at the edge and forwards HTTP internally.
+        $middleware->trustProxies(at: '*');
+
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('dashboard'));
         $middleware->alias([

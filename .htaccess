@@ -2,6 +2,13 @@
     Options +FollowSymLinks -MultiViews -Indexes
     RewriteEngine On
 
+    # Force HTTPS (before routing to public/)
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTP_HOST} !^localhost [NC]
+    RewriteCond %{HTTP_HOST} !^127\.0\.0\.1 [NC]
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
     # Route all web traffic through public/ (shared hosting when doc root is project folder).
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteRule ^(.*)$ public/$1 [L]
