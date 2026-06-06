@@ -1,0 +1,229 @@
+$pbmit_smiliz-font: "pbmit_smiliz";
+
+@font-face {
+	font-family: $pbmit_smiliz-font;
+	src: url("../pbmit-smiliz-icon/pbmit_smiliz.woff2?42d65adc28a97a38d80a2bb980f5f0d5") format("woff2"),
+url("../pbmit-smiliz-icon/pbmit_smiliz.woff?42d65adc28a97a38d80a2bb980f5f0d5") format("woff"),
+url("../pbmit-smiliz-icon/pbmit_smiliz.eot?42d65adc28a97a38d80a2bb980f5f0d5#iefix") format("embedded-opentype"),
+url("../pbmit-smiliz-icon/pbmit_smiliz.ttf?42d65adc28a97a38d80a2bb980f5f0d5") format("truetype"),
+url("../pbmit-smiliz-icon/pbmit_smiliz.svg?42d65adc28a97a38d80a2bb980f5f0d5#pbmit_smiliz") format("svg");
+}
+
+i[class^="pbmit_smiliz-"]:before, i[class*=" pbmit-smiliz-icon-"]:before {
+	font-family: pbmit_smiliz !important;
+	font-style: normal;
+	font-weight: normal !important;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+$pbmit_smiliz-map: (
+	"check-mark": "\f101",
+	"play-button": "\f102",
+	"dot-arrow": "\f103",
+	"star": "\f104",
+	"dental-crown": "\f105",
+	"teeth-brushing": "\f106",
+	"inject": "\f107",
+	"braces": "\f108",
+	"dental-care": "\f109",
+	"toothbrush": "\f10a",
+	"telephone": "\f10b",
+	"inquiry": "\f10c",
+	"location": "\f10d",
+	"contrast": "\f10e",
+	"dental-bag": "\f10f",
+	"dental-chair": "\f110",
+	"dental-checkup": "\f111",
+	"quote": "\f112",
+	"mail": "\f113",
+	"phone-call": "\f114",
+	"location-1": "\f115",
+	"letter": "\f116",
+	"calendar": "\f117",
+	"clock": "\f118",
+	"categories": "\f119",
+	"calendar-1": "\f11a",
+	"customer": "\f11b",
+	"phone": "\f11c",
+	"dental-safety": "\f11d",
+	"mail-delivery": "\f11e",
+	"dental-floss": "\f11f",
+	"dentist-certificate": "\f120",
+	"cleaner": "\f121",
+	"dental-tools": "\f122",
+	"dental-consultant": "\f123",
+	"dentist-degree": "\f124",
+	"teeth-operation": "\f125",
+	"tooth-paste": "\f126",
+	"dental-spray": "\f127",
+	"dental-tools-1": "\f128",
+	"pliers": "\f129",
+	"dentist-kit": "\f12a",
+	"right-arrow": "\f12b",
+	"tooth": "\f12c",
+	"pliers-1": "\f12d",
+	"patient-report": "\f12e",
+	"medical-insurance": "\f12f",
+	"dot": "\f130",
+	"dental-insurance": "\f131",
+	"prevention": "\f132",
+	"restoration": "\f133",
+);
+
+.pbmit-smiliz-icon-check-mark:before {
+	content: map-get($pbmit_smiliz-map, "check-mark");
+}
+.pbmit-smiliz-icon-play-button:before {
+	content: map-get($pbmit_smiliz-map, "play-button");
+}
+.pbmit-smiliz-icon-dot-arrow:before {
+	content: map-get($pbmit_smiliz-map, "dot-arrow");
+}
+.pbmit-smiliz-icon-star:before {
+	content: map-get($pbmit_smiliz-map, "star");
+}
+.pbmit-smiliz-icon-dental-crown:before {
+	content: map-get($pbmit_smiliz-map, "dental-crown");
+}
+.pbmit-smiliz-icon-teeth-brushing:before {
+	content: map-get($pbmit_smiliz-map, "teeth-brushing");
+}
+.pbmit-smiliz-icon-inject:before {
+	content: map-get($pbmit_smiliz-map, "inject");
+}
+.pbmit-smiliz-icon-braces:before {
+	content: map-get($pbmit_smiliz-map, "braces");
+}
+.pbmit-smiliz-icon-dental-care:before {
+	content: map-get($pbmit_smiliz-map, "dental-care");
+}
+.pbmit-smiliz-icon-toothbrush:before {
+	content: map-get($pbmit_smiliz-map, "toothbrush");
+}
+.pbmit-smiliz-icon-telephone:before {
+	content: map-get($pbmit_smiliz-map, "telephone");
+}
+.pbmit-smiliz-icon-inquiry:before {
+	content: map-get($pbmit_smiliz-map, "inquiry");
+}
+.pbmit-smiliz-icon-location:before {
+	content: map-get($pbmit_smiliz-map, "location");
+}
+.pbmit-smiliz-icon-contrast:before {
+	content: map-get($pbmit_smiliz-map, "contrast");
+}
+.pbmit-smiliz-icon-dental-bag:before {
+	content: map-get($pbmit_smiliz-map, "dental-bag");
+}
+.pbmit-smiliz-icon-dental-chair:before {
+	content: map-get($pbmit_smiliz-map, "dental-chair");
+}
+.pbmit-smiliz-icon-dental-checkup:before {
+	content: map-get($pbmit_smiliz-map, "dental-checkup");
+}
+.pbmit-smiliz-icon-quote:before {
+	content: map-get($pbmit_smiliz-map, "quote");
+}
+.pbmit-smiliz-icon-mail:before {
+	content: map-get($pbmit_smiliz-map, "mail");
+}
+.pbmit-smiliz-icon-phone-call:before {
+	content: map-get($pbmit_smiliz-map, "phone-call");
+}
+.pbmit-smiliz-icon-location-1:before {
+	content: map-get($pbmit_smiliz-map, "location-1");
+}
+.pbmit-smiliz-icon-letter:before {
+	content: map-get($pbmit_smiliz-map, "letter");
+}
+.pbmit-smiliz-icon-calendar:before {
+	content: map-get($pbmit_smiliz-map, "calendar");
+}
+.pbmit-smiliz-icon-clock:before {
+	content: map-get($pbmit_smiliz-map, "clock");
+}
+.pbmit-smiliz-icon-categories:before {
+	content: map-get($pbmit_smiliz-map, "categories");
+}
+.pbmit-smiliz-icon-calendar-1:before {
+	content: map-get($pbmit_smiliz-map, "calendar-1");
+}
+.pbmit-smiliz-icon-customer:before {
+	content: map-get($pbmit_smiliz-map, "customer");
+}
+.pbmit-smiliz-icon-phone:before {
+	content: map-get($pbmit_smiliz-map, "phone");
+}
+.pbmit-smiliz-icon-dental-safety:before {
+	content: map-get($pbmit_smiliz-map, "dental-safety");
+}
+.pbmit-smiliz-icon-mail-delivery:before {
+	content: map-get($pbmit_smiliz-map, "mail-delivery");
+}
+.pbmit-smiliz-icon-dental-floss:before {
+	content: map-get($pbmit_smiliz-map, "dental-floss");
+}
+.pbmit-smiliz-icon-dentist-certificate:before {
+	content: map-get($pbmit_smiliz-map, "dentist-certificate");
+}
+.pbmit-smiliz-icon-cleaner:before {
+	content: map-get($pbmit_smiliz-map, "cleaner");
+}
+.pbmit-smiliz-icon-dental-tools:before {
+	content: map-get($pbmit_smiliz-map, "dental-tools");
+}
+.pbmit-smiliz-icon-dental-consultant:before {
+	content: map-get($pbmit_smiliz-map, "dental-consultant");
+}
+.pbmit-smiliz-icon-dentist-degree:before {
+	content: map-get($pbmit_smiliz-map, "dentist-degree");
+}
+.pbmit-smiliz-icon-teeth-operation:before {
+	content: map-get($pbmit_smiliz-map, "teeth-operation");
+}
+.pbmit-smiliz-icon-tooth-paste:before {
+	content: map-get($pbmit_smiliz-map, "tooth-paste");
+}
+.pbmit-smiliz-icon-dental-spray:before {
+	content: map-get($pbmit_smiliz-map, "dental-spray");
+}
+.pbmit-smiliz-icon-dental-tools-1:before {
+	content: map-get($pbmit_smiliz-map, "dental-tools-1");
+}
+.pbmit-smiliz-icon-pliers:before {
+	content: map-get($pbmit_smiliz-map, "pliers");
+}
+.pbmit-smiliz-icon-dentist-kit:before {
+	content: map-get($pbmit_smiliz-map, "dentist-kit");
+}
+.pbmit-smiliz-icon-right-arrow:before {
+	content: map-get($pbmit_smiliz-map, "right-arrow");
+}
+.pbmit-smiliz-icon-tooth:before {
+	content: map-get($pbmit_smiliz-map, "tooth");
+}
+.pbmit-smiliz-icon-pliers-1:before {
+	content: map-get($pbmit_smiliz-map, "pliers-1");
+}
+.pbmit-smiliz-icon-patient-report:before {
+	content: map-get($pbmit_smiliz-map, "patient-report");
+}
+.pbmit-smiliz-icon-medical-insurance:before {
+	content: map-get($pbmit_smiliz-map, "medical-insurance");
+}
+.pbmit-smiliz-icon-dot:before {
+	content: map-get($pbmit_smiliz-map, "dot");
+}
+.pbmit-smiliz-icon-dental-insurance:before {
+	content: map-get($pbmit_smiliz-map, "dental-insurance");
+}
+.pbmit-smiliz-icon-prevention:before {
+	content: map-get($pbmit_smiliz-map, "prevention");
+}
+.pbmit-smiliz-icon-restoration:before {
+	content: map-get($pbmit_smiliz-map, "restoration");
+}

@@ -19,10 +19,28 @@ class SmilizPageRegistry
         $homepageKey = config('smiliz-pages.homepage_key', 'homepage-2');
         $pages = [];
 
+        foreach ($meta as $key => $pageMeta) {
+            if ($key === $homepageKey || $this->isExcluded($key)) {
+                continue;
+            }
+
+            $defaults = [
+                'key' => $key,
+                'file' => $key.'.html',
+                'label' => Str::headline(str_replace('-', ' ', $key)),
+                'path' => $key,
+                'group' => $this->guessGroup($key),
+                'default_enabled' => true,
+                'default_in_nav' => false,
+            ];
+
+            $pages[$key] = array_merge($defaults, is_array($pageMeta) ? $pageMeta : []);
+        }
+
         foreach (glob($this->sourceDirectory().'/*.html') ?: [] as $file) {
             $key = basename($file, '.html');
 
-            if ($key === $homepageKey || $this->isExcluded($key)) {
+            if ($key === $homepageKey || $this->isExcluded($key) || isset($pages[$key])) {
                 continue;
             }
 
