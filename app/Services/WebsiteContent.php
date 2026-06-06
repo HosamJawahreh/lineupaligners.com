@@ -983,8 +983,7 @@ class WebsiteContent
     public function featureImageUrl(array $feature, int $index = 0): string
     {
         $image = trim($feature['image'] ?? '');
-        $defaults = config('website.default_feature_images', []);
-        $fallback = $defaults[$index] ?? $defaults[$index % max(count($defaults), 1)] ?? 'images/homepage-1/service/service-01.jpg';
+        $fallback = $this->defaultFeatureImage($index);
 
         if ($image === '') {
             return $this->smilizAsset($fallback);
@@ -1005,6 +1004,15 @@ class WebsiteContent
         }
 
         return $this->smilizAsset($image);
+    }
+
+    private function defaultFeatureImage(int $index): string
+    {
+        $defaults = config('website.default_feature_images', []);
+
+        return $defaults[$index]
+            ?? $defaults[$index % max(count($defaults), 1)]
+            ?? 'images/homepage-1/service/service-01.jpg';
     }
 
     /** @param  array<string, mixed>  $feature */
@@ -1051,7 +1059,15 @@ class WebsiteContent
 
     public function smilizAsset(string $path): string
     {
-        return asset('assets/smiliz/'.ltrim($path, '/'));
+        $path = ltrim($path, '/');
+        $relative = 'assets/smiliz/'.$path;
+
+        if (! is_file(public_path($relative))) {
+            $path = 'images/homepage-1/service/service-01.jpg';
+            $relative = 'assets/smiliz/'.$path;
+        }
+
+        return asset($relative);
     }
 
     public function publishedShowcases(): Collection

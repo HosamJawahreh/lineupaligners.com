@@ -1057,6 +1057,40 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
     padding-bottom: 40px;
 }
 
+/* Services carousel — stable image box + readable type on mobile */
+.lineup-smiliz-site .pbmit-service-style-1 .pbmit-featured-wrapper img {
+    width: 100%;
+    height: auto;
+    min-height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.lineup-smiliz-site .pbmit-service-style-1 .pbmit-service-description p {
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 767px) {
+    .lineup-smiliz-site .pbmit-service-style-1 .pbmit-service-title {
+        font-size: clamp(1.15rem, 4.8vw, 1.5rem);
+        line-height: 1.3;
+        padding: 0;
+        margin-bottom: 12px;
+    }
+
+    .lineup-smiliz-site .pbmit-service-style-1 .pbmit-service-description p {
+        font-size: 0.95rem;
+        line-height: 1.55;
+        -webkit-line-clamp: 4;
+        line-clamp: 4;
+    }
+
+    .lineup-smiliz-site .pbmit-service-style-1 .pbmit-content-box {
+        padding: 18px 16px 28px;
+    }
+}
+
 .lineup-smiliz-site #process.lineup-process-section {
     padding-top: 48px;
     padding-bottom: 90px;

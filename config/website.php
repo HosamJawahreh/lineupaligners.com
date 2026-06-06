@@ -167,7 +167,6 @@ return [
         'images/homepage-1/service/service-03.jpg',
         'images/homepage-1/service/service-04.jpg',
         'images/homepage-1/service/service-05.jpg',
-        'images/homepage-1/service/service-06.jpg',
     ],
 
     'default_features' => [
