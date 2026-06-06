@@ -8,6 +8,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    --lineup-header-surface: var(--pbmit-light-color, #f1f5f9);
 }
 
 .lineup-smiliz-site h1,
@@ -128,7 +129,7 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 .lineup-smiliz-site .site-branding .site-title a {
     display: inline-flex;
     align-items: center;
-    background: transparent;
+    background: var(--lineup-header-surface);
     line-height: 0;
 }
 
@@ -142,6 +143,7 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
     mix-blend-mode: normal;
     filter: none;
     display: block;
+    background-color: var(--lineup-header-surface);
 }
 
 .lineup-smiliz-site .pbmit-footer-logo img {
@@ -603,9 +605,24 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
     font-size: 16px;
 }
 
+/* Header — logo row matches nav menu surface (#f1f5f9) */
+.lineup-smiliz-site .site-header .pbmit-main-header-area,
+.lineup-smiliz-site .site-header .pbmit-infostack-header,
+.lineup-smiliz-site .site-header .pbmit-infostack-header > .container,
+.lineup-smiliz-site .site-header .pbmit-infostack-header-inner,
+.lineup-smiliz-site .site-header .lineup-header-logo,
+.lineup-smiliz-site .site-header .pbmit-logo-area,
+.lineup-smiliz-site .site-header .site-branding {
+    background-color: var(--lineup-header-surface) !important;
+}
+
+.lineup-smiliz-site .site-header .pbmit-header-menu-area-wrapper {
+    background-color: var(--lineup-header-surface) !important;
+}
+
 /* Homepage — curved light nav bar under logo row (Smiliz HP1) */
 .lineup-smiliz-site .site-header:has(.pbmit-slider-one) .pbmit-main-header-area .pbmit-header-menu-area-wrapper {
-    background-color: var(--pbmit-light-color, #f1f5f9);
+    background-color: var(--lineup-header-surface);
     border-radius: 0 0 150px 150px;
     overflow: hidden;
 }
@@ -637,7 +654,7 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 /* Sticky header — one flat background (logo + menu + actions) */
 .lineup-smiliz-site .site-header .pbmit-sticky-header.pbmit-sticky-bg-color-white,
 .lineup-smiliz-site .site-header .pbmit-sticky-header-mobile-yes.pbmit-sticky-header {
-    background-color: #ffffff !important;
+    background-color: var(--lineup-header-surface) !important;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
