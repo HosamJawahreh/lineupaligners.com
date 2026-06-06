@@ -8,5 +8,6 @@
     'items' => $localeSwitcherItems,
     'active' => $websiteLocale ?? 'en',
     'ariaLabel' => __('website.language'),
+    'class' => 'lineup-lang-switcher--header-bar',
 ])
 @endif

@@ -1,11 +1,15 @@
 (function ($) {
 	"use strict";
 
-	gsap.registerPlugin(ScrollTrigger, SplitText);
-	gsap.config({
-		nullTargetWarn: false,
-		trialWarn: false
-	});
+	var hasGsap = typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined";
+
+	if (hasGsap) {
+		gsap.registerPlugin(ScrollTrigger, SplitText);
+		gsap.config({
+			nullTargetWarn: false,
+			trialWarn: false
+		});
+	}
 
 	/*----  Functions  ----*/
 	function getpercentage(x, y, elm) { 
@@ -72,6 +76,10 @@
 	}
 
 	var pbmit_toggleSidebar = function() {
+		if (window.lineupSmilizNavManaged) {
+			return;
+		}
+
 		jQuery('#menu-toggle').on('click', function() {
 			jQuery("body:not(.mega-menu-pbminfotech-top) .pbmit-navbar > div, body:not(.mega-menu-pbminfotech-top)").toggleClass("active");
 		})
@@ -85,6 +93,10 @@
 	}
 
 	function pbmit_title_animation() {
+		if (!hasGsap) {
+			return;
+		}
+
 		ScrollTrigger.matchMedia({
 			"(min-width: 1025px)": function() {
 				var pbmit_var = jQuery('.pbmit-custom-heading, .pbmit-heading-subheading');
@@ -247,19 +259,21 @@
 		pbmit_sticky_header_class();
 		pbmit_menu_span();
 		pbmit_toggleSidebar();
-		pbmit_title_animation();
-		pbmit_before_after();
 		pbmit_div_wrapper();
 		pbmit_search_btn();
-		pbmit_img_animation();
 		pbmit_thia_sticky();
 
-		
-		gsap.delayedCall(1, () =>
-			ScrollTrigger.getAll().forEach((t) => {
-				t.refresh();
-			})
-		);	
+		if (hasGsap) {
+			pbmit_title_animation();
+			pbmit_before_after();
+			pbmit_img_animation();
+
+			gsap.delayedCall(1, () =>
+				ScrollTrigger.getAll().forEach((t) => {
+					t.refresh();
+				})
+			);
+		}
 	});	
 })($);
 

@@ -157,9 +157,7 @@
                             <div class="pbmit-footer-logo">
 
                                 <a href="{{ $websiteHomeUrl ?? route('website.home') }}">
-
-                                    <img src="{{ $logoUrl }}" alt="{{ $projectName }}">
-
+                                    @include('website.smiliz.partials.logo-img', ['width' => 160, 'height' => 64])
                                 </a>
 
                             </div>

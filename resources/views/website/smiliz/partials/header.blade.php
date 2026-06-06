@@ -7,13 +7,13 @@
                     @if(empty($currentPageKey))
                     <h1 class="site-title">
                         <a href="{{ $websiteHomeUrl ?? route('website.home') }}">
-                            <img class="logo-img" src="{{ $logoUrl }}" alt="{{ $projectName }}">
+                            @include('website.smiliz.partials.logo-img')
                         </a>
                     </h1>
                     @else
                     <div class="site-title">
                         <a href="{{ $websiteHomeUrl ?? route('website.home') }}">
-                            <img class="logo-img" src="{{ $logoUrl }}" alt="{{ $projectName }}">
+                            @include('website.smiliz.partials.logo-img')
                         </a>
                     </div>
                     @endif
@@ -117,6 +117,7 @@
                                                 </li>
                                                 @endif
                                             @endforeach
+                                            @include('website.smiliz.partials.language-switcher-nav')
                                         </ul>
                                     </div>
                                 </nav>
@@ -142,7 +143,6 @@
                                     </a>
                                 </div>
                                 <div class="pbmit-burger-menu-wrapper">
-                                    <div class="pbmit-mobile-menu-bg"></div>
                                     <button class="nav-menu-toggle" id="menu-toggle" type="button" aria-controls="pbmit-top-menu" aria-expanded="false" aria-label="{{ __('website.menu_toggle') }}">
                                         <i class="pbmit-base-icon-menu-1"></i>
                                     </button>

@@ -134,17 +134,215 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 .lineup-smiliz-site .pbmit-infostack-header-inner .logo-img {
     max-height: 96px;
     width: auto;
+    max-width: min(220px, 52vw);
+    height: auto;
     object-fit: contain;
-    mix-blend-mode: multiply;
-    filter: contrast(1.08) saturate(1.05);
+    mix-blend-mode: normal;
+    filter: none;
     display: block;
 }
 
 .lineup-smiliz-site .pbmit-footer-logo img {
     max-height: 64px;
     width: auto;
+    max-width: 180px;
     object-fit: contain;
-    mix-blend-mode: multiply;
+    mix-blend-mode: normal;
+}
+
+.lineup-smiliz-site .page-content,
+.lineup-smiliz-site .page-wrapper {
+    overflow-x: clip;
+}
+
+.lineup-smiliz-site img,
+.lineup-smiliz-site video,
+.lineup-smiliz-site svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Mobile — header, menu, homepage layout hardening */
+@media (max-width: 1200px) {
+    .lineup-smiliz-site .pbmit-infostack-header-inner {
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 12px 0;
+    }
+
+    .lineup-smiliz-site .pbmit-header-content {
+        position: relative;
+        flex-wrap: nowrap;
+        gap: 8px;
+        min-height: 64px;
+        padding-right: 48px;
+    }
+
+    .lineup-smiliz-site .site-navigation {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .lineup-smiliz-site .pbmit-right-box {
+        flex: 0 0 auto;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .lineup-smiliz-site .pbmit-burger-menu-wrapper {
+        position: static;
+    }
+
+    .lineup-smiliz-site .nav-menu-toggle {
+        display: block !important;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10002;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 28px;
+        color: var(--lineup-brand-secondary, #0f172a);
+    }
+
+    .lineup-smiliz-site .pbmit-navbar > div {
+        background-color: #fff;
+        position: fixed;
+        top: 0;
+        right: -400px;
+        z-index: 10001;
+        width: min(300px, 88vw);
+        height: 100%;
+        padding: 0;
+        display: block;
+        transition: transform 0.45s ease, opacity 0.35s ease, right 0.45s ease;
+        transform: translateX(400px);
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .lineup-smiliz-site .pbmit-navbar > div.active {
+        right: 0;
+        visibility: visible;
+        opacity: 1;
+        overflow-y: auto;
+        transform: translateX(0);
+    }
+
+    .lineup-smiliz-site .pbmit-mobile-menu-bg,
+    .lineup-smiliz-site .lineup-mobile-menu-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        background: rgba(15, 23, 42, 0.72);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    .lineup-smiliz-site.active .pbmit-mobile-menu-bg,
+    .lineup-smiliz-site.active .lineup-mobile-menu-backdrop {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .lineup-smiliz-site.lineup-mobile-nav-open {
+        overflow: hidden;
+        touch-action: none;
+    }
+
+    .lineup-smiliz-site .pbmit-navbar > div .closepanel {
+        display: block;
+    }
+
+    .lineup-smiliz-site .main-menu .navigation {
+        float: none;
+        display: block;
+        padding: 88px 0 32px;
+    }
+
+    .lineup-smiliz-site .main-menu .navigation > li {
+        float: none;
+        display: block;
+        margin: 0 !important;
+    }
+
+    .lineup-smiliz-site .main-menu .navigation > li > a {
+        display: block;
+        height: auto;
+        line-height: 1.4;
+        padding: 14px 24px;
+        float: none;
+    }
+
+    .lineup-smiliz-site .container,
+    .lineup-smiliz-site .container-fluid {
+        max-width: 100%;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .lineup-smiliz-site .pbmit-slider-one .pbmit-slider-item,
+    .lineup-smiliz-site .lineup-hero-video .pbmit-slider-item {
+        min-height: 520px;
+        height: auto;
+    }
+
+    .lineup-smiliz-site .lineup-process-showcase__tour {
+        grid-template-columns: 1fr;
+    }
+
+    .lineup-smiliz-site .lineup-cases-section.portfolio-section-two,
+    .lineup-smiliz-site #process.lineup-process-section {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+@media (max-width: 767px) {
+    .lineup-smiliz-site .lineup-header-logo .logo-img,
+    .lineup-smiliz-site .site-branding .logo-img {
+        max-height: 56px;
+        max-width: min(180px, 58vw);
+    }
+
+    .lineup-smiliz-site .pbmit-infostack-header-inner .pbmit-header-info {
+        display: none !important;
+    }
+
+    .lineup-smiliz-site .pbmit-header-content {
+        min-height: 56px;
+        padding-right: 44px;
+    }
+
+    .lineup-smiliz-site .pbmit-button-box .pbmit-btn {
+        padding: 10px 14px;
+        font-size: 12px;
+    }
+
+    .lineup-smiliz-site .pbmit-slider-one .pbmit-slider-item,
+    .lineup-smiliz-site .lineup-hero-video .pbmit-slider-item {
+        min-height: 460px;
+    }
+
+    .lineup-smiliz-site .section-lg,
+    .lineup-smiliz-site .section-xl {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .lineup-smiliz-site .pbmit-heading-subheading .pbmit-title {
+        font-size: clamp(1.6rem, 7vw, 2.2rem);
+        line-height: 1.2;
+    }
 }
 
 .lineup-smiliz-site .main-menu .navigation > li > a {
@@ -735,11 +933,6 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 }
 
 @media (max-width: 767px) {
-    .lineup-smiliz-site .lineup-header-logo .logo-img,
-    .lineup-smiliz-site .site-branding .logo-img {
-        max-height: 64px;
-    }
-
     .lineup-smiliz-site #process.lineup-process-section {
         padding-top: 36px;
         padding-bottom: 60px;

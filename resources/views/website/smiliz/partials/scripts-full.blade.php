@@ -34,15 +34,15 @@
 
 <script src="{{ asset('assets/smiliz/js/jquery.event.move.js') }}" defer></script>
 
-<script src="{{ asset('assets/smiliz/js/gsap-animation.js') }}" defer></script>
+<script src="{{ asset('assets/js/lineup-smiliz-nav.js') }}?v=3" defer></script>
+
+<script src="{{ asset('assets/smiliz/js/gsap-animation.js') }}?v=2" defer></script>
 
 <script src="{{ asset('assets/smiliz/js/scripts.js') }}" defer></script>
 
 <script src="{{ asset('assets/js/lineup-website-loader.js') }}?v=3" defer></script>
 
 <script src="{{ asset('assets/js/lineup-smiliz-forms.js') }}?v=3" defer></script>
-
-<script src="{{ asset('assets/js/lineup-smiliz-nav.js') }}?v=1" defer></script>
 
 <script src="{{ asset('assets/js/lineup-smiliz-a11y.js') }}?v=1" defer></script>
 

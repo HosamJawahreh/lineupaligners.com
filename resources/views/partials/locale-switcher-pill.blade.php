@@ -1,5 +1,5 @@
 @if(count($items ?? []) > 1)
-<div class="lineup-lang-switcher" aria-label="{{ $ariaLabel ?? 'Language' }}">
+<div @class(array_filter(['lineup-lang-switcher', $class ?? null])) aria-label="{{ $ariaLabel ?? 'Language' }}">
     @foreach($items as $code => $item)
     <a href="{{ $item['url'] }}"
        @class(['lineup-lang-switcher__btn', 'is-active' => ($active ?? null) === $code])

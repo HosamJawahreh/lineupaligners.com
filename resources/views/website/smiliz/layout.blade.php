@@ -78,9 +78,9 @@
 
     @endif
 
-    <link rel="stylesheet" href="{{ asset('assets/css/lineup-lang-switcher.css') }}?v=3">
+    <link rel="stylesheet" href="{{ asset('assets/css/lineup-lang-switcher.css') }}?v=4">
 
-    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-overrides.css') }}?v=50">
+    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-overrides.css') }}?v=52">
 
     <link rel="stylesheet" href="{{ asset('assets/css/lineup-brand-system.css') }}?v=3">
 
@@ -90,7 +90,7 @@
 
     @if(($websiteDir ?? 'ltr') === 'rtl')
 
-    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-rtl.css') }}?v=3">
+    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-rtl.css') }}?v=4">
 
     @endif
 
@@ -99,6 +99,8 @@
 </head>
 
 <body class="lineup-smiliz-site @if(($websiteDir ?? 'ltr') === 'rtl') lineup-smiliz-site--rtl @endif">
+
+    <div class="pbmit-mobile-menu-bg lineup-mobile-menu-backdrop" aria-hidden="true"></div>
 
     <a href="#page" class="lineup-skip-link">{{ __('website.skip_to_content') }}</a>
 

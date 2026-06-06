@@ -54,10 +54,14 @@ class Setting extends Model
 
     public static function logoUrl(): string
     {
-        $logo = static::get('logo');
+        $logo = trim((string) static::get('logo', ''));
 
-        if ($logo && Storage::disk('public')->exists($logo)) {
-            return asset('storage/'.$logo);
+        if ($logo !== '') {
+            $publicFile = 'storage/'.$logo;
+
+            if (Storage::disk('public')->exists($logo) || is_file(public_path($publicFile))) {
+                return asset($publicFile);
+            }
         }
 
         return asset('assets/images/logo.svg');
