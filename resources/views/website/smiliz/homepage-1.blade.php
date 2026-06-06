@@ -56,11 +56,10 @@
                         </div>
                     </div>
                     <div class="col-md-6 full-width-1200">
-                        <div class="about-one-rightbox @if($customAboutPhoto) is-custom-photo @endif"
-                             @if($customAboutPhoto) style="background-image: url('{{ $aboutPhotoUrl }}');" @endif>
-                            <div class="about-one-rightbox__photo d-md-none" style="background-image: url('{{ $aboutRightboxPhoto }}');" aria-hidden="true"></div>
+                        <div class="about-one-rightbox lineup-about-rightbox @if($customAboutPhoto) is-custom-photo @endif">
+                            <div class="about-one-rightbox__photo" style="background-image: url('{{ $aboutRightboxPhoto }}');" aria-hidden="true"></div>
                             @unless($customAboutPhoto)
-                            <div class="ihbox-style-area">
+                            <div class="ihbox-style-area lineup-about-highlights">
                                 <div class="row">
                                     @foreach($content['about']['highlights'] as $highlight)
                                     <div class="col-md-6{{ $loop->index > 0 ? ' mt-md-0 mt-4' : '' }}">
