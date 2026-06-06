@@ -1,0 +1,174 @@
+@font-face {
+	font-family: "pbmit_smiliz";
+	src: url("../pbmit-smiliz-icon/pbmit_smiliz.woff2?42d65adc28a97a38d80a2bb980f5f0d5") format("woff2"),
+url("../pbmit-smiliz-icon/pbmit_smiliz.woff?42d65adc28a97a38d80a2bb980f5f0d5") format("woff"),
+url("../pbmit-smiliz-icon/pbmit_smiliz.eot?42d65adc28a97a38d80a2bb980f5f0d5#iefix") format("embedded-opentype"),
+url("../pbmit-smiliz-icon/pbmit_smiliz.ttf?42d65adc28a97a38d80a2bb980f5f0d5") format("truetype"),
+url("../pbmit-smiliz-icon/pbmit_smiliz.svg?42d65adc28a97a38d80a2bb980f5f0d5#pbmit_smiliz") format("svg")
+}
+
+i[class^="pbmit_smiliz-"]:before, i[class*=" pbmit-smiliz-icon-"]:before {
+	font-family: pbmit_smiliz !important;
+	font-style: normal;
+	font-weight: normal !important;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.pbmit-smiliz-icon-check-mark:before {
+	content: "\f101";
+}
+.pbmit-smiliz-icon-play-button:before {
+	content: "\f102";
+}
+.pbmit-smiliz-icon-dot-arrow:before {
+	content: "\f103";
+}
+.pbmit-smiliz-icon-star:before {
+	content: "\f104";
+}
+.pbmit-smiliz-icon-dental-crown:before {
+	content: "\f105";
+}
+.pbmit-smiliz-icon-teeth-brushing:before {
+	content: "\f106";
+}
+.pbmit-smiliz-icon-inject:before {
+	content: "\f107";
+}
+.pbmit-smiliz-icon-braces:before {
+	content: "\f108";
+}
+.pbmit-smiliz-icon-dental-care:before {
+	content: "\f109";
+}
+.pbmit-smiliz-icon-toothbrush:before {
+	content: "\f10a";
+}
+.pbmit-smiliz-icon-telephone:before {
+	content: "\f10b";
+}
+.pbmit-smiliz-icon-inquiry:before {
+	content: "\f10c";
+}
+.pbmit-smiliz-icon-location:before {
+	content: "\f10d";
+}
+.pbmit-smiliz-icon-contrast:before {
+	content: "\f10e";
+}
+.pbmit-smiliz-icon-dental-bag:before {
+	content: "\f10f";
+}
+.pbmit-smiliz-icon-dental-chair:before {
+	content: "\f110";
+}
+.pbmit-smiliz-icon-dental-checkup:before {
+	content: "\f111";
+}
+.pbmit-smiliz-icon-quote:before {
+	content: "\f112";
+}
+.pbmit-smiliz-icon-mail:before {
+	content: "\f113";
+}
+.pbmit-smiliz-icon-phone-call:before {
+	content: "\f114";
+}
+.pbmit-smiliz-icon-location-1:before {
+	content: "\f115";
+}
+.pbmit-smiliz-icon-letter:before {
+	content: "\f116";
+}
+.pbmit-smiliz-icon-calendar:before {
+	content: "\f117";
+}
+.pbmit-smiliz-icon-clock:before {
+	content: "\f118";
+}
+.pbmit-smiliz-icon-categories:before {
+	content: "\f119";
+}
+.pbmit-smiliz-icon-calendar-1:before {
+	content: "\f11a";
+}
+.pbmit-smiliz-icon-customer:before {
+	content: "\f11b";
+}
+.pbmit-smiliz-icon-phone:before {
+	content: "\f11c";
+}
+.pbmit-smiliz-icon-dental-safety:before {
+	content: "\f11d";
+}
+.pbmit-smiliz-icon-mail-delivery:before {
+	content: "\f11e";
+}
+.pbmit-smiliz-icon-dental-floss:before {
+	content: "\f11f";
+}
+.pbmit-smiliz-icon-dentist-certificate:before {
+	content: "\f120";
+}
+.pbmit-smiliz-icon-cleaner:before {
+	content: "\f121";
+}
+.pbmit-smiliz-icon-dental-tools:before {
+	content: "\f122";
+}
+.pbmit-smiliz-icon-dental-consultant:before {
+	content: "\f123";
+}
+.pbmit-smiliz-icon-dentist-degree:before {
+	content: "\f124";
+}
+.pbmit-smiliz-icon-teeth-operation:before {
+	content: "\f125";
+}
+.pbmit-smiliz-icon-tooth-paste:before {
+	content: "\f126";
+}
+.pbmit-smiliz-icon-dental-spray:before {
+	content: "\f127";
+}
+.pbmit-smiliz-icon-dental-tools-1:before {
+	content: "\f128";
+}
+.pbmit-smiliz-icon-pliers:before {
+	content: "\f129";
+}
+.pbmit-smiliz-icon-dentist-kit:before {
+	content: "\f12a";
+}
+.pbmit-smiliz-icon-right-arrow:before {
+	content: "\f12b";
+}
+.pbmit-smiliz-icon-tooth:before {
+	content: "\f12c";
+}
+.pbmit-smiliz-icon-pliers-1:before {
+	content: "\f12d";
+}
+.pbmit-smiliz-icon-patient-report:before {
+	content: "\f12e";
+}
+.pbmit-smiliz-icon-medical-insurance:before {
+	content: "\f12f";
+}
+.pbmit-smiliz-icon-dot:before {
+	content: "\f130";
+}
+.pbmit-smiliz-icon-dental-insurance:before {
+	content: "\f131";
+}
+.pbmit-smiliz-icon-prevention:before {
+	content: "\f132";
+}
+.pbmit-smiliz-icon-restoration:before {
+	content: "\f133";
+}
+

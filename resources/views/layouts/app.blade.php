@@ -1,3 +1,10 @@
+@php
+    $resolvedDashboardFont = \App\Models\Setting::dashboardFont();
+    $dashboardFontUrl = $dashboardFontUrl ?? $resolvedDashboardFont['google_url'];
+    $dashboardFontStack = $dashboardFontStack ?? $resolvedDashboardFont['stack'];
+    $dashboardColorMode = $dashboardColorMode ?? \App\Models\Setting::dashboardColorMode();
+    $bodyColorClass = $bodyColorClass ?? ('lineup-color-'.$dashboardColorMode);
+@endphp
 <!doctype html>
 <html class="no-js " lang="en">
 <head>
@@ -8,7 +15,9 @@
 @include('layouts.partials.favicon')
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+@if(! empty($dashboardFontUrl))
+<link href="{{ $dashboardFontUrl }}" rel="stylesheet">
+@endif
 <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap/css/bootstrap.min.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap-select/css/bootstrap-select.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/plugins/jvectormap/jquery-jvectormap-2.0.3.min.css') }}"/>
@@ -25,23 +34,32 @@
 <link rel="stylesheet" href="{{ asset('assets/css/cases-dashboard.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-buttons.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-datatables.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-loader.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-loader.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-typography.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-notifications.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-call-support.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/scan-upload-overlay.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-brand-system.css') }}?v=1">
+@include('layouts.partials.brand-css-vars')
 @stack('styles')
 </head>
-<body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')" style="--lineup-skin: {{ $themeSkinColor ?? '#00cfd1' }};">
-<div class="page-loader-wrapper lineup-page-loader">
-    <div class="loader">
-        <div class="lineup-ios-spinner" role="status" aria-live="polite" aria-label="Loading">
-            @for ($i = 0; $i < 12; $i++)
-            <span></span>
-            @endfor
-        </div>
-    </div>
-</div>
+<body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"
+      data-default-color-mode="{{ $dashboardColorMode }}"
+      style="{{ $brandInlineStyle ?? '' }}">
+<script>
+(function () {
+    try {
+        var stored = localStorage.getItem('lineup-color-mode');
+        if (stored === 'dark' || stored === 'light') {
+            document.body.classList.remove('lineup-color-light', 'lineup-color-dark');
+            document.body.classList.add('lineup-color-' + stored);
+            document.documentElement.style.colorScheme = stored;
+        }
+    } catch (e) {}
+})();
+</script>
+@include('layouts.partials.lineup-page-loader', ['loaderAriaLabel' => 'Loading'])
 <div class="overlay"></div>
 
 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
@@ -63,6 +81,7 @@
 <script>
     window.LINEUP_USER_ID = @json(auth()->id());
 </script>
+<script src="{{ asset('assets/js/lineup-theme-mode.js') }}"></script>
 <script src="{{ asset('assets/js/lineup-notifications.js') }}"></script>
 <script src="{{ asset('assets/js/scan-upload-loading.js') }}"></script>
 @stack('scripts')

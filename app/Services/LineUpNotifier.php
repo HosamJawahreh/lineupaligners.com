@@ -3,9 +3,12 @@
 namespace App\Services;
 
 use App\Models\Patient;
+use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\LineUpAlert;
+use App\Notifications\LineUpMailAlert;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Notification;
 
 class LineUpNotifier
 {
@@ -13,7 +16,7 @@ class LineUpNotifier
     {
         $patient->loadMissing('doctor.user');
 
-        $caseLabel = $patient->patient_id.' — '.$patient->fullName();
+        $caseLabel = $patient->display_patient_id.' — '.$patient->fullName();
         $doctorName = $patient->doctor?->fullName() ?? 'Unassigned';
         $doctorUser = $this->doctorUserForPatient($patient);
 
@@ -64,7 +67,7 @@ class LineUpNotifier
 
     public function caseMessage(Patient $patient, User $sender, ?string $preview = null): void
     {
-        $caseLabel = $patient->patient_id.' — '.$patient->fullName();
+        $caseLabel = $patient->display_patient_id.' — '.$patient->fullName();
         $snippet = $preview ? mb_strimwidth($preview, 0, 120, '…') : 'New message';
 
         if ($sender->isDoctor()) {
@@ -104,7 +107,7 @@ class LineUpNotifier
         $this->notifyUser($doctorUser, [
             'type' => 'plan_uploaded',
             'title' => 'Treatment plan ready',
-            'body' => "LineUp uploaded a manufacture plan{$stageText} for {$patient->patient_id}. Please review.",
+            'body' => "LineUp uploaded a manufacture plan{$stageText} for {$patient->display_patient_id}. Please review.",
             'url' => $this->caseUrl($patient, 'manufacture-plan', $stageNumber),
             'icon' => 'zmdi-assignment-check',
             'open_tab' => 'manufacture-plan',
@@ -121,7 +124,7 @@ class LineUpNotifier
         $this->notifyAdmins([
             'type' => $approved ? 'plan_approved' : 'plan_rejected',
             'title' => $approved ? 'Plan approved for manufacture' : 'Plan rejected',
-            'body' => "Dr. {$doctor->displayName()} {$decision} the plan{$stageText} for {$patient->patient_id}.",
+            'body' => "Dr. {$doctor->displayName()} {$decision} the plan{$stageText} for {$patient->display_patient_id}.",
             'url' => $this->caseUrl($patient, 'manufacture-plan', $stageNumber),
             'icon' => $approved ? 'zmdi-check-circle' : 'zmdi-close-circle',
             'open_tab' => 'manufacture-plan',
@@ -135,7 +138,7 @@ class LineUpNotifier
         $this->notifyAdmins([
             'type' => 'modification_requested',
             'title' => 'Modification requested',
-            'body' => "Dr. {$doctor->displayName()} requested a modification for {$patient->patient_id}.",
+            'body' => "Dr. {$doctor->displayName()} requested a modification for {$patient->display_patient_id}.",
             'url' => $this->caseUrl($patient, 'modification'),
             'icon' => 'zmdi-refresh-sync',
             'open_tab' => 'modification',
@@ -148,7 +151,7 @@ class LineUpNotifier
         $this->notifyAdmins([
             'type' => 'case_ready_for_manufacture',
             'title' => 'Ready to mark manufactured',
-            'body' => "All plans approved for {$patient->patient_id} ({$patient->fullName()}). Mark the case as manufactured on the Manufacture Case Plan tab.",
+            'body' => "All plans approved for {$patient->display_patient_id} ({$patient->fullName()}). Mark the case as manufactured on the Treatment Plan tab.",
             'url' => $this->caseUrl($patient, 'manufacture-plan'),
             'icon' => 'zmdi-assignment-check',
             'open_tab' => 'manufacture-plan',
@@ -166,7 +169,7 @@ class LineUpNotifier
         $this->notifyUser($doctorUser, [
             'type' => 'case_manufactured',
             'title' => 'Case manufactured',
-            'body' => "Case {$patient->patient_id} ({$patient->fullName()}) is marked manufactured. Order refinement when the patient returns.",
+            'body' => "Case {$patient->display_patient_id} ({$patient->fullName()}) is marked manufactured. Order refinement when the patient returns.",
             'url' => $this->caseUrl($patient, 'order-refinement'),
             'icon' => 'zmdi-check-circle',
             'open_tab' => 'order-refinement',
@@ -179,7 +182,7 @@ class LineUpNotifier
         $this->notifyAdmins([
             'type' => 'refinement_requested',
             'title' => 'Refinement ordered',
-            'body' => "Dr. {$doctor->displayName()} ordered a refinement for {$patient->patient_id}.",
+            'body' => "Dr. {$doctor->displayName()} ordered a refinement for {$patient->display_patient_id}.",
             'url' => $this->caseUrl($patient, 'order-refinement'),
             'icon' => 'zmdi-redo',
             'open_tab' => 'order-refinement',
@@ -201,6 +204,7 @@ class LineUpNotifier
     public function notifyUser(User $user, array $payload): void
     {
         $user->notify(new LineUpAlert($payload));
+        $this->queueEmailAlert($user, $payload);
     }
 
     /**
@@ -209,8 +213,42 @@ class LineUpNotifier
     public function notifyUsers(iterable $users, array $payload): void
     {
         foreach ($users as $user) {
-            $user->notify(new LineUpAlert($payload));
+            $this->notifyUser($user, $payload);
         }
+    }
+
+    protected function queueEmailAlert(User $user, array $payload): void
+    {
+        if (! $this->shouldEmailUser($user)) {
+            return;
+        }
+
+        if (config('lineup-notifications.email.queue', true)) {
+            $user->notify(new LineUpMailAlert($payload));
+
+            return;
+        }
+
+        dispatch(static function () use ($user, $payload) {
+            Notification::sendNow($user, new LineUpMailAlert($payload), ['mail']);
+        })->afterResponse();
+    }
+
+    protected function shouldEmailUser(User $user): bool
+    {
+        if (! Setting::notificationEmailEnabled()) {
+            return false;
+        }
+
+        if (! config('lineup-notifications.email.enabled', true)) {
+            return false;
+        }
+
+        if (! filled($user->email)) {
+            return false;
+        }
+
+        return in_array($user->role, [User::ROLE_ADMIN, User::ROLE_DOCTOR], true);
     }
 
     protected function doctorUserForPatient(Patient $patient): ?User

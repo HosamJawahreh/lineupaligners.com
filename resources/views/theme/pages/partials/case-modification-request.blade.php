@@ -9,7 +9,7 @@
 
 <div class="case-modification" id="case-modification-request">
     <header class="case-modification__head">
-        <h3 class="case-modification__title">Request modification</h3>
+        <h3 class="case-modification__title">Request Modification</h3>
         <p class="case-modification__subtitle">
             After you approve a manufactured treatment plan, start a modification cycle here: upload revised 3D scans and notes. LineUp will submit an updated plan for your review. When that cycle ends (you approve the new plan), you may start another modification if needed.
         </p>
@@ -45,6 +45,7 @@
             @endif
 
             <div class="case-modification__uploads">
+                @include('theme.pages.partials.case-photos-upload', ['uploadId' => 'modification-photos'])
                 <div class="case-modification__field">
                     <label for="modification-upper">Upper jaw 3D file</label>
                     <input type="file" id="modification-upper" name="upper_jaw_scan" accept=".stl,.obj,.ply">
@@ -99,7 +100,7 @@
     @else
         <div class="case-modification__notice case-modification__notice--info">
             <i class="zmdi zmdi-account" aria-hidden="true"></i>
-            <p>Only the assigned doctor can submit modification requests. When a request is active, upload a revised plan in the Manufacture Case Plan tab.</p>
+            <p>Only the assigned doctor can submit modification requests. When a request is active, upload a revised plan in the Treatment Plan tab.</p>
         </div>
     @endif
 </div>

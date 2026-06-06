@@ -1,23 +1,41 @@
 @php
+    $patient = $patient ?? null;
     $scanSets = $caseScanSets ?? [];
-    if (empty($scanSets) && ! empty($scanFiles ?? [])) {
-        $scanSets = [['key' => 'original', 'label' => 'Original case scans', 'notes' => null, 'files' => $scanFiles]];
+    $defaultScanSetKey = $defaultScanSetKey ?? ($scanSets[0]['key'] ?? 'original');
+    if (empty($scanSets) && ! empty($caseScanFiles ?? [])) {
+        $scanSets = [['key' => 'original', 'label' => 'Original case data', 'notes' => null, 'files' => $caseScanFiles]];
     }
-    $defaultSet = $scanSets[0] ?? null;
+    $defaultSet = collect($scanSets)->firstWhere('key', $defaultScanSetKey) ?? ($scanSets[0] ?? null);
     $scanFiles = $defaultSet['files'] ?? [];
-    $hasScans = count($scanFiles) > 0;
-    $hasMultipleSets = count($scanSets) > 1;
+    $hasAnyScanFiles = collect($scanSets)->contains(fn ($set) => count($set['files'] ?? []) > 0);
+    $hasScanSets = count($scanSets) > 0;
+    $hasAnyPhotos = ! empty($casePhotosBySet) && collect($casePhotosBySet)->flatten(1)->isNotEmpty();
+    $showCaseDataHeader = $hasScanSets || $hasAnyPhotos;
 @endphp
 <section class="case-scan-section" aria-label="3D scan viewer">
-    @if($hasScans)
-    <div class="case-scan-viewer-root"
-         id="case-scan-viewer-root"
-         data-scan-sets="{{ json_encode($scanSets, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}"
-         data-scans="{{ json_encode($scanFiles, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}">
+    @if($showCaseDataHeader)
+        @if($hasAnyScanFiles)
+        <div class="case-scan-viewer-root"
+             id="case-scan-viewer-root"
+             data-scan-sets="{{ json_encode($scanSets, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}"
+             data-scans="{{ json_encode($scanFiles, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}"
+             data-default-scan-set="{{ $defaultScanSetKey }}">
+        @endif
+        <hr class="case-scan-section__divider" role="presentation" aria-hidden="true">
         <div class="case-scan-section__head">
-            <div class="case-scan-section__head-inline" aria-label="3D models and scan files">
-                <h3>3D Models</h3>
-                @if(count($scanSets) > 0)
+            <div class="case-scan-section__head-inline @if($hasAnyPhotos) case-scan-section__head-inline--has-photos @endif" aria-label="3D models and scan files">
+                <div class="case-scan-section__head-start">
+                    <h3>3D Models</h3>
+                    @if($patient)
+                        @include('theme.pages.partials.case-photos-gallery', [
+                            'patient' => $patient,
+                            'casePhotosBySet' => $casePhotosBySet ?? [],
+                            'caseScanSets' => $scanSets,
+                            'defaultScanSetKey' => $defaultScanSetKey,
+                        ])
+                    @endif
+                </div>
+                @if($hasScanSets)
                 <div class="case-scan-set-switcher" role="group" aria-labelledby="case-scan-set-label">
                     <label id="case-scan-set-label" for="case-scan-set-select" class="case-scan-set-switcher__label">
                         <i class="zmdi zmdi-layers" aria-hidden="true"></i>
@@ -29,7 +47,7 @@
                                 @if(count($scanSets) < 2) disabled @endif
                                 aria-describedby="case-scan-set-label">
                             @foreach($scanSets as $set)
-                            <option value="{{ $set['key'] }}" @selected($loop->first)>{{ $set['label'] }}</option>
+                            <option value="{{ $set['key'] }}" @selected($set['key'] === $defaultScanSetKey)>{{ $set['label'] }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -73,8 +91,9 @@
             </div>
         </div>
 
+        @if($hasAnyScanFiles)
         <div class="case-scan-mod-notes is-hidden" id="case-scan-mod-notes" aria-live="polite">
-            <span class="case-scan-mod-notes__label">Modification notes</span>
+            <span class="case-scan-mod-notes__label" id="case-scan-mod-notes-label">Notes</span>
             <p class="case-scan-mod-notes__text" id="case-scan-mod-notes-text"></p>
         </div>
 
@@ -243,6 +262,10 @@
                     <span class="case-scan-spinner"></span>
                     <span id="case-scan-loading-text">Loading models…</span>
                 </div>
+                <div class="case-scan-canvas-overlay case-scan-canvas-overlay--empty is-hidden" id="case-scan-empty">
+                    <i class="zmdi zmdi-rotate-3d"></i>
+                    <span id="case-scan-empty-text">No 3D scan files in this scan set.</span>
+                </div>
                 <div class="case-scan-canvas-overlay is-hidden" id="case-scan-error">
                     <i class="zmdi zmdi-alert-circle"></i>
                     <span id="case-scan-error-text">Could not load models.</span>
@@ -250,7 +273,18 @@
             </div>
         </div>
         </div>
-    </div>
+        </div>
+        @elseif($hasScanSets)
+        <div class="case-scan-mod-notes is-hidden" id="case-scan-mod-notes" aria-live="polite">
+            <span class="case-scan-mod-notes__label" id="case-scan-mod-notes-label">Notes</span>
+            <p class="case-scan-mod-notes__text" id="case-scan-mod-notes-text"></p>
+        </div>
+        <div class="case-scan-empty-state case-scan-empty-state--photos-only">
+            <i class="zmdi zmdi-camera-alt"></i>
+            <p>No 3D scan files in this scan set.</p>
+            <span class="case-scan-empty-state__hint">Switch scan set or open Case Photos Gallery for clinical images.</span>
+        </div>
+        @endif
     @else
     <div class="case-scan-section__head">
         <div class="case-scan-section__head-inline">
@@ -260,7 +294,7 @@
     <div class="case-scan-empty-state">
         <i class="zmdi zmdi-rotate-3d"></i>
         <p>No 3D scan files uploaded for this case yet.</p>
-        <span class="case-scan-empty-state__hint">Upload STL, OBJ, or PLY files when editing the case.</span>
+        <span class="case-scan-empty-state__hint">3D scans are optional — upload upper, lower, or both when editing the case.</span>
     </div>
     @endif
 </section>

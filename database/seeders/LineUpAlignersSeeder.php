@@ -18,13 +18,15 @@ class LineUpAlignersSeeder extends Seeder
         Setting::set('clinic_email', 'contact@lineupaligners.com');
         Setting::set('clinic_phone', '+1 555 0100');
         Setting::set('clinic_address', '123 Medical Center Dr.');
-        Setting::set('email_redirect', '1');
-        Setting::set('notifications', '1');
-        Setting::set('auto_updates', '1');
+        Setting::set('system_timezone', 'UTC');
+        Setting::set('scan_requirement', 'optional');
+        Setting::set('notifications_enabled', '1');
+        Setting::set('notification_email_enabled', '1');
+        Setting::set('notification_sound_enabled', '1');
         Setting::set('theme_skin', 'cyan');
-        Setting::set('offline', '1');
-        Setting::set('location_permission', '1');
+        Setting::set('brand_secondary', '#09243c');
         Setting::set('left_menu_style', 'light');
+        Setting::set('dashboard_color_mode', 'light');
 
         User::updateOrCreate(
             ['email' => 'admin@lineup.com'],
@@ -39,13 +41,15 @@ class LineUpAlignersSeeder extends Seeder
             ['slug' => 'orthodontist'],
             [
                 'name' => 'Orthodontist',
-                'description' => 'Standard aligner provider with full patient access for assigned cases.',
+                'description' => 'Full treatment workflow for assigned cases: submit, review plans, modifications, and refinements.',
                 'permissions' => [
-                    'manage_patients',
-                    'create_patients',
-                    'edit_patients',
-                    'delete_patients',
-                    'manage_appointments',
+                    'view_cases',
+                    'create_cases',
+                    'edit_cases',
+                    'case_chat',
+                    'review_plans',
+                    'request_modification',
+                    'request_refinement',
                 ],
                 'is_active' => true,
                 'sort_order' => 1,
@@ -56,10 +60,25 @@ class LineUpAlignersSeeder extends Seeder
             ['slug' => 'clinic-lead'],
             [
                 'name' => 'Clinic Lead',
-                'description' => 'Senior doctor with clinic-wide patient visibility.',
-                'permissions' => array_keys(config('doctor-permissions', [])),
+                'description' => 'Senior role with full case and workflow permissions on assigned cases.',
+                'permissions' => array_keys(config('doctor-permissions.permissions', [])),
                 'is_active' => true,
                 'sort_order' => 2,
+            ]
+        );
+
+        DoctorRole::updateOrCreate(
+            ['slug' => 'case-intake'],
+            [
+                'name' => 'Case Intake',
+                'description' => 'Front-desk role: submit new cases and message LineUp on assigned cases.',
+                'permissions' => [
+                    'view_cases',
+                    'create_cases',
+                    'case_chat',
+                ],
+                'is_active' => true,
+                'sort_order' => 3,
             ]
         );
 
@@ -95,7 +114,7 @@ class LineUpAlignersSeeder extends Seeder
 
         foreach ($patients as $index => $data) {
             Patient::updateOrCreate(
-                ['patient_id' => 'LA '.str_pad((string) ($index + 1), 5, '0', STR_PAD_LEFT)],
+                ['patient_id' => str_pad((string) ($index + 1), 5, '0', STR_PAD_LEFT)],
                 array_merge($data, [
                     'doctor_id' => $doctor->id,
                     'phone' => '555-020'.$index,

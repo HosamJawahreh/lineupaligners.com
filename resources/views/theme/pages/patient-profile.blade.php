@@ -29,7 +29,7 @@
                 <div class="card member-card">
                     <div class="header l-coral">
                         <h4 class="m-t-10">{{ $patient->fullName() }}</h4>
-                        <small>{{ $patient->patient_id }}</small>
+                        <small>{{ $patient->display_patient_id }}</small>
                     </div>
                     <div class="member-img">
                         <img src="{{ $patient->photoUrl() }}" class="rounded-circle" alt="profile-image">

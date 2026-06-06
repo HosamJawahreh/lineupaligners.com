@@ -31,8 +31,18 @@
         </a>
     </li>
     <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#tab-notifications" role="tab">
+            <i class="zmdi zmdi-notifications"></i> Notifications
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#tab-workflow" role="tab">
+            <i class="zmdi zmdi-refresh-sync"></i> Workflow
+        </a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#tab-system" role="tab">
-            <i class="zmdi zmdi-settings"></i> System
+            <i class="zmdi zmdi-globe"></i> System
         </a>
     </li>
 @endsection
@@ -62,6 +72,7 @@
                     <label for="remove_logo">Remove current logo and use default</label>
                 </div>
                 @endif
+                @include('admin.settings.partials.brand-colors', ['settings' => $settings])
             </div>
             <div class="col-lg-5 col-md-12">
                 <div class="settings-summary-card">
@@ -166,10 +177,83 @@
 
     {{-- Appearance --}}
     <div class="tab-pane" id="tab-appearance" role="tabpanel">
+        @php
+            $selectedFont = old('dashboard_font', $settings['dashboard_font'] ?? 'cairo');
+            $fontPreviewUrl = 'https://fonts.googleapis.com/css2?family=';
+            $fontPreviewUrl .= collect(config('settings.fonts', []))->map(function ($font) {
+                $family = str_replace(' ', '+', $font['family']);
+                return $family.':wght@400;600;700';
+            })->implode('&family=');
+            $fontPreviewUrl .= '&display=swap';
+        @endphp
+        <link rel="stylesheet" href="{{ $fontPreviewUrl }}">
         <div class="settings-panel-grid">
+            <div class="inner-card settings-font-card">
+                <h6>Dashboard Font</h6>
+                <p class="text-muted small m-b-15">Choose the typeface used across the admin dashboard, menus, tables, and forms.</p>
+                <ul class="settings-font-picker list-unstyled m-b-0">
+                    @foreach(config('settings.fonts', []) as $fontKey => $font)
+                    <li @class(['active' => $selectedFont === $fontKey])>
+                        <input type="radio"
+                               name="dashboard_font"
+                               id="page-font-{{ $fontKey }}"
+                               value="{{ $fontKey }}"
+                               class="d-none"
+                               form="settings-form"
+                               data-font-family="{{ $font['family'] }}"
+                               data-font-stack="{{ $font['stack'] }}"
+                               @checked($selectedFont === $fontKey)>
+                        <label for="page-font-{{ $fontKey }}" class="settings-font-option m-b-0">
+                            <span class="settings-font-option__name" style="font-family: {{ $font['stack'] }};">{{ $font['label'] }}</span>
+                            <span class="settings-font-option__sample" style="font-family: {{ $font['stack'] }};">Patient cases, treatment plans, and clinical notes.</span>
+                        </label>
+                    </li>
+                    @endforeach
+                </ul>
+                <div class="settings-font-live-preview m-t-20" id="settings-font-live-preview" aria-live="polite">
+                    <span class="settings-font-live-preview__label">Preview</span>
+                    <p class="settings-font-live-preview__title" id="settings-font-preview-title" style="font-family: {{ config('settings.fonts.'.$selectedFont.'.stack', config('settings.fonts.cairo.stack')) }};">Dashboard heading</p>
+                    <p class="settings-font-live-preview__body" id="settings-font-preview-body" style="font-family: {{ config('settings.fonts.'.$selectedFont.'.stack', config('settings.fonts.cairo.stack')) }};">This is how body text, buttons, and tables will look after you save.</p>
+                </div>
+            </div>
+            <div class="inner-card settings-color-mode-card">
+                <h6>Dashboard Color Mode</h6>
+                <p class="text-muted small m-b-15">Switch the entire dashboard between light and dark. Everyone sees the saved default; users can also toggle from the top bar (saved in this browser).</p>
+                @php $colorMode = old('dashboard_color_mode', $settings['dashboard_color_mode'] ?? 'light'); @endphp
+                <ul class="settings-color-mode-picker list-unstyled m-b-0">
+                    <li @class(['active' => $colorMode === 'light'])>
+                        <input type="radio"
+                               name="dashboard_color_mode"
+                               id="page-color-light"
+                               value="light"
+                               class="d-none"
+                               form="settings-form"
+                               @checked($colorMode === 'light')>
+                        <label for="page-color-light" class="settings-color-mode-option m-b-0">
+                            <span class="settings-color-mode-option__swatch settings-color-mode-option__swatch--light" aria-hidden="true"></span>
+                            <span class="settings-color-mode-option__title">Light</span>
+                            <span class="settings-color-mode-option__hint">Bright backgrounds for daytime use.</span>
+                        </label>
+                    </li>
+                    <li @class(['active' => $colorMode === 'dark'])>
+                        <input type="radio"
+                               name="dashboard_color_mode"
+                               id="page-color-dark"
+                               value="dark"
+                               class="d-none"
+                               form="settings-form"
+                               @checked($colorMode === 'dark')>
+                        <label for="page-color-dark" class="settings-color-mode-option m-b-0">
+                            <span class="settings-color-mode-option__swatch settings-color-mode-option__swatch--dark" aria-hidden="true"></span>
+                            <span class="settings-color-mode-option__title">Dark</span>
+                            <span class="settings-color-mode-option__hint">Dim surfaces that are easier on the eyes.</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
             <div class="inner-card">
                 <h6>Theme Skins</h6>
-                <p class="text-muted small m-b-15">Choose the application color theme</p>
+                <p class="text-muted small m-b-15">Primary accent when no custom primary color is set in Branding.</p>
                 @php $selectedSkin = old('theme_skin', $settings['theme_skin'] ?? 'cyan'); @endphp
                 <ul class="choose-skin list-unstyled settings-skin-picker skin-swatches m-b-0">
                     @foreach(config('settings.skins') as $skin => $meta)
@@ -184,7 +268,8 @@
                 </ul>
             </div>
             <div class="inner-card theme-light-dark">
-                <h6>Left Menu Style</h6>
+                <h6>Sidebar Style</h6>
+                <p class="text-muted small m-b-15">Sidebar look in light mode. Dark dashboard mode uses a dark sidebar automatically.</p>
                 @php $menuStyle = old('left_menu_style', $settings['left_menu_style'] ?? 'light'); @endphp
                 <label class="btn btn-default btn-simple btn-round btn-block @if($menuStyle === 'light') active @endif">
                     <input type="radio" name="left_menu_style" value="light" class="d-none" form="settings-form" @checked($menuStyle === 'light')> Light
@@ -198,27 +283,19 @@
             </div>
             <div class="inner-card">
                 <h6>Current Theme</h6>
+                <div class="summary-item"><span>Color mode</span><span>{{ ucfirst($colorMode) }}</span></div>
+                <div class="summary-item"><span>Primary</span><span>{{ $brandColors['primary'] ?? '—' }}</span></div>
+                <div class="summary-item"><span>Secondary</span><span>{{ $brandColors['secondary'] ?? '—' }}</span></div>
                 <div class="summary-item"><span>Skin</span><span>{{ ucfirst($settings['theme_skin'] ?? 'cyan') }}</span></div>
-                <div class="summary-item"><span>Menu</span><span>{{ ucfirst($settings['left_menu_style'] ?? 'light') }}</span></div>
+                <div class="summary-item"><span>Font</span><span>{{ config('settings.fonts.'.$selectedFont.'.label', 'Cairo') }}</span></div>
+                <div class="summary-item"><span>Sidebar</span><span>{{ ucfirst($settings['left_menu_style'] ?? 'light') }}</span></div>
                 <div class="summary-item"><span>Environment</span><span>{{ config('app.env') }}</span></div>
             </div>
         </div>
     </div>
 
     @include('admin.settings.partials.doctor-roles', ['doctorRoles' => $doctorRoles])
-
-    {{-- System --}}
-    <div class="tab-pane" id="tab-system" role="tabpanel">
-        <div class="settings-panel-grid settings-panel">
-            <div class="inner-card">
-                @include('admin.settings.partials.general-settings', ['settings' => $settings, 'prefix' => 'page'])
-            </div>
-            <div class="inner-card">
-                @include('admin.settings.partials.account-settings', ['settings' => $settings, 'prefix' => 'page'])
-            </div>
-            <div class="inner-card">
-                @include('admin.settings.partials.system-stats', ['systemStats' => $systemStats])
-            </div>
-        </div>
-    </div>
+    @include('admin.settings.partials.notifications-settings', ['settings' => $settings, 'notificationTypes' => $notificationTypes ?? []])
+    @include('admin.settings.partials.workflow-settings', ['settings' => $settings])
+    @include('admin.settings.partials.system-health', ['settings' => $settings, 'systemStats' => $systemStats])
 @endsection

@@ -9,29 +9,33 @@ class PatientPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->doctorCan('manage_patients');
+        return $user->isAdmin() || $user->doctorCan('view_cases');
     }
 
     public function view(User $user, Patient $patient): bool
     {
-        return $user->isAdmin() || ($user->doctorCan('manage_patients') && $user->ownsPatient($patient));
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->doctorCan('view_cases') && $user->ownsPatient($patient);
     }
 
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->doctorCan('create_patients');
+        return $user->isAdmin() || $user->doctorCan('create_cases');
     }
 
     public function update(User $user, Patient $patient): bool
     {
         return $user->isAdmin()
-            || ($user->doctorCan('edit_patients') && $user->ownsPatient($patient));
+            || ($user->doctorCan('edit_cases') && $user->ownsPatient($patient));
     }
 
     public function delete(User $user, Patient $patient): bool
     {
         return $user->isAdmin()
-            || ($user->doctorCan('delete_patients') && $user->ownsPatient($patient));
+            || ($user->doctorCan('delete_cases') && $user->ownsPatient($patient));
     }
 
     /** Case chat: system administrator ↔ doctor assigned to this case only */
@@ -46,7 +50,7 @@ class PatientPolicy
         }
 
         return $patient->doctor_id === $user->doctor->id
-            && $user->doctorCan('manage_patients');
+            && $user->doctorCan('case_chat');
     }
 
     /** Upload / replace treatment plan canvas link (LineUp admin). */
@@ -62,11 +66,7 @@ class PatientPolicy
             return false;
         }
 
-        return $this->view($user, $patient)
-            && $user->isDoctor()
-            && $patient->doctor_id
-            && $user->doctor
-            && $patient->doctor_id === $user->doctor->id;
+        return $this->assignedDoctorWithPermission($user, $patient, 'review_plans');
     }
 
     /** Request case modification with new 3D scans (assigned doctor, after plan approval). */
@@ -76,7 +76,7 @@ class PatientPolicy
             return false;
         }
 
-        return $this->reviewTreatmentPlan($user, $patient);
+        return $this->assignedDoctorWithPermission($user, $patient, 'request_modification');
     }
 
     /** Order refinement after the case is fully manufactured (returning patient, new cycle). */
@@ -86,12 +86,22 @@ class PatientPolicy
             return false;
         }
 
-        return $this->reviewTreatmentPlan($user, $patient);
+        return $this->assignedDoctorWithPermission($user, $patient, 'request_refinement');
     }
 
     /** Confirm physical manufacturing is complete (LineUp admin, after doctor approval). */
     public function markAsManufactured(User $user, Patient $patient): bool
     {
         return $user->isAdmin() && $this->view($user, $patient);
+    }
+
+    private function assignedDoctorWithPermission(User $user, Patient $patient, string $permission): bool
+    {
+        return $this->view($user, $patient)
+            && $user->isDoctor()
+            && $patient->doctor_id
+            && $user->doctor
+            && $patient->doctor_id === $user->doctor->id
+            && $user->doctorCan($permission);
     }
 }

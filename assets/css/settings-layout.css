@@ -211,6 +211,251 @@ body.lineup-app .settings-page .settings-tabs-nav .nav-link.active i {
     margin-bottom: 16px;
 }
 
+.settings-page .settings-font-card {
+    grid-column: 1 / -1;
+}
+
+.settings-page .settings-font-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.settings-page .settings-font-picker li {
+    margin: 0;
+}
+
+.settings-page .settings-font-option {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.settings-page .settings-font-picker li.active .settings-font-option {
+    background: color-mix(in srgb, var(--lineup-skin, #00cfd1) 8%, #fff);
+}
+
+/* Brand color pickers */
+.settings-page .settings-color-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.settings-page .settings-color-field input[type="color"] {
+    width: 48px;
+    height: 48px;
+    padding: 4px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.settings-page .settings-color-field input[type="text"] {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: 0.04em;
+}
+
+.settings-page .settings-brand-preview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.settings-page .settings-brand-preview__panel {
+    border-radius: 12px;
+    padding: 18px 16px;
+    min-height: 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #fff;
+}
+
+.settings-page .settings-brand-preview__panel--secondary {
+    background: var(--preview-secondary, #09243c);
+}
+
+.settings-page .settings-brand-preview__panel--primary {
+    background: linear-gradient(145deg, var(--preview-secondary, #09243c) 0%, var(--preview-primary, #1a7fd4) 100%);
+}
+
+.settings-page .settings-brand-preview__eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.82;
+}
+
+.settings-page .settings-brand-preview__btn {
+    align-self: flex-start;
+    border: 0;
+    background: #fff !important;
+    color: var(--preview-primary, #1a7fd4) !important;
+    font-weight: 700;
+}
+
+.settings-page .settings-brand-preview__swatches {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.settings-page .settings-brand-preview__swatches span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-page .settings-brand-preview__swatches i {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    font-style: normal;
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 767px) {
+    .settings-page .settings-brand-preview {
+        grid-template-columns: 1fr;
+    }
+}
+
+.settings-page .settings-font-picker li.active .settings-font-option,
+.settings-page .settings-font-option:hover {
+    border-color: var(--lineup-skin, #00cfd1);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+.settings-page .settings-font-picker li.active .settings-font-option {
+    background: rgba(0, 207, 209, 0.06);
+}
+
+.settings-page .settings-font-option__name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.settings-page .settings-font-option__sample {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.45;
+}
+
+.settings-page .settings-font-live-preview {
+    padding: 18px 20px;
+    border-radius: 10px;
+    border: 1px dashed #cbd5e1;
+    background: #f8fafc;
+}
+
+.settings-page .settings-font-live-preview__label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 10px;
+}
+
+.settings-page .settings-font-live-preview__title {
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.settings-page .settings-font-live-preview__body {
+    margin: 0;
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.55;
+}
+
+.settings-page .settings-color-mode-picker {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.settings-page .settings-color-mode-picker li {
+    margin: 0;
+}
+
+.settings-page .settings-color-mode-option {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    min-height: 100%;
+    padding: 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.settings-page .settings-color-mode-picker li.active .settings-color-mode-option,
+.settings-page .settings-color-mode-option:hover {
+    border-color: var(--lineup-skin, #00cfd1);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+.settings-page .settings-color-mode-picker li.active .settings-color-mode-option {
+    background: rgba(0, 207, 209, 0.06);
+}
+
+.settings-page .settings-color-mode-option__swatch {
+    display: block;
+    width: 100%;
+    height: 56px;
+    border-radius: 8px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.settings-page .settings-color-mode-option__swatch--light {
+    background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+}
+
+.settings-page .settings-color-mode-option__swatch--dark {
+    background: linear-gradient(180deg, #1e293b 0%, #0b1118 100%);
+}
+
+.settings-page .settings-color-mode-option__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.settings-page .settings-color-mode-option__hint {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.45;
+}
+
 /* SweetAlert2 toast — no dropdown / no bootstrap-select bleed */
 .swal2-container {
     z-index: 200000 !important;
@@ -256,6 +501,28 @@ body.lineup-app .settings-page .settings-tabs-nav .nav-link.active i {
 .settings-page .doctor-role-delete-form {
     border-top: 1px dashed #eee;
     padding-top: 10px;
+}
+
+.settings-notification-matrix .table th,
+.settings-notification-matrix .table td {
+    vertical-align: middle;
+}
+
+.settings-notification-matrix .table thead th {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    border-top: none;
+}
+
+.settings-workflow-stages li {
+    margin-bottom: 8px;
+    color: #334155;
+}
+
+.settings-workflow-stages li strong {
+    color: #0f172a;
 }
 
 @media (max-width: 767px) {

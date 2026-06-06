@@ -57,7 +57,7 @@ class DoctorRoleController extends Controller
 
     private function validateRole(Request $request, ?DoctorRole $role = null): array
     {
-        $permissionKeys = array_keys(config('doctor-permissions', []));
+        $permissionKeys = array_keys(config('doctor-permissions.permissions', []));
 
         return $request->validate([
             'name' => ['required', 'string', 'max:255'],

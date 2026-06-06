@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\PatientCaseMessage;
+use App\Services\CaseChatContacts;
+use App\Services\CasePhotoStorage;
 use App\Services\CaseTimelineBuilder;
 use App\Services\LineUpNotifier;
 use App\Support\PhpUploadLimits;
@@ -19,6 +21,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -66,13 +69,13 @@ class PatientController extends Controller
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
             fputcsv($out, [
-                'Case Number', 'Doctor', 'Clinic', 'Case Type', 'Patient Name',
+                'Case Number', 'Doctor', 'Company', 'Case Type', 'Patient Name',
                 'Phone', 'Added At', 'Email', 'Workflow',
             ]);
 
             foreach ($rows as $patient) {
                 fputcsv($out, [
-                    $patient->patient_id,
+                    $patient->display_patient_id,
                     $patient->doctor?->fullName() ?? '',
                     $patient->doctor?->clinicNameForDisplay() ?? Setting::get('clinic_name', ''),
                     $patient->caseTypeLabel(),
@@ -104,6 +107,7 @@ class PatientController extends Controller
         $this->authorize('create', Patient::class);
 
         $validated = $this->validatePatient($request);
+        $this->assertScanRequirement($request);
         $data = $this->patientFields($validated);
         $data['patient_id'] = Patient::generatePatientId();
         $data['status'] = Patient::STATUS_ACTIVE;
@@ -150,8 +154,7 @@ class PatientController extends Controller
         }
 
         $logoUrl = Setting::logoUrl();
-        $doctorUser = $patient->doctor?->user;
-        $adminUser = User::query()->where('role', User::ROLE_ADMIN)->orderBy('id')->first();
+        $chatContacts = app(CaseChatContacts::class);
 
         return view('theme.pages.patient-case-study', [
             'patient' => $patient,
@@ -160,27 +163,19 @@ class PatientController extends Controller
             'clinicName' => $this->clinicNameForPatient($patient),
             'logoUrl' => $logoUrl,
             'canCaseChat' => auth()->user()->can('chat', $patient),
-            'chatDoctorName' => $patient->doctor ? 'Dr. '.$patient->doctor->fullName() : null,
-            'chatParticipants' => [
-                'doctor' => [
-                    'name' => $patient->doctor?->fullName() ?? 'Doctor',
-                    'role' => 'DOCTOR',
-                    'avatar' => $doctorUser?->photoUrl() ?? $logoUrl,
-                ],
-                'admin' => [
-                    'name' => $adminUser?->displayName() ?? 'System Administrator',
-                    'role' => 'ADMINISTRATOR',
-                    'avatar' => $adminUser?->photoUrl() ?? $logoUrl,
-                ],
-            ],
+            'chatDoctorName' => $chatContacts->assignedDoctorChatLabel($patient),
+            'chatCounterparty' => $chatContacts->counterpartyFor(auth()->user(), $patient, $logoUrl),
+            'chatParticipants' => $chatContacts->participants($patient, $logoUrl),
             'latestSeenOwnMessageId' => Schema::hasColumn('patient_case_messages', 'read_at')
                 ? (int) ($patient->caseMessages()
                     ->where('user_id', auth()->id())
                     ->whereNotNull('read_at')
                     ->max('id') ?: 0)
                 : 0,
-            'caseScanFiles' => $patient->caseScanFiles(),
-            'caseScanSets' => $patient->caseScanSetsForViewer(),
+            'caseScanSets' => $caseScanSets = $patient->caseScanSetsForViewer(),
+            'defaultScanSetKey' => $defaultScanSetKey = $patient->defaultScanSetKey(),
+            'caseScanFiles' => collect($caseScanSets)->firstWhere('key', $defaultScanSetKey)['files'] ?? [],
+            'casePhotosBySet' => $patient->casePhotosGalleryBySet(),
             'caseModifications' => Schema::hasTable('patient_case_modifications')
                 ? $patient->caseModifications
                 : collect(),
@@ -241,6 +236,77 @@ class PatientController extends Controller
         ]);
     }
 
+    public function downloadPhoto(Patient $patient, PatientPhoto $photo): BinaryFileResponse
+    {
+        $this->authorize('view', $patient);
+
+        if ($photo->patient_id !== $patient->id) {
+            abort(404);
+        }
+
+        $disk = Storage::disk('public');
+
+        if (! $disk->exists($photo->path)) {
+            abort(404, 'Photo file not found.');
+        }
+
+        return response()->download($disk->path($photo->path), $photo->downloadFilename());
+    }
+
+    public function downloadAllPhotos(Request $request, Patient $patient): BinaryFileResponse
+    {
+        $this->authorize('view', $patient);
+
+        $setKey = $request->query('set', 'original');
+        $photos = $patient->photosForSetKey($setKey);
+
+        if ($photos->isEmpty()) {
+            abort(404);
+        }
+
+        $disk = Storage::disk('public');
+        $zipPath = tempnam(sys_get_temp_dir(), 'case_photos_');
+        $zip = new \ZipArchive;
+
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            abort(500, 'Could not create download archive.');
+        }
+
+        $usedNames = [];
+
+        foreach ($photos as $photo) {
+            if (! $disk->exists($photo->path)) {
+                continue;
+            }
+
+            $name = $photo->downloadFilename();
+            if (isset($usedNames[$name])) {
+                $usedNames[$name]++;
+                $ext = pathinfo($name, PATHINFO_EXTENSION);
+                $base = pathinfo($name, PATHINFO_FILENAME);
+                $name = $base.'-'.$usedNames[$name].($ext ? '.'.$ext : '');
+            } else {
+                $usedNames[$name] = 1;
+            }
+
+            $zip->addFile($disk->path($photo->path), $name);
+        }
+
+        if ($zip->numFiles === 0) {
+            $zip->close();
+            @unlink($zipPath);
+
+            abort(404, 'No photo files available to download.');
+        }
+
+        $zip->close();
+
+        $suffix = $setKey === 'original' ? 'original' : $setKey;
+        $filename = $patient->display_patient_id.'-'.$suffix.'-photos.zip';
+
+        return response()->download($zipPath, $filename)->deleteFileAfterSend(true);
+    }
+
     public function edit(Patient $patient): View
     {
         $this->authorize('update', $patient);
@@ -258,6 +324,7 @@ class PatientController extends Controller
         $this->authorize('update', $patient);
 
         $validated = $this->validatePatient($request, $patient);
+        $this->assertScanRequirement($request, $patient);
         $data = $this->patientFields($validated);
         $data['status'] = Patient::STATUS_ACTIVE;
         $data['doctor_id'] = $this->resolveDoctorId($request, $validated, $patient);
@@ -315,6 +382,32 @@ class PatientController extends Controller
         return $request->validate($rules);
     }
 
+    private function assertScanRequirement(Request $request, ?Patient $patient = null): void
+    {
+        $requirement = Setting::scanRequirement();
+
+        if ($requirement === 'optional') {
+            return;
+        }
+
+        $hasUpper = $request->hasFile('upper_jaw_scan')
+            || ($patient && $patient->upper_jaw_scan && ! $request->boolean('remove_upper_jaw_scan'));
+        $hasLower = $request->hasFile('lower_jaw_scan')
+            || ($patient && $patient->lower_jaw_scan && ! $request->boolean('remove_lower_jaw_scan'));
+
+        if ($requirement === 'both' && (! $hasUpper || ! $hasLower)) {
+            throw ValidationException::withMessages([
+                'upper_jaw_scan' => 'Both upper and lower jaw scans are required for new cases.',
+            ]);
+        }
+
+        if ($requirement === 'at_least_one' && ! $hasUpper && ! $hasLower) {
+            throw ValidationException::withMessages([
+                'upper_jaw_scan' => 'Upload at least one jaw scan (upper or lower).',
+            ]);
+        }
+    }
+
     private function patientFields(array $validated): array
     {
         $name = Patient::splitName($validated['name']);
@@ -345,24 +438,7 @@ class PatientController extends Controller
 
     private function storeCasePhotos(Request $request, Patient $patient): void
     {
-        if (! $request->hasFile('photos')) {
-            return;
-        }
-
-        $sort = (int) $patient->photos()->max('sort_order');
-
-        foreach ($request->file('photos') as $file) {
-            if (! $file instanceof UploadedFile || ! $file->isValid()) {
-                continue;
-            }
-
-            $path = $file->store("patients/{$patient->id}/photos", 'public');
-            $patient->photos()->create([
-                'path' => $path,
-                'original_name' => $file->getClientOriginalName(),
-                'sort_order' => ++$sort,
-            ]);
-        }
+        app(CasePhotoStorage::class)->storeFromRequest($request, $patient);
     }
 
     private function removeCasePhotos(Request $request, Patient $patient): void
@@ -385,9 +461,7 @@ class PatientController extends Controller
 
     private function syncPrimaryPhoto(Patient $patient): void
     {
-        $first = $patient->photos()->orderBy('sort_order')->first();
-
-        $patient->update(['photo' => $first?->path]);
+        app(CasePhotoStorage::class)->syncPrimaryPhoto($patient);
     }
 
     private function storeJawScans(Request $request, Patient $patient): void

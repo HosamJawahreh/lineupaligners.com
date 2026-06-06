@@ -1,17 +1,15 @@
 @php
     $prefix = $prefix ?? 'settings';
     $editable = $editable ?? true;
-    if (! isset($systemStats)) {
-        $diskTotal = @disk_total_space(base_path()) ?: 0;
-        $diskFree = @disk_free_space(base_path()) ?: 0;
-        $systemStats = [
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024),
-            'cpu_percent' => function_exists('sys_getloadavg') ? min(100, (int) round((sys_getloadavg()[0] ?? 0) * 25)) : 0,
-            'daily_traffic' => \App\Models\Patient::count(),
-            'disk_percent' => $diskTotal > 0 ? round((($diskTotal - $diskFree) / $diskTotal) * 100, 2) : 0,
-        ];
-    }
-    $stats = $systemStats;
+    $diskTotal = @disk_total_space(base_path()) ?: 0;
+    $diskFree = @disk_free_space(base_path()) ?: 0;
+    $stats = array_merge([
+        'memory_mb' => round(memory_get_usage(true) / 1024 / 1024),
+        'cpu_percent' => function_exists('sys_getloadavg') ? min(100, (int) round((sys_getloadavg()[0] ?? 0) * 25)) : 0,
+        'cases_today' => 0,
+        'total_cases' => \App\Models\Patient::count(),
+        'disk_percent' => $diskTotal > 0 ? round((($diskTotal - $diskFree) / $diskTotal) * 100, 2) : 0,
+    ], $systemStats ?? []);
     $bool = fn (string $key) => filter_var($settings[$key] ?? '0', FILTER_VALIDATE_BOOLEAN);
     $selectedSkin = old('theme_skin', $settings['theme_skin'] ?? 'cyan');
 @endphp
@@ -123,8 +121,8 @@
     </div>
     <div class="row m-b-20">
         <div class="col-7">
-            <small class="displayblock">DAILY TRAFFIC</small>
-            <h5 class="m-b-0 h6">{{ number_format($stats['daily_traffic']) }}</h5>
+            <small class="displayblock">CASES TODAY</small>
+            <h5 class="m-b-0 h6">{{ number_format($stats['cases_today'] ?? 0) }}</h5>
         </div>
         <div class="col-5">
             <div class="sparkline" data-type="bar" data-width="97%" data-height="25px" data-bar-Width="5" data-bar-Spacing="3" data-bar-Color="#78b83e">7,5,8,7,4,2,6,5</div>

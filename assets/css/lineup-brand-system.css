@@ -1,0 +1,120 @@
+/**
+ * LineUp brand system — primary + secondary tokens shared by dashboard & website.
+ * Set via Settings → Branding or theme skin (primary fallback).
+ */
+
+/* Dashboard — topbar brand mark */
+body.lineup-app .lineup-topbar-logo-wrap {
+    background: linear-gradient(145deg, var(--lineup-brand-secondary) 0%, var(--lineup-brand) 100%);
+    box-shadow:
+        0 0 0 1px var(--lineup-topbar-control-border),
+        0 4px 14px rgba(var(--lineup-brand-secondary-rgb), 0.28);
+}
+
+/* Dashboard — page headers & accents */
+body.lineup-app .block-header h2 small {
+    color: var(--lineup-brand-secondary);
+}
+
+body.lineup-app .card .header h2::before {
+    background: linear-gradient(180deg, var(--lineup-brand) 0%, var(--lineup-brand-secondary) 100%);
+}
+
+body.lineup-app .card .header h2 strong {
+    color: var(--lineup-brand-secondary);
+}
+
+/* Dashboard — sidebar */
+body.lineup-app #leftsidebar.lineup-sidebar .menu .list li.active > :first-child i,
+body.lineup-app #leftsidebar.lineup-sidebar .menu .list li.active > :first-child span {
+    color: var(--lineup-brand) !important;
+}
+
+body.lineup-app #leftsidebar.lineup-sidebar .menu .list li.active {
+    background: var(--lineup-brand-secondary-soft);
+    border-left: 3px solid var(--lineup-brand-secondary);
+}
+
+body.lineup-app #leftsidebar.lineup-sidebar .menu .list a:hover {
+    color: var(--lineup-brand-secondary-dark) !important;
+}
+
+/* Dashboard — primary actions stay on brand primary */
+body.lineup-app .btn-primary,
+body.lineup-app .btn-primary:active,
+body.lineup-app .btn-primary:focus {
+    background: var(--lineup-brand) !important;
+    border-color: var(--lineup-brand) !important;
+}
+
+body.lineup-app .btn-primary:hover {
+    background: var(--lineup-brand-dark) !important;
+    border-color: var(--lineup-brand-dark) !important;
+}
+
+body.lineup-app .btn-outline-brand {
+    color: var(--lineup-brand-secondary);
+    border-color: color-mix(in srgb, var(--lineup-brand-secondary) 35%, #fff);
+    background: #fff;
+}
+
+body.lineup-app .btn-outline-brand:hover {
+    color: #fff;
+    background: var(--lineup-brand-secondary);
+    border-color: var(--lineup-brand-secondary);
+}
+
+/* Website admin workspace */
+.website-manage-page .wm-toolbar {
+    border-top: 3px solid var(--lineup-brand-secondary);
+}
+
+.website-manage-page .wm-sidebar__link.is-active {
+    background: var(--lineup-brand-secondary-soft);
+    color: var(--lineup-brand-secondary-dark);
+    box-shadow: inset 3px 0 0 var(--lineup-brand-secondary);
+}
+
+.website-manage-page .wm-panel__title {
+    color: var(--lineup-brand-secondary-dark);
+}
+
+.website-manage-page .wm-readiness-ring__value {
+    color: var(--lineup-brand-secondary-dark);
+}
+
+/* Public website — secondary surfaces */
+.lineup-smiliz-site .pbmit-bg-color-secondary,
+.lineup-smiliz-site .pbmit-bg-color-blackish,
+.lineup-smiliz-site .portfolio-section-two,
+.lineup-smiliz-site .lineup-cases-section {
+    background-color: var(--lineup-brand-secondary) !important;
+}
+
+.lineup-smiliz-site .pbmit-bg-color-global {
+    background-color: var(--lineup-brand) !important;
+}
+
+.lineup-smiliz-site .pbmit-header-info .pbmit-header-icon-wrap,
+.lineup-smiliz-site .lineup-header-location-mobile__icon {
+    background-color: var(--lineup-brand-secondary) !important;
+}
+
+.lineup-smiliz-site .pbmit-header-info-inner .pbmit-header-box .pbmit-header-content-wrap .pbmit-header-box-content,
+.lineup-smiliz-site .lineup-header-location-mobile__link {
+    color: var(--lineup-brand-secondary-dark);
+}
+
+.lineup-smiliz-site .main-menu .navigation > li > a:hover,
+.lineup-smiliz-site .main-menu .navigation > li.active > a {
+    color: var(--lineup-brand);
+}
+
+.lineup-smiliz-site .pbmit-slider-one .pbmit-slider-subtitle,
+.lineup-smiliz-site .pbmit-heading-subheading .pbmit-subtitle {
+    color: var(--lineup-brand);
+}
+
+.lineup-smiliz-site .lineup-smiliz-preview-bar {
+    background: var(--lineup-brand-secondary);
+}

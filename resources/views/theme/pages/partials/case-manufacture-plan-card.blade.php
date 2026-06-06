@@ -22,9 +22,6 @@
             <span class="mfg-plan__version">Version {{ $plan->version }}</span>
             @endif
         </div>
-        <a href="{{ $plan->plan_url }}" target="_blank" rel="noopener noreferrer" class="mfg-plan__open-link">
-            Open in new tab <i class="zmdi zmdi-open-in-new"></i>
-        </a>
     </header>
 
     <div class="mfg-plan__canvas-wrap">
@@ -36,6 +33,15 @@
             referrerpolicy="no-referrer-when-downgrade"
             allowfullscreen></iframe>
     </div>
+    @if(! $plan->stage_number)
+    <p class="mfg-plan__canvas-desc">LineUp admin submits the treatment plan canvas link from the viewer. The doctor approves or rejects before manufacturing proceeds.</p>
+    @endif
+    @if($plan->is_current && ! $isHistorical && isset($patient))
+    @include('theme.pages.partials.case-manufacture-plan-manufactured-banner', [
+        'patient' => $patient,
+        'canMarkManufactured' => $canMarkManufactured ?? false,
+    ])
+    @endif
 
     <footer class="mfg-plan__card-foot">
         <dl class="mfg-plan__meta">

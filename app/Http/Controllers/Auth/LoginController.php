@@ -23,6 +23,16 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $user = Auth::user();
+
+            if (! $user->isAdmin() && ! $user->isDoctor()) {
+                Auth::logout();
+
+                return back()->withErrors([
+                    'email' => 'This login is for LineUp administrators and doctors only.',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
 
             return redirect()->intended(route('dashboard'));

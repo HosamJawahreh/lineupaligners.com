@@ -208,8 +208,14 @@ class DashboardController extends Controller
 
     protected function scopedPatientsQuery(?Doctor $doctor = null): Builder
     {
+        $user = auth()->user();
+
         if ($doctor) {
             return Patient::query()->where('doctor_id', $doctor->id);
+        }
+
+        if ($user?->isDoctor()) {
+            return Patient::query()->where('doctor_id', $user->doctor?->id);
         }
 
         return Patient::query();

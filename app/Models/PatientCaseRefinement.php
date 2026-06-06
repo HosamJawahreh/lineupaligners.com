@@ -13,6 +13,7 @@ class PatientCaseRefinement extends Model
     {
         static::deleting(function (PatientCaseRefinement $refinement) {
             $refinement->deleteScanFiles();
+            $refinement->deletePhotos();
         });
     }
 
@@ -55,6 +56,11 @@ class PatientCaseRefinement extends Model
     public function treatmentPlans(): HasMany
     {
         return $this->hasMany(PatientTreatmentPlan::class, 'refinement_id');
+    }
+
+    public function photos(): HasMany
+    {
+        return $this->hasMany(PatientPhoto::class, 'refinement_id')->orderBy('sort_order');
     }
 
     public function hasScans(): bool
@@ -139,5 +145,15 @@ class PatientCaseRefinement extends Model
                 Storage::disk('public')->delete($path);
             }
         }
+    }
+
+    public function deletePhotos(): void
+    {
+        foreach ($this->photos as $photo) {
+            if ($photo->path && Storage::disk('public')->exists($photo->path)) {
+                Storage::disk('public')->delete($photo->path);
+            }
+        }
+        $this->photos()->delete();
     }
 }

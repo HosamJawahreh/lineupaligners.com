@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Patient;
 use App\Models\PatientCaseModification;
+use App\Services\CasePhotoStorage;
 use App\Services\CaseWorkflowService;
 use App\Services\LineUpNotifier;
 use Illuminate\Http\RedirectResponse;
@@ -47,6 +48,8 @@ class PatientCaseModificationController extends Controller
             'notes' => ['required', 'string', 'min:10', 'max:10000'],
             'upper_jaw_scan' => ['nullable', 'file', Rule::file()->extensions(self::SCAN_EXTENSIONS)->max(self::SCAN_MAX_KB)],
             'lower_jaw_scan' => ['nullable', 'file', Rule::file()->extensions(self::SCAN_EXTENSIONS)->max(self::SCAN_MAX_KB)],
+            'photos' => ['nullable', 'array'],
+            'photos.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:'.CasePhotoStorage::MAX_KB],
         ]);
 
         if (! $request->hasFile('upper_jaw_scan') && ! $request->hasFile('lower_jaw_scan')) {
@@ -92,6 +95,8 @@ class PatientCaseModificationController extends Controller
             if ($request->hasFile('lower_jaw_scan')) {
                 $this->storeModificationScan($modification, 'lower_jaw_scan', $request->file('lower_jaw_scan'));
             }
+
+            app(CasePhotoStorage::class)->storeFromRequest($request, $patient, $modification);
 
             $this->workflow->afterModificationRequested($patient->fresh());
         });

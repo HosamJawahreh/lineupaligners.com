@@ -1,0 +1,114 @@
+/* Shared language pill switcher — matches Manage Website dashboard toolbar */
+.lineup-lang-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-inline-end: 12px;
+    padding: 3px;
+    background: #f1f5f9;
+    border-radius: 999px;
+    font-family: var(--lineup-font-sans, 'Segoe UI', system-ui, sans-serif);
+    line-height: 1;
+}
+
+.lineup-lang-switcher__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-decoration: none !important;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    line-height: 1.2;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+.lineup-lang-switcher__btn:hover,
+.lineup-lang-switcher__btn:focus {
+    color: var(--lineup-brand, var(--lineup-skin, #0284c7));
+    text-decoration: none !important;
+    background: transparent;
+}
+
+.lineup-lang-switcher__btn.is-active {
+    background: #fff;
+    color: var(--lineup-brand, var(--lineup-skin, #0284c7));
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1);
+}
+
+.lineup-lang-switcher__btn.is-active:hover,
+.lineup-lang-switcher__btn.is-active:focus {
+    background: #fff;
+    color: var(--lineup-brand, var(--lineup-skin, #0284c7));
+}
+
+.lineup-lang-switcher__flag {
+    font-size: 15px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.lineup-lang-switcher__label {
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+/* Smiliz header — undo theme spacing/link styles on the switcher */
+.site-header .pbmit-right-box > .lineup-lang-switcher {
+    padding: 3px !important;
+    margin-inline-end: 12px;
+    flex-shrink: 0;
+    background: #f1f5f9 !important;
+    border-radius: 999px !important;
+}
+
+.site-header .pbmit-sticky-header .pbmit-right-box > .lineup-lang-switcher {
+    background: #f1f5f9 !important;
+}
+
+.site-header .pbmit-right-box .lineup-lang-switcher__btn {
+    color: #64748b !important;
+    padding: 7px 14px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 999px !important;
+}
+
+.site-header .pbmit-right-box .lineup-lang-switcher__btn:hover,
+.site-header .pbmit-right-box .lineup-lang-switcher__btn:focus {
+    color: var(--lineup-brand, #0284c7) !important;
+    background: transparent !important;
+}
+
+.site-header .pbmit-right-box .lineup-lang-switcher__btn.is-active {
+    background: #fff !important;
+    color: var(--lineup-brand, #0284c7) !important;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1) !important;
+}
+
+.site-header .pbmit-right-box .lineup-lang-switcher__btn.is-active:hover,
+.site-header .pbmit-right-box .lineup-lang-switcher__btn.is-active:focus {
+    background: #fff !important;
+    color: var(--lineup-brand, #0284c7) !important;
+}
+
+.site-header .pbmit-right-box .lineup-lang-switcher__flag {
+    font-size: 15px !important;
+    line-height: 1 !important;
+}
+
+@media (max-width: 991px) {
+    .lineup-lang-switcher {
+        margin-inline-end: 0;
+        margin-bottom: 8px;
+    }
+
+    .site-header .pbmit-right-box > .lineup-lang-switcher {
+        margin-inline-end: 0;
+    }
+}

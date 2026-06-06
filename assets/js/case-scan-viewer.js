@@ -31,9 +31,13 @@ if (root && canvas) {
     const viewerPane = document.getElementById('case-scan-viewer-pane');
     const toolbar = root.querySelector('.case-scan-toolbar');
     const loadingEl = document.getElementById('case-scan-loading');
+    const emptyEl = document.getElementById('case-scan-empty');
+    const emptyText = document.getElementById('case-scan-empty-text');
     const errorEl = document.getElementById('case-scan-error');
     const errorText = document.getElementById('case-scan-error-text');
     const loadingText = document.getElementById('case-scan-loading-text');
+
+    const EMPTY_SCAN_SET_MESSAGE = 'No 3D scan files in this scan set. Switch scan set or upload scans when editing the case.';
 
     const SCAN_STYLES = {
         upper: { color: 0xf8fafc, label: 'Upper' },
@@ -566,9 +570,15 @@ if (root && canvas) {
 
     function setOverlay(state, message) {
         loadingEl.classList.toggle('is-hidden', state !== 'loading');
+        if (emptyEl) {
+            emptyEl.classList.toggle('is-hidden', state !== 'empty');
+        }
         errorEl.classList.toggle('is-hidden', state !== 'error');
         if (message && loadingText) {
             loadingText.textContent = message;
+        }
+        if (message && emptyText && state === 'empty') {
+            emptyText.textContent = message;
         }
         if (message && errorText && state === 'error') {
             errorText.textContent = message;
@@ -1488,7 +1498,7 @@ if (root && canvas) {
         });
     }
 
-    function updateModificationNotes(notes) {
+    function updateModificationNotes(notes, setKey) {
         if (!modNotesEl || !modNotesText) {
             return;
         }
@@ -1498,6 +1508,17 @@ if (root && canvas) {
             modNotesEl.classList.add('is-hidden');
             modNotesText.textContent = '';
             return;
+        }
+
+        const labelEl = document.getElementById('case-scan-mod-notes-label');
+        if (labelEl && setKey) {
+            if (String(setKey).startsWith('ref-')) {
+                labelEl.textContent = 'Refinement notes';
+            } else if (String(setKey).startsWith('mod-')) {
+                labelEl.textContent = 'Modification notes';
+            } else {
+                labelEl.textContent = 'Case notes';
+            }
         }
 
         modNotesText.textContent = text;
@@ -1555,25 +1576,36 @@ if (root && canvas) {
 
         scans = set.files;
         root.dataset.scans = JSON.stringify(scans);
-        updateModificationNotes(set.notes);
+        updateModificationNotes(set.notes, set.key);
         rebuildLegend(scans);
         rebuildFileList(scans);
 
         clearAllMeshes();
 
         if (!scans.length) {
-            setOverlay('error', 'No scan files in this set.');
+            setOverlay('empty', EMPTY_SCAN_SET_MESSAGE);
             return;
         }
 
         await loadAll();
     }
 
+    function getInitialScanSet() {
+        const preferredKey = root.dataset.defaultScanSet || '';
+        return findScanSet(preferredKey) || findScanSet(scanSetSelect?.value) || scanSets[0] || null;
+    }
+
+    function notifyScanSetChanged(key) {
+        document.dispatchEvent(new CustomEvent('case-scan-set-changed', {
+            detail: { key, fromViewer: true },
+        }));
+    }
+
     function bindScanSetSwitcher() {
-        if (!scanSetSelect || scanSets.length < 2) {
-            const first = scanSets[0];
-            if (first) {
-                updateModificationNotes(first.notes);
+        if (!scanSetSelect) {
+            const initial = getInitialScanSet();
+            if (initial) {
+                updateModificationNotes(initial.notes, initial.key);
             }
             return;
         }
@@ -1582,13 +1614,9 @@ if (root && canvas) {
             const set = findScanSet(scanSetSelect.value);
             if (set) {
                 applyScanSet(set);
+                notifyScanSetChanged(set.key);
             }
         });
-
-        const first = findScanSet(scanSetSelect.value) || scanSets[0];
-        if (first) {
-            updateModificationNotes(first.notes);
-        }
     }
 
     async function loadAll() {
@@ -1670,6 +1698,18 @@ if (root && canvas) {
     initModelMoveControls();
     bindMoveSelectionFromFiles();
     bindVisibilityToggles();
+    const initialScanSet = getInitialScanSet();
+    if (initialScanSet) {
+        if (scanSetSelect) {
+            scanSetSelect.value = initialScanSet.key;
+        }
+        scans = initialScanSet.files;
+        root.dataset.scans = JSON.stringify(scans);
+        updateModificationNotes(initialScanSet.notes, initialScanSet.key);
+        rebuildLegend(scans);
+        rebuildFileList(scans);
+    }
+
     bindScanSetSwitcher();
     applyControlBindings();
     setGrid(true);
@@ -1678,5 +1718,15 @@ if (root && canvas) {
     applyLighting();
     resize();
     animate();
-    loadAll();
+
+    if (initialScanSet) {
+        notifyScanSetChanged(initialScanSet.key);
+        if (scans.length) {
+            loadAll();
+        } else {
+            setOverlay('empty', EMPTY_SCAN_SET_MESSAGE);
+        }
+    } else {
+        setOverlay('empty', EMPTY_SCAN_SET_MESSAGE);
+    }
 }

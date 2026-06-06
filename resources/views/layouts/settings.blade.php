@@ -48,6 +48,11 @@
 @endsection
 
 @push('scripts')
+@if(session('success'))
+<script>
+try { localStorage.removeItem('lineup-color-mode'); } catch (e) {}
+</script>
+@endif
 <script>
 $(function () {
     var tab = new URLSearchParams(window.location.search).get('tab');
@@ -64,6 +69,31 @@ $(function () {
     toggleSaveActions();
 
     $('.settings-skin-picker li').on('click', function () {
+        var $li = $(this);
+        $li.siblings().removeClass('active');
+        $li.addClass('active');
+        $li.find('input[type=radio]').prop('checked', true);
+    });
+
+    function applyFontPreview($input) {
+        if (!$input.length) {
+            return;
+        }
+        var stack = $input.data('font-stack') || '';
+        $('#settings-font-preview-title, #settings-font-preview-body').css('font-family', stack);
+    }
+
+    $('.settings-font-picker li').on('click', function () {
+        var $li = $(this);
+        $li.siblings().removeClass('active');
+        $li.addClass('active');
+        var $input = $li.find('input[type=radio]').prop('checked', true);
+        applyFontPreview($input);
+    });
+
+    applyFontPreview($('.settings-font-picker input[type=radio]:checked'));
+
+    $('.settings-color-mode-picker li').on('click', function () {
         var $li = $(this);
         $li.siblings().removeClass('active');
         $li.addClass('active');
@@ -103,6 +133,33 @@ $(function () {
             $('#profile-photo-preview').attr('src', @json(asset('assets/images/profile_av.jpg')));
         }
     });
+
+    function normalizeHexInput(value, fallback) {
+        var hex = (value || '').trim();
+        if (!hex) return fallback;
+        if (hex.charAt(0) !== '#') hex = '#' + hex;
+        return /^#[0-9a-fA-F]{6}$/.test(hex) ? hex.toLowerCase() : fallback;
+    }
+
+    function syncBrandPreview() {
+        var skinFallback = $('.settings-skin-picker li.active .skin-swatch').css('background-color') || '#1a7fd4';
+        var primary = normalizeHexInput($('#brand_primary').val(), normalizeHexInput($('#brand_primary_picker').val(), skinFallback));
+        var secondary = normalizeHexInput($('#brand_secondary').val(), $('#brand_secondary_picker').val() || '#09243c');
+        var $preview = $('#settings-brand-preview');
+        if (!$preview.length) return;
+        $preview.css({
+            '--preview-primary': primary,
+            '--preview-secondary': secondary
+        });
+        $('#brand_primary_picker').val(primary);
+        $('#brand_secondary_picker').val(secondary);
+    }
+
+    $('#brand_primary, #brand_secondary, #brand_primary_picker, #brand_secondary_picker').on('input change', syncBrandPreview);
+    $('.settings-skin-picker li').on('click', function () {
+        setTimeout(syncBrandPreview, 0);
+    });
+    syncBrandPreview();
 
     if (typeof initSparkline === 'function') {
         initSparkline();

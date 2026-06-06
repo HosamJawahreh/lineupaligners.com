@@ -1,0 +1,379 @@
+/**
+ * LineUp — dashboard light / dark color mode
+ */
+
+body.lineup-app.lineup-color-light {
+    color-scheme: light;
+}
+
+body.lineup-app.lineup-color-dark {
+    color-scheme: dark;
+
+    --lineup-surface: #0b1118;
+    --lineup-surface-elevated: #151d2b;
+    --lineup-surface-muted: #1c2636;
+    --lineup-border: #2a3548;
+    --lineup-border-soft: #223044;
+    --lineup-text: #e8edf4;
+    --lineup-text-muted: #94a3b8;
+    --lineup-input-bg: #111a27;
+    --lineup-input-border: #334155;
+    --lineup-input-text: #e2e8f0;
+    --lineup-topbar-bg: rgba(11, 17, 24, 0.97);
+    --lineup-topbar-border: #2a3548;
+    --lineup-topbar-text: #f1f5f9;
+    --lineup-topbar-muted: #94a3b8;
+    --lineup-topbar-control-border: #334155;
+    --lineup-topbar-control-hover: #1e293b;
+    --lineup-topbar-shadow: 0 1px 0 rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.35);
+
+    background: var(--lineup-surface) !important;
+    color: var(--lineup-text);
+}
+
+/* ── Shell: topbar, sidebar, page canvas ── */
+body.lineup-app.lineup-color-dark section.content {
+    background: var(--lineup-surface);
+}
+
+body.lineup-app.lineup-color-dark #leftsidebar.lineup-sidebar {
+    background: #0f1623;
+    border-right-color: var(--lineup-border);
+}
+
+body.lineup-app.lineup-color-dark .lineup-sidebar-logo {
+    border-bottom-color: var(--lineup-border);
+}
+
+body.lineup-app.lineup-color-dark {
+    --lineup-icon-muted: #94a3b8;
+}
+
+body.lineup-app.lineup-color-dark .lineup-nav > li > a {
+    color: var(--lineup-icon-muted, #94a3b8);
+}
+
+body.lineup-app.lineup-color-dark .lineup-nav > li > a:hover {
+    color: #e2e8f0;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+body.lineup-app.lineup-color-dark .lineup-nav > li.active > a {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Headers & breadcrumbs ── */
+body.lineup-app.lineup-color-dark .block-header h2,
+body.lineup-app.lineup-color-dark[class*="theme-"] .block-header h2,
+body.lineup-app.lineup-color-dark .settings-page .block-header h2,
+body.lineup-app.lineup-color-dark .patient-form-page .block-header h2,
+body.lineup-app.lineup-color-dark .cases-panel-head h1 {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .block-header h2 small,
+body.lineup-app.lineup-color-dark .block-header h2 .text-muted,
+body.lineup-app.lineup-color-dark .block-header .breadcrumb-item,
+body.lineup-app.lineup-color-dark .block-header .breadcrumb-item a,
+body.lineup-app.lineup-color-dark .settings-page .block-header h2 small,
+body.lineup-app.lineup-color-dark .patient-form-page .block-header h2 small {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .block-header .breadcrumb-item.active {
+    color: var(--lineup-text) !important;
+}
+
+/* ── Cards & panels ── */
+body.lineup-app.lineup-color-dark .card,
+body.lineup-app.lineup-color-dark .cases-panel,
+body.lineup-app.lineup-color-dark .patient-case-card,
+body.lineup-app.lineup-color-dark .settings-card {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    color: var(--lineup-text);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+}
+
+body.lineup-app.lineup-color-dark .card .body,
+body.lineup-app.lineup-color-dark .settings-card .body,
+body.lineup-app.lineup-color-dark .settings-page .settings-panel-grid .inner-card {
+    background: var(--lineup-surface-muted);
+    border-color: var(--lineup-border-soft);
+    color: var(--lineup-text);
+}
+
+body.lineup-app.lineup-color-dark .cases-dashboard {
+    background: var(--lineup-surface);
+}
+
+body.lineup-app.lineup-color-dark .settings-page .settings-actions {
+    background: var(--lineup-surface-muted);
+    border-top-color: var(--lineup-border);
+}
+
+body.lineup-app.lineup-color-dark .settings-page .settings-tabs-header {
+    background: var(--lineup-surface-elevated);
+    border-bottom-color: var(--lineup-border);
+}
+
+body.lineup-app.lineup-color-dark .settings-page .nav-tabs .nav-link {
+    color: var(--lineup-text-muted);
+}
+
+body.lineup-app.lineup-color-dark .settings-page .nav-tabs .nav-link.active {
+    color: var(--lineup-text);
+    background: var(--lineup-surface-muted);
+    border-color: var(--lineup-border) var(--lineup-border) transparent;
+}
+
+/* ── Forms ── */
+body.lineup-app.lineup-color-dark .form-control,
+body.lineup-app.lineup-color-dark select.form-control,
+body.lineup-app.lineup-color-dark textarea.form-control,
+body.lineup-app.lineup-color-dark .bootstrap-select > .dropdown-toggle {
+    background-color: var(--lineup-input-bg) !important;
+    border-color: var(--lineup-input-border) !important;
+    color: var(--lineup-input-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .form-control::placeholder {
+    color: #64748b !important;
+}
+
+body.lineup-app.lineup-color-dark label,
+body.lineup-app.lineup-color-dark .form-group label {
+    color: #cbd5e1;
+}
+
+body.lineup-app.lineup-color-dark .text-muted,
+body.lineup-app.lineup-color-dark small.text-muted {
+    color: var(--lineup-text-muted) !important;
+}
+
+/* ── Tables & DataTables ── */
+body.lineup-app.lineup-color-dark .table,
+body.lineup-app.lineup-color-dark table.dataTable {
+    color: var(--lineup-text);
+}
+
+body.lineup-app.lineup-color-dark .table thead th,
+body.lineup-app.lineup-color-dark table.dataTable thead th {
+    background: #111a27 !important;
+    color: #cbd5e1 !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .table td,
+body.lineup-app.lineup-color-dark .table th,
+body.lineup-app.lineup-color-dark table.dataTable tbody td,
+body.lineup-app.lineup-color-dark table.dataTable tbody th {
+    border-color: var(--lineup-border-soft) !important;
+}
+
+body.lineup-app.lineup-color-dark .table-striped tbody tr:nth-of-type(odd),
+body.lineup-app.lineup-color-dark table.dataTable.stripe tbody tr.odd,
+body.lineup-app.lineup-color-dark table.dataTable.display tbody tr.odd {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+body.lineup-app.lineup-color-dark .table-hover tbody tr:hover,
+body.lineup-app.lineup-color-dark table.dataTable.hover tbody tr:hover,
+body.lineup-app.lineup-color-dark table.dataTable.display tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dt-bottom {
+    border-top-color: var(--lineup-border);
+}
+
+body.lineup-app.lineup-color-dark .lineup-dt-bottom .dataTables_info {
+    color: var(--lineup-text-muted);
+}
+
+body.lineup-app.lineup-color-dark .dataTables_paginate .paginate_button,
+body.lineup-app.lineup-color-dark .dataTables_paginate .page-item .page-link {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .dataTables_paginate .paginate_button.current,
+body.lineup-app.lineup-color-dark .dataTables_paginate .page-item.active .page-link {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #fff !important;
+}
+
+body.lineup-app.lineup-color-dark div.dataTables_wrapper div.dataTables_processing {
+    background: rgba(15, 22, 33, 0.95);
+    border-color: var(--lineup-border);
+    color: var(--lineup-text);
+}
+
+/* ── Cases dashboard specifics ── */
+body.lineup-app.lineup-color-dark .cases-tabs-bar {
+    border-bottom-color: var(--lineup-border);
+}
+
+body.lineup-app.lineup-color-dark .cases-tab {
+    color: var(--lineup-text-muted);
+}
+
+body.lineup-app.lineup-color-dark .cases-tab.active,
+body.lineup-app.lineup-color-dark .cases-tab:hover {
+    color: var(--lineup-text);
+}
+
+body.lineup-app.lineup-color-dark .cases-filters,
+body.lineup-app.lineup-color-dark .cases-toolbar {
+    border-color: var(--lineup-border-soft);
+}
+
+/* ── Dropdowns & modals ── */
+body.lineup-app.lineup-color-dark .dropdown-menu {
+    background: var(--lineup-surface-elevated);
+    border-color: var(--lineup-border);
+}
+
+body.lineup-app.lineup-color-dark .dropdown-menu a,
+body.lineup-app.lineup-color-dark .dropdown-menu .dropdown-item {
+    color: var(--lineup-text);
+}
+
+body.lineup-app.lineup-color-dark .dropdown-menu a:hover,
+body.lineup-app.lineup-color-dark .dropdown-menu .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+}
+
+body.lineup-app.lineup-color-dark .modal-content {
+    background: var(--lineup-surface-elevated);
+    border-color: var(--lineup-border);
+    color: var(--lineup-text);
+}
+
+body.lineup-app.lineup-color-dark .modal-header,
+body.lineup-app.lineup-color-dark .modal-footer {
+    border-color: var(--lineup-border);
+}
+
+/* ── Buttons (neutral / default) ── */
+body.lineup-app.lineup-color-dark .btn-default,
+body.lineup-app.lineup-color-dark .btn.btn-default {
+    background: var(--lineup-surface-muted);
+    border-color: var(--lineup-border);
+    color: var(--lineup-text);
+}
+
+body.lineup-app.lineup-color-dark .btn-default:hover,
+body.lineup-app.lineup-color-dark .btn.btn-default:hover {
+    background: #243044;
+    color: #fff;
+}
+
+/* ── Right sidebar settings panel ── */
+body.lineup-app.lineup-color-dark .right-sidebar {
+    background: var(--lineup-surface-elevated);
+}
+
+body.lineup-app.lineup-color-dark .right-sidebar .card {
+    background: var(--lineup-surface-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .right-sidebar .nav-tabs {
+    border-bottom-color: var(--lineup-border);
+}
+
+/* ── Topbar tool icons (dark mode) ── */
+body.lineup-app.lineup-color-dark .lineup-topbar-tools .lineup-topbar-btn {
+    color: var(--lineup-icon-muted, #94a3b8) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-topbar-tools .lineup-topbar-btn:hover,
+body.lineup-app.lineup-color-dark .lineup-topbar-tools .lineup-topbar-btn:focus {
+    background: transparent !important;
+    color: var(--lineup-skin) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-notify__badge {
+    border-color: #151d2b;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+/* ── Settings appearance previews ── */
+body.lineup-app.lineup-color-dark .settings-font-option {
+    background: var(--lineup-surface-elevated);
+    border-color: var(--lineup-border);
+}
+
+body.lineup-app.lineup-color-dark .settings-font-option__name {
+    color: var(--lineup-text);
+}
+
+body.lineup-app.lineup-color-dark .settings-font-live-preview {
+    background: var(--lineup-surface);
+    border-color: var(--lineup-border);
+}
+
+body.lineup-app.lineup-color-dark .settings-color-mode-option {
+    background: var(--lineup-surface-elevated);
+    border-color: var(--lineup-border);
+}
+
+body.lineup-app.lineup-color-dark .settings-color-mode-option__title {
+    color: var(--lineup-text);
+}
+
+body.lineup-app.lineup-color-dark .settings-color-mode-option__hint {
+    color: var(--lineup-text-muted);
+}
+
+/* ── Patient case study ── */
+body.lineup-app.lineup-color-dark .case-study-page {
+    background: var(--lineup-surface);
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card--dossier {
+    background: var(--lineup-surface-elevated);
+    border-color: var(--lineup-border);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card__kicker,
+body.lineup-app.lineup-color-dark .case-summary-card__label {
+    color: var(--lineup-text-muted);
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card__case-id,
+body.lineup-app.lineup-color-dark .case-summary-card__meta-value,
+body.lineup-app.lineup-color-dark .case-summary-card__meta dt,
+body.lineup-app.lineup-color-dark .case-summary-card__meta dd {
+    color: var(--lineup-text);
+}
+
+body.lineup-app.lineup-color-dark .case-study-panels,
+body.lineup-app.lineup-color-dark .case-study-panel,
+body.lineup-app.lineup-color-dark .case-scan-section,
+body.lineup-app.lineup-color-dark .mfg-plan,
+body.lineup-app.lineup-color-dark .case-modification,
+body.lineup-app.lineup-color-dark .case-refinement {
+    color: var(--lineup-text);
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel {
+    background: var(--lineup-surface-elevated);
+    border-color: var(--lineup-border);
+}
+
+body.lineup-app.lineup-color-dark .case-workflow--premium .case-workflow__rail-track {
+    background: #243044;
+}
+
+body.lineup-app.lineup-color-dark .case-workflow-label {
+    color: var(--lineup-text-muted);
+}
+
+body.lineup-app.lineup-color-dark .case-workflow-step--current .case-workflow-label {
+    color: var(--lineup-text);
+}

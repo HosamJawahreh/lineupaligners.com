@@ -1,10 +1,12 @@
 @php
-    $permissions = config('doctor-permissions', []);
+    $groups = config('doctor-permissions.groups', []);
+    $permissions = config('doctor-permissions.permissions', []);
+    $permissionsByGroup = collect($permissions)->groupBy('group');
 @endphp
 
 <div class="tab-pane" id="tab-doctor-roles" role="tabpanel">
     <p class="settings-section-title">Doctor Roles</p>
-    <p class="text-muted m-b-25">Define roles and permissions for doctor accounts. Assign a role when adding or editing a doctor.</p>
+    <p class="text-muted m-b-25">Permissions follow the LineUp case workflow: submit cases → review plans → request modifications → order refinements. Assign a role when adding or editing a doctor.</p>
 
     <div class="row clearfix">
         <div class="col-lg-5 col-md-12 m-b-30">
@@ -20,15 +22,19 @@
                         <label>Description</label>
                         <textarea name="description" class="form-control" rows="2" placeholder="Optional">{{ old('description') }}</textarea>
                     </div>
-                    <div class="form-group">
-                        <label class="d-block m-b-10">Permissions</label>
-                        @foreach($permissions as $key => $label)
-                            <div class="checkbox">
-                                <input type="checkbox" name="permissions[]" id="new-perm-{{ $key }}" value="{{ $key }}" @checked(in_array($key, old('permissions', [])))>
-                                <label for="new-perm-{{ $key }}">{{ $label }}</label>
-                            </div>
-                        @endforeach
-                    </div>
+                    @foreach($groups as $groupKey => $groupLabel)
+                        @if($permissionsByGroup->has($groupKey))
+                        <div class="form-group">
+                            <label class="d-block m-b-10">{{ $groupLabel }}</label>
+                            @foreach($permissionsByGroup[$groupKey] as $key => $meta)
+                                <div class="checkbox">
+                                    <input type="checkbox" name="permissions[]" id="new-perm-{{ $key }}" value="{{ $key }}" @checked(in_array($key, old('permissions', [])))>
+                                    <label for="new-perm-{{ $key }}" title="{{ $meta['hint'] ?? '' }}">{{ $meta['label'] }}</label>
+                                </div>
+                            @endforeach
+                        </div>
+                        @endif
+                    @endforeach
                     <div class="checkbox m-b-20">
                         <input type="checkbox" name="is_active" id="new-role-active" value="1" @checked(old('is_active', true))>
                         <label for="new-role-active">Active</label>
@@ -63,20 +69,24 @@
                             <label>Description</label>
                             <textarea name="description" class="form-control" rows="2">{{ old('description.'.$role->id, $role->description) }}</textarea>
                         </div>
-                        <div class="form-group">
-                            <label class="d-block m-b-10">Permissions</label>
-                            <div class="row">
-                                @foreach($permissions as $key => $label)
-                                    <div class="col-md-6">
-                                        <div class="checkbox">
-                                            <input type="checkbox" name="permissions[]" id="role-{{ $role->id }}-{{ $key }}" value="{{ $key }}"
-                                                @checked(in_array($key, old('permissions.'.$role->id, $role->permissions ?? [])))>
-                                            <label for="role-{{ $role->id }}-{{ $key }}">{{ $label }}</label>
+                        @foreach($groups as $groupKey => $groupLabel)
+                            @if($permissionsByGroup->has($groupKey))
+                            <div class="form-group">
+                                <label class="d-block m-b-10">{{ $groupLabel }}</label>
+                                <div class="row">
+                                    @foreach($permissionsByGroup[$groupKey] as $key => $meta)
+                                        <div class="col-md-6">
+                                            <div class="checkbox">
+                                                <input type="checkbox" name="permissions[]" id="role-{{ $role->id }}-{{ $key }}" value="{{ $key }}"
+                                                    @checked(in_array($key, old('permissions.'.$role->id, $role->permissions ?? [])))>
+                                                <label for="role-{{ $role->id }}-{{ $key }}" title="{{ $meta['hint'] ?? '' }}">{{ $meta['label'] }}</label>
+                                            </div>
                                         </div>
-                                    </div>
-                                @endforeach
+                                    @endforeach
+                                </div>
                             </div>
-                        </div>
+                            @endif
+                        @endforeach
                         <div class="checkbox m-b-15">
                             <input type="checkbox" name="is_active" id="role-active-{{ $role->id }}" value="1" @checked(old('is_active.'.$role->id, $role->is_active))>
                             <label for="role-active-{{ $role->id }}">Active</label>

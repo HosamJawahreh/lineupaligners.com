@@ -95,7 +95,7 @@ class CaseTimelineBuilder
             type: 'case_created',
             at: $patient->created_at,
             title: 'Case opened',
-            summary: $patient->caseTypeLabel().' · '.$patient->patient_id,
+            summary: $patient->caseTypeLabel().' · '.$patient->display_patient_id,
             body: null,
             actorName: $doctor ? 'Dr. '.$doctor : null,
             actorRole: 'Doctor',
@@ -126,7 +126,7 @@ class CaseTimelineBuilder
             actorRole: null,
             tone: 'violet',
             icon: 'zmdi-rotate-3d',
-            badges: [['label' => 'View Case Data', 'variant' => 'violet']],
+            badges: [['label' => '3D Scans & Photos', 'variant' => 'violet']],
         );
     }
 

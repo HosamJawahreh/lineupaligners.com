@@ -216,7 +216,7 @@ class PatientTreatmentPlanController extends Controller
         $message = $validated['decision'] === 'approved'
             ? ($plan->refinement_id
                 ? 'Refinement plan approved. This refinement cycle is complete. The patient may order a new refinement when they return.'
-                : 'Treatment plan approved. You may start a new modification cycle from the Modification tab when needed.')
+                : 'Treatment plan approved. You may start a new modification cycle from the Request Modification tab when needed.')
             : 'Treatment plan rejected. LineUp admin will upload a revised plan.';
 
         $activeStage = $plan->stage_number;

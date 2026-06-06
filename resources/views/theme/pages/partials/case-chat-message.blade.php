@@ -1,6 +1,11 @@
 @php
     $isMine = $message->user_id === auth()->id();
-    $avatarUrl = $message->user?->photoUrl() ?? ($logoUrl ?? asset('assets/images/logo.svg'));
+    $chatAuthor = app(\App\Services\CaseChatContacts::class)->messageAuthor(
+        $message->user,
+        $patient,
+        $logoUrl ?? asset('assets/images/logo.svg')
+    );
+    $avatarUrl = $chatAuthor['avatar'];
     $showSeen = $isMine
         && $message->read_at
         && isset($latestSeenOwnMessageId)

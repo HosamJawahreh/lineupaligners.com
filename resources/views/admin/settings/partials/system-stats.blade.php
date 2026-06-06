@@ -1,5 +1,5 @@
 @php
-    $stats = $systemStats ?? ['memory_mb' => 0, 'cpu_percent' => 0, 'daily_traffic' => 0, 'disk_percent' => 0];
+    $stats = array_merge(['memory_mb' => 0, 'cpu_percent' => 0, 'cases_today' => 0, 'disk_percent' => 0], $systemStats ?? []);
 @endphp
 <h6>Information Summary</h6>
 <div class="row m-b-15">
@@ -22,8 +22,8 @@
 </div>
 <div class="row m-b-15">
     <div class="col-7">
-        <small class="displayblock text-muted">DAILY TRAFFIC</small>
-        <h5 class="m-b-0 h6">{{ number_format($stats['daily_traffic']) }}</h5>
+        <small class="displayblock text-muted">CASES TODAY</small>
+        <h5 class="m-b-0 h6">{{ number_format($stats['cases_today'] ?? 0) }}</h5>
     </div>
     <div class="col-5">
         <div class="sparkline" data-type="bar" data-width="97%" data-height="25px" data-bar-Width="5" data-bar-Spacing="3" data-bar-Color="#78b83e">7,5,8,7,4,2,6,5</div>

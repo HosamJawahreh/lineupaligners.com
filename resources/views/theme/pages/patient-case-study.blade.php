@@ -1,89 +1,149 @@
 @extends('layouts.app')
 
-@section('title', $patient->patient_id.' — Case Study')
+@section('title', $patient->display_patient_id.' — Case Study')
 
 @section('body-class', 'patient-case-study-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=9">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=36">
 @endpush
 
 @section('content')
 <section class="content case-study-page">
     <div class="container-fluid case-study-wrap">
         {{-- Workflow progress --}}
-        <nav class="case-workflow" aria-label="Case workflow progress">
-            <ol class="case-workflow-track">
-                @foreach($workflowSteps as $step)
-                <li class="case-workflow-step case-workflow-step--{{ $step['state'] }}{{ !empty($step['variant']) ? ' case-workflow-step--'.$step['variant'] : '' }}" data-workflow-key="{{ $step['key'] }}">
-                    <span class="case-workflow-node" aria-hidden="true"></span>
-                    <span class="case-workflow-label">{{ $step['label'] }}</span>
-                </li>
-                @endforeach
-            </ol>
-            <div class="case-study-breadcrumb">
-                <a href="{{ route('patients.index') }}">Patient</a>
-                <span class="sep">/</span>
-                <span>Patient Case Study</span>
+        @php
+            $workflowPercent = $patient->workflowProgressPercent();
+            $workflowIcons = [
+                'created' => 'zmdi-folder',
+                'waiting_plan' => 'zmdi-assignment',
+                'case_status' => 'zmdi-account-circle',
+                'modification' => 'zmdi-refresh-sync',
+                'approved' => 'zmdi-check-circle',
+                'refinement' => 'zmdi-redo',
+            ];
+        @endphp
+        <nav class="case-workflow case-workflow--premium"
+             aria-label="Case workflow progress"
+             style="--workflow-progress: {{ $workflowPercent }}%;">
+            <div class="case-workflow__shell">
+                <div class="case-workflow__rail" aria-hidden="true">
+                    <div class="case-workflow__rail-track"></div>
+                    <div class="case-workflow__rail-fill"></div>
+                    <div class="case-workflow__rail-glow"></div>
+                </div>
+                <ol class="case-workflow-track">
+                    @foreach($workflowSteps as $step)
+                    <li class="case-workflow-step case-workflow-step--{{ $step['state'] }} case-workflow-step--tone-{{ $step['tone'] }}{{ !empty($step['variant']) ? ' case-workflow-step--'.$step['variant'] : '' }}"
+                        data-workflow-key="{{ $step['key'] }}"
+                        data-tone="{{ $step['tone'] }}"
+                        aria-current="{{ $step['state'] === 'current' ? 'step' : 'false' }}">
+                        <span class="case-workflow-node" aria-hidden="true">
+                            <span class="case-workflow-node__ring"></span>
+                            <span class="case-workflow-node__core">
+                                @if($step['state'] === 'completed')
+                                <i class="zmdi zmdi-check" aria-hidden="true"></i>
+                                @elseif($step['state'] === 'rejected')
+                                <i class="zmdi zmdi-close" aria-hidden="true"></i>
+                                @elseif(($step['variant'] ?? '') === 'no-mod')
+                                <i class="zmdi zmdi-block-alt" aria-hidden="true"></i>
+                                @elseif($step['state'] === 'skipped')
+                                <i class="zmdi zmdi-minus" aria-hidden="true"></i>
+                                @else
+                                <i class="zmdi {{ $workflowIcons[$step['key']] ?? 'zmdi-dot-circle' }}" aria-hidden="true"></i>
+                                @endif
+                            </span>
+                        </span>
+                        <span class="case-workflow-label">{{ $step['label'] }}</span>
+                    </li>
+                    @endforeach
+                </ol>
             </div>
         </nav>
 
-        {{-- Compact case summary (meta bar) --}}
-        <div class="case-summary-card">
-            <div class="case-meta-bar" role="list">
-                <div class="case-meta-item" role="listitem">
-                    <span class="case-meta-label">Case Number</span>
-                    <span class="case-meta-value">{{ $patient->patient_id }}</span>
-                </div>
-                <div class="case-meta-item" role="listitem">
-                    <span class="case-meta-label">Workflow</span>
-                    <span class="case-meta-value">{{ $patient->workflowStageLabel() }}</span>
-                </div>
-                <div class="case-meta-item" role="listitem">
-                    <span class="case-meta-label">Patient</span>
-                    <span class="case-meta-value">{{ $patient->fullName() }}</span>
-                </div>
-                <div class="case-meta-item" role="listitem">
-                    <span class="case-meta-label">Case Type</span>
-                    <span class="case-meta-value">{{ $patient->caseTypeLabel() }}</span>
-                </div>
-                <div class="case-meta-item" role="listitem">
-                    <span class="case-meta-label">Phone</span>
-                    <span class="case-meta-value">{{ $patient->phone ?? '—' }}</span>
-                </div>
-                <div class="case-meta-item" role="listitem">
-                    <span class="case-meta-label">Email</span>
-                    <span class="case-meta-value">{{ $patient->email ?? '—' }}</span>
-                </div>
-                @if($patient->doctor)
-                <div class="case-meta-item" role="listitem">
-                    <span class="case-meta-label">Doctor</span>
-                    <span class="case-meta-value">Dr. {{ $patient->doctor->fullName() }}</span>
-                </div>
-                @endif
-                <div class="case-meta-item" role="listitem">
-                    <span class="case-meta-label">Clinic</span>
-                    <span class="case-meta-value">{{ $clinicName }}</span>
-                </div>
-                <div class="case-meta-item case-meta-item--notes" role="listitem">
-                    <span class="case-meta-label">Notes</span>
-                    <span class="case-meta-value" title="{{ $patient->notes }}">{{ $patient->notes ?: '—' }}</span>
-                </div>
-                <div class="case-meta-item case-meta-item--actions" role="listitem">
-                    <span class="case-meta-label">Actions</span>
-                    <div class="case-meta-actions">
+        {{-- Case summary — formal dossier for doctors & admins --}}
+        <section class="case-summary-card case-summary-card--dossier" aria-label="Case summary">
+            <div class="case-summary-card__glow" aria-hidden="true"></div>
+            <div class="case-summary-card__accent" aria-hidden="true"></div>
+            <div class="case-summary-card__inner">
+                <header class="case-summary-card__header">
+                    <p class="case-summary-card__kicker">Case record</p>
+                    <div class="case-summary-card__id-block">
+                        <span class="case-summary-card__label">Case number</span>
+                        <span class="case-summary-card__case-id">{{ $patient->display_patient_id }}</span>
+                    </div>
+                    <div class="case-summary-card__status-block">
+                        <span class="case-summary-card__label">Workflow status</span>
+                        <span class="case-summary-card__workflow case-summary-card__workflow--{{ $patient->workflowStageKey() }}">
+                            <span class="case-summary-card__workflow-dot" aria-hidden="true"></span>
+                            {{ $patient->workflowStageLabel() }}
+                        </span>
+                    </div>
+                    <div class="case-summary-card__actions">
                         @if($patient->email)
-                        <a href="mailto:{{ $patient->email }}" class="case-meta-action case-meta-action--mail" title="Email patient">
+                        <a href="mailto:{{ $patient->email }}" class="case-summary-card__btn case-summary-card__btn--mail" title="Email patient">
                             <i class="zmdi zmdi-email"></i>
+                            <span class="sr-only">Email patient</span>
                         </a>
                         @endif
-                        <a href="{{ route('patients.edit', $patient) }}" class="case-meta-action case-meta-action--edit">
-                            <i class="zmdi zmdi-edit"></i> Edit
+                        <a href="{{ route('patients.edit', $patient) }}" class="case-summary-card__btn case-summary-card__btn--edit">
+                            <i class="zmdi zmdi-edit"></i>
+                            <span>Edit case</span>
                         </a>
+                    </div>
+                </header>
+                <div class="case-summary-card__body">
+                    <div class="case-summary-card__grid">
+                        <div class="case-summary-cell">
+                            <span class="case-summary-cell__label">Patient</span>
+                            <span class="case-summary-cell__value">{{ $patient->fullName() }}</span>
+                        </div>
+                        @if(($patientAge = $patient->patientAge()) !== null)
+                        <div class="case-summary-cell">
+                            <span class="case-summary-cell__label">Age</span>
+                            <span class="case-summary-cell__value">{{ $patientAge }} years</span>
+                        </div>
+                        @endif
+                        <div class="case-summary-cell">
+                            <span class="case-summary-cell__label">Case type</span>
+                            <span class="case-summary-cell__value">{{ $patient->caseTypeLabel() }}</span>
+                        </div>
+                        @if($patient->doctor)
+                        <div class="case-summary-cell">
+                            <span class="case-summary-cell__label">Doctor</span>
+                            <span class="case-summary-cell__value">Dr. {{ $patient->doctor->fullName() }}</span>
+                        </div>
+                        @endif
+                    </div>
+                    <div class="case-summary-card__contact-row">
+                        <div class="case-summary-cell case-summary-cell--compact">
+                            <span class="case-summary-cell__label">Phone</span>
+                            <span class="case-summary-cell__value">
+                                @if($patient->phone)
+                                <a href="tel:{{ preg_replace('/\s+/', '', $patient->phone) }}" class="case-summary-cell__link">{{ $patient->phone }}</a>
+                                @else
+                                <span class="case-summary-cell__empty">—</span>
+                                @endif
+                            </span>
+                        </div>
+                        <div class="case-summary-cell case-summary-cell--compact">
+                            <span class="case-summary-cell__label">Email</span>
+                            <span class="case-summary-cell__value">
+                                @if($patient->email)
+                                <a href="mailto:{{ $patient->email }}" class="case-summary-cell__link">{{ $patient->email }}</a>
+                                @else
+                                <span class="case-summary-cell__empty">—</span>
+                                @endif
+                            </span>
+                        </div>
+                        <div class="case-summary-cell case-summary-cell--notes">
+                            <span class="case-summary-cell__label">Notes</span>
+                            <span class="case-summary-cell__value case-summary-cell__value--notes" title="{{ $patient->notes }}">{{ $patient->notes ?: '—' }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
         {{-- Action tabs --}}
         <div class="case-study-tabs" role="tablist" aria-label="Case study sections">
@@ -111,8 +171,11 @@
                  @if($index !== 0) hidden @endif>
                 @if($tab['id'] === 'view-data')
                     @include('theme.pages.partials.case-scan-viewer', [
+                        'patient' => $patient,
                         'scanFiles' => $caseScanFiles ?? [],
                         'caseScanSets' => $caseScanSets ?? [],
+                        'defaultScanSetKey' => $defaultScanSetKey ?? 'original',
+                        'casePhotosBySet' => $casePhotosBySet ?? [],
                     ])
                 @elseif($tab['id'] === 'manufacture-plan')
                     @include('theme.pages.partials.case-manufacture-plan', [
@@ -149,6 +212,7 @@
                         'patient' => $patient,
                         'canCaseChat' => $canCaseChat,
                         'chatDoctorName' => $chatDoctorName,
+                        'chatCounterparty' => $chatCounterparty,
                         'chatParticipants' => $chatParticipants,
                         'logoUrl' => $logoUrl,
                         'latestSeenOwnMessageId' => $latestSeenOwnMessageId ?? 0,
@@ -157,7 +221,7 @@
                     <div class="case-panel-placeholder">
                         <i class="zmdi {{ $tab['icon'] }}"></i>
                         <h3>{{ $tab['label'] }}</h3>
-                        <p>This section will be connected in the next phase. Use the Messages tab to contact the other party on this case.</p>
+                        <p>This section will be connected in the next phase. Use the Live Chat &amp; Files tab to contact the other party on this case.</p>
                     </div>
                 @endif
             </div>
@@ -165,10 +229,11 @@
         </div>
     </div>
 </section>
+@stack('case-photos-gallery')
 @endsection
 
 @push('scripts')
-@if(!empty($caseScanSets) || !empty($caseScanFiles))
+@if(collect($caseScanSets ?? [])->contains(fn ($s) => count($s['files'] ?? []) > 0))
 <script type="importmap">
 {
     "imports": {
@@ -177,10 +242,17 @@
     }
 }
 </script>
-<script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=3"></script>
+<script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=5"></script>
 @endif
 <script src="{{ asset('assets/js/patient-case-study.js') }}"></script>
 <script src="{{ asset('assets/js/case-manufacture-plan.js') }}"></script>
+<script src="{{ asset('assets/js/case-photos-upload.js') }}?v=1"></script>
+@if(!empty($caseScanSets))
+<script>window.caseScanSetsMeta = @json($caseScanSets);</script>
+@endif
+@if(!empty($casePhotosBySet) && collect($casePhotosBySet)->flatten(1)->isNotEmpty())
+<script src="{{ asset('assets/js/case-photos-gallery.js') }}?v=2"></script>
+@endif
 @if(session('open_tab'))
 <script>window.CASE_STUDY_OPEN_TAB = @json(session('open_tab'));</script>
 @endif

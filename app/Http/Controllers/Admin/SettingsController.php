@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\DoctorRole;
 use App\Models\Patient;
 use App\Models\Setting;
+use App\Services\BrandColors;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -22,7 +26,9 @@ class SettingsController extends Controller
             'admin' => auth()->user(),
             'systemStats' => $this->systemStats(),
             'logoUrl' => Setting::logoUrl(),
+            'brandColors' => app(BrandColors::class)->tokens(),
             'doctorRoles' => DoctorRole::withCount('doctors')->orderBy('sort_order')->orderBy('name')->get(),
+            'notificationTypes' => Setting::notificationTypeSettings(),
         ]);
     }
 
@@ -30,6 +36,8 @@ class SettingsController extends Controller
     {
         $admin = auth()->user();
         $skinKeys = array_keys(config('settings.skins'));
+        $fontKeys = array_keys(config('settings.fonts', []));
+        $scanKeys = array_keys(config('settings.scan_requirements', []));
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -45,8 +53,18 @@ class SettingsController extends Controller
             'clinic_email' => ['nullable', 'email', 'max:255'],
             'clinic_phone' => ['nullable', 'string', 'max:50'],
             'clinic_address' => ['nullable', 'string', 'max:500'],
+            'system_timezone' => ['required', 'string', Rule::in(timezone_identifiers_list())],
+            'scan_requirement' => ['required', 'string', 'in:'.implode(',', $scanKeys)],
             'theme_skin' => ['required', 'in:'.implode(',', $skinKeys)],
+            'brand_primary' => ['nullable', 'string', 'max:7', 'regex:/^$|^#?[0-9a-fA-F]{6}$/'],
+            'brand_secondary' => ['required', 'string', 'max:7', 'regex:/^#?[0-9a-fA-F]{6}$/'],
+            'dashboard_font' => ['required', 'in:'.implode(',', $fontKeys)],
+            'dashboard_color_mode' => ['required', 'in:light,dark'],
             'left_menu_style' => ['required', 'in:light,dark,image'],
+            'notification_types' => ['nullable', 'array'],
+            'notification_types.*' => ['nullable', 'array'],
+            'notification_types.*.in_app' => ['sometimes', 'boolean'],
+            'notification_types.*.email' => ['sometimes', 'boolean'],
         ]);
 
         $admin->update([
@@ -83,15 +101,20 @@ class SettingsController extends Controller
             'clinic_email' => $data['clinic_email'] ?? '',
             'clinic_phone' => $data['clinic_phone'] ?? '',
             'clinic_address' => $data['clinic_address'] ?? '',
-            'report_panel_usage' => $request->boolean('report_panel_usage'),
-            'email_redirect' => $request->boolean('email_redirect'),
-            'notifications' => $request->boolean('notifications'),
-            'auto_updates' => $request->boolean('auto_updates'),
-            'offline' => $request->boolean('offline'),
-            'location_permission' => $request->boolean('location_permission'),
+            'system_timezone' => $data['system_timezone'],
+            'scan_requirement' => $data['scan_requirement'],
+            'notifications_enabled' => $request->boolean('notifications_enabled'),
+            'notification_email_enabled' => $request->boolean('notification_email_enabled'),
+            'notification_sound_enabled' => $request->boolean('notification_sound_enabled'),
             'theme_skin' => $data['theme_skin'],
+            'brand_primary' => $this->normalizeBrandHex($data['brand_primary'] ?? ''),
+            'brand_secondary' => $this->normalizeBrandHex($data['brand_secondary'] ?? '') ?: config('settings.defaults.brand_secondary', '#09243c'),
+            'dashboard_font' => $data['dashboard_font'],
+            'dashboard_color_mode' => $data['dashboard_color_mode'],
             'left_menu_style' => $data['left_menu_style'],
         ]);
+
+        Setting::setNotificationTypeSettings($request->input('notification_types', []));
 
         return back()->with('success', 'Settings saved successfully.');
     }
@@ -106,6 +129,11 @@ class SettingsController extends Controller
         if ($path && Storage::disk('public')->exists($path)) {
             Storage::disk('public')->delete($path);
         }
+    }
+
+    private function normalizeBrandHex(?string $hex): string
+    {
+        return app(BrandColors::class)->normalizeHex($hex ?? '') ?? '';
     }
 
     private function systemStats(): array
@@ -124,14 +152,40 @@ class SettingsController extends Controller
             $cpuPercent = min(100, (int) round(($load / $cores) * 100));
         }
 
-        $dailyTraffic = Patient::whereDate('created_at', today())->count()
-            + Patient::whereDate('last_visit', today())->count();
+        $casesByStage = [];
+        if (Schema::hasColumn('patients', 'case_workflow_stage')) {
+            $casesByStage = Patient::query()
+                ->select('case_workflow_stage', DB::raw('count(*) as total'))
+                ->groupBy('case_workflow_stage')
+                ->pluck('total', 'case_workflow_stage')
+                ->all();
+        }
+
+        $failedJobs = Schema::hasTable('failed_jobs')
+            ? (int) DB::table('failed_jobs')->count()
+            : 0;
+
+        $pendingJobs = Schema::hasTable('jobs')
+            ? (int) DB::table('jobs')->count()
+            : 0;
 
         return [
             'memory_mb' => $memoryMb,
             'cpu_percent' => $cpuPercent,
-            'daily_traffic' => max($dailyTraffic, Patient::count()),
+            'total_cases' => Patient::count(),
+            'cases_today' => Patient::whereDate('created_at', today())->count(),
+            'cases_by_stage' => $casesByStage,
             'disk_percent' => $diskUsedPercent,
+            'disk_free_gb' => $diskFree > 0 ? round($diskFree / 1024 / 1024 / 1024, 1) : 0,
+            'failed_jobs' => $failedJobs,
+            'pending_jobs' => $pendingJobs,
+            'queue_connection' => config('queue.default'),
+            'mail_mailer' => config('mail.default'),
+            'mail_queue' => config('lineup-notifications.email.queue', true),
+            'php_upload_max' => ini_get('upload_max_filesize') ?: '—',
+            'php_post_max' => ini_get('post_max_size') ?: '—',
+            'timezone' => Setting::timezone(),
+            'timezone_offset' => now()->format('P'),
         ];
     }
 }

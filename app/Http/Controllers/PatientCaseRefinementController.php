@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use App\Models\PatientCaseRefinement;
 use App\Rules\Scan3dFile;
+use App\Services\CasePhotoStorage;
 use App\Services\CaseWorkflowService;
 use App\Services\LineUpNotifier;
 use App\Support\ScanFileStorage;
@@ -98,6 +99,7 @@ class PatientCaseRefinementController extends Controller
 
             $this->attachScanIfPresent($request, 'upper_jaw_scan', $refinement, 'upper_jaw_scan');
             $this->attachScanIfPresent($request, 'lower_jaw_scan', $refinement, 'lower_jaw_scan');
+            app(CasePhotoStorage::class)->storeFromRequest($request, $patient, null, $refinement);
         } catch (\Throwable $e) {
             report($e);
 
@@ -122,7 +124,7 @@ class PatientCaseRefinementController extends Controller
 
         return $this->redirectToTab(
             $patient,
-            'Refinement #'.$patient->currentRefinement()?->version.' started. LineUp will upload the new plan on Manufacture Case Plan.',
+            'Refinement #'.$patient->currentRefinement()?->version.' started. LineUp will upload the new plan on Treatment Plan.',
             'success'
         );
     }

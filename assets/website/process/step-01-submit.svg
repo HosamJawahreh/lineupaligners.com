@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Submit case dashboard">
+  <rect width="640" height="400" fill="#f0f2f5"/>
+  <rect x="24" y="24" width="592" height="72" rx="14" fill="url(#hero)"/>
+  <text x="44" y="52" fill="rgba(255,255,255,.75)" font-family="Arial,sans-serif" font-size="11" font-weight="600">DOCTOR DASHBOARD</text>
+  <text x="44" y="78" fill="#fff" font-family="Arial,sans-serif" font-size="20" font-weight="700">New aligner case</text>
+  <rect x="360" y="46" width="110" height="28" rx="14" fill="rgba(255,255,255,.15)"/>
+  <text x="378" y="65" fill="#fff" font-family="Arial,sans-serif" font-size="12">Save draft</text>
+  <rect x="478" y="46" width="110" height="28" rx="14" fill="#facc15"/>
+  <text x="498" y="65" fill="#0f172a" font-family="Arial,sans-serif" font-size="12" font-weight="700">Submit case</text>
+  <rect x="24" y="116" width="360" height="260" rx="14" fill="#fff"/>
+  <text x="44" y="146" fill="#0f172a" font-family="Arial,sans-serif" font-size="14" font-weight="700">Patient details</text>
+  <rect x="44" y="162" width="320" height="34" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="56" y="184" fill="#64748b" font-family="Arial,sans-serif" font-size="12">Patient name</text>
+  <rect x="44" y="206" width="320" height="34" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="56" y="228" fill="#64748b" font-family="Arial,sans-serif" font-size="12">Case type � Full case</text>
+  <rect x="44" y="250" width="150" height="34" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="56" y="272" fill="#64748b" font-family="Arial,sans-serif" font-size="12">Upper scan</text>
+  <rect x="214" y="250" width="150" height="34" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="226" y="272" fill="#64748b" font-family="Arial,sans-serif" font-size="12">Lower scan</text>
+  <rect x="44" y="294" width="320" height="56" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="56" y="318" fill="#64748b" font-family="Arial,sans-serif" font-size="12">Clinical notes and photos uploaded</text>
+  <rect x="404" y="116" width="212" height="124" rx="14" fill="#fff"/>
+  <text x="424" y="146" fill="#0f172a" font-family="Arial,sans-serif" font-size="14" font-weight="700">Required records</text>
+  <circle cx="436" cy="170" r="6" fill="#14b8a6"/><text x="450" y="174" fill="#334155" font-family="Arial,sans-serif" font-size="12">Intraoral scans</text>
+  <circle cx="436" cy="196" r="6" fill="#14b8a6"/><text x="450" y="200" fill="#334155" font-family="Arial,sans-serif" font-size="12">Clinical photos</text>
+  <circle cx="436" cy="222" r="6" fill="#cbd5e1"/><text x="450" y="226" fill="#64748b" font-family="Arial,sans-serif" font-size="12">Panoramic x-ray</text>
+  <rect x="404" y="252" width="212" height="124" rx="14" fill="#ecfeff" stroke="#99f6e4"/>
+  <text x="424" y="284" fill="#0f766e" font-family="Arial,sans-serif" font-size="13" font-weight="700">Ready to submit</text>
+  <text x="424" y="308" fill="#115e59" font-family="Arial,sans-serif" font-size="11">All mandatory fields completed.</text>
+  <defs>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#0f172a"/><stop offset=".55" stop-color="#134e4a"/><stop offset="1" stop-color="#0e7490"/>
+    </linearGradient>
+  </defs>
+</svg>

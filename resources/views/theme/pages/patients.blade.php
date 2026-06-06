@@ -123,7 +123,7 @@
                                 </a>
                             </th>
                             <th>Doctor</th>
-                            <th>Clinic</th>
+                            <th>Company</th>
                             <th>Case Type</th>
                             <th>Patient Name</th>
                             <th>Phone</th>
@@ -142,7 +142,7 @@
                     <tbody>
                         @forelse($patients as $patient)
                         <tr>
-                            <td><strong>{{ $patient->patient_id }}</strong></td>
+                            <td><strong>{{ $patient->display_patient_id }}</strong></td>
                             <td>Dr. {{ $patient->doctor?->fullName() ?? '—' }}</td>
                             <td>{{ Str::limit($clinicName, 28) }}</td>
                             <td>

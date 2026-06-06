@@ -52,10 +52,6 @@ class User extends Authenticatable
             return false;
         }
 
-        if ($this->doctor->doctorRole?->hasPermission('view_all_patients')) {
-            return true;
-        }
-
         return $patient->doctor_id === $this->doctor->id;
     }
 
@@ -65,8 +61,12 @@ class User extends Authenticatable
             return true;
         }
 
+        $role = $this->doctor?->doctorRole;
+
         return $this->isDoctor()
-            && $this->doctor?->doctorRole?->hasPermission($permission);
+            && $role
+            && $role->is_active
+            && $role->hasPermission($permission);
     }
 
     public function displayName(): string

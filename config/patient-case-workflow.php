@@ -2,12 +2,13 @@
 
 return [
     /**
-     * Case study progress bar (5 steps). Manufactured is shown on Approved;
-     * modification is shown on Treatment Plan until a plan is pending review.
+     * Case study progress bar. Manufactured is shown on Approved.
+     * Modification appears only when a modification was requested or completed.
      */
     'progress_steps' => [
         ['key' => 'created', 'label' => 'Case Created'],
         ['key' => 'waiting_plan', 'label' => 'Treatment Plan'],
+        ['key' => 'modification', 'label' => 'Modification'],
         ['key' => 'case_status', 'label' => 'Doctor Review'],
         ['key' => 'approved', 'label' => 'Approved'],
         ['key' => 'refinement', 'label' => 'Refinement'],

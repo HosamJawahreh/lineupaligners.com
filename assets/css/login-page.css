@@ -227,6 +227,15 @@
     text-decoration: underline;
 }
 
+.login-forgot--back {
+    margin-top: 0.65rem;
+    color: var(--login-muted);
+}
+
+.login-forgot--back:hover {
+    color: var(--login-text);
+}
+
 .login-alert {
     margin-bottom: 1rem;
     padding: 0.65rem 0.85rem;

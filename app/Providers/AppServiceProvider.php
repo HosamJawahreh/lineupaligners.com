@@ -4,9 +4,14 @@ namespace App\Providers;
 
 use App\Console\Commands\ServeCommand;
 use App\Models\Setting;
+use App\Services\BrandColors;
+use App\Services\WebsiteLocale;
+use Carbon\Carbon;
 use Illuminate\Foundation\Console\ServeCommand as BaseServeCommand;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -15,10 +20,24 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(BaseServeCommand::class, static fn (): ServeCommand => new ServeCommand);
+        $this->app->singleton(WebsiteLocale::class);
+        $this->app->singleton(BrandColors::class);
+        $this->app->instance('website.locale', config('website-locales.default', 'en'));
     }
 
     public function boot(): void
     {
+        try {
+            if (Schema::hasTable('settings')) {
+                $timezone = Setting::timezone();
+                config(['app.timezone' => $timezone]);
+                date_default_timezone_set($timezone);
+            }
+        } catch (\Throwable) {
+            // Database may be unavailable during install or migrations.
+        }
+        Date::use(Carbon::class);
+
         Paginator::useBootstrapFour();
 
         View::share([
@@ -26,6 +45,14 @@ class AppServiceProvider extends ServiceProvider
             'faviconUrl' => asset('assets/images/favicon-32.png'),
             'faviconAppleUrl' => asset('assets/images/favicon-180.png'),
         ]);
+
+        try {
+            if (Schema::hasTable('settings')) {
+                View::share('brandColors', app(BrandColors::class)->tokens());
+            }
+        } catch (\Throwable) {
+            // Database may be unavailable during install.
+        }
 
         View::composer([
             'layouts.app',
@@ -40,14 +67,27 @@ class AppServiceProvider extends ServiceProvider
             $settings = Setting::allSettings();
             $skin = $settings['theme_skin'] ?? 'cyan';
             $menuStyle = $settings['left_menu_style'] ?? 'light';
-            $skinMeta = config('settings.skins.'.$skin);
-            $themeSkinColor = is_array($skinMeta) ? ($skinMeta['color'] ?? '#00cfd1') : '#00cfd1';
+            $colorMode = Setting::dashboardColorMode();
+            $brandColors = app(BrandColors::class);
+            $tokens = $brandColors->tokens();
+            $dashboardFont = Setting::dashboardFont();
+
+            if ($colorMode === 'dark' && $menuStyle !== 'image') {
+                $menuStyle = 'dark';
+            }
 
             $view->with([
                 'appSettings' => $settings,
                 'projectName' => $settings['project_name'] ?? config('app.name'),
                 'logoUrl' => Setting::logoUrl(),
-                'themeSkinColor' => $themeSkinColor,
+                'themeSkinColor' => $tokens['primary'],
+                'brandColors' => $tokens,
+                'brandInlineStyle' => $brandColors->inlineStyle(),
+                'dashboardFont' => $dashboardFont,
+                'dashboardFontStack' => $dashboardFont['stack'],
+                'dashboardFontUrl' => $dashboardFont['google_url'],
+                'dashboardColorMode' => $colorMode,
+                'bodyColorClass' => 'lineup-color-'.$colorMode,
                 'bodyThemeClass' => 'theme-'.$skin,
                 'bodyMenuClasses' => trim(
                     ($menuStyle === 'dark' ? 'menu_dark' : '').

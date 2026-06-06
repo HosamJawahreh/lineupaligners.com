@@ -3,7 +3,6 @@
     $userRole = $user->isAdmin() ? 'Administrator' : 'Doctor';
     $profileUrl = route('profile.edit');
     $settingsUrl = $user->isAdmin() ? route('settings.index') : route('doctor.clinic-settings.edit');
-    $helpUrl = $settingsUrl;
 @endphp
 <nav class="navbar lineup-topbar" role="banner" aria-label="Application header">
     <div class="lineup-topbar-start">
@@ -21,10 +20,18 @@
 
     <div class="lineup-topbar-actions">
         <div class="lineup-topbar-tools">
-            <a href="{{ $helpUrl }}" class="lineup-topbar-btn d-none d-md-inline-flex" title="Help" aria-label="Help">
-                <i class="zmdi zmdi-help-outline"></i>
-            </a>
             @include('layouts.partials.lineup-notifications')
+            <button type="button"
+                    id="lineup-theme-toggle"
+                    class="lineup-topbar-btn lineup-topbar-btn-theme"
+                    title="Switch to dark mode"
+                    aria-label="Switch to dark mode"
+                    aria-pressed="false">
+                <span class="lineup-theme-icon" aria-hidden="true">
+                    <i class="zmdi zmdi-sun lineup-theme-icon--sun"></i>
+                    <i class="zmdi zmdi-brightness-2 lineup-theme-icon--moon"></i>
+                </span>
+            </button>
             <a href="{{ $settingsUrl }}" class="lineup-topbar-btn d-none d-md-inline-flex" title="Settings" aria-label="Settings">
                 <i class="zmdi zmdi-settings"></i>
             </a>

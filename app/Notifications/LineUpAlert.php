@@ -19,31 +19,9 @@ class LineUpAlert extends Notification
         public array $payload
     ) {}
 
-    /**
-     * Queue only the mail channel so in-app alerts stay instant.
-     *
-     * @return array<string, string>
-     */
-    public function viaQueues(): array
-    {
-        if (! config('lineup-notifications.email.queue', true)) {
-            return [];
-        }
-
-        return [
-            'mail' => 'mail',
-        ];
-    }
-
     public function via(object $notifiable): array
     {
-        $channels = ['database'];
-
-        if ($this->shouldSendMail($notifiable)) {
-            $channels[] = 'mail';
-        }
-
-        return $channels;
+        return ['database'];
     }
 
     public function toMail(object $notifiable): MailMessage

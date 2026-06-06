@@ -4,19 +4,19 @@ return [
     'tabs' => [
         [
             'id' => 'view-data',
-            'label' => 'View Case Data',
-            'icon' => 'zmdi-3d-rotation',
-            'tone' => 'slate',
+            'label' => '3D Scans & Photos',
+            'icon' => 'zmdi-scanner',
+            'tone' => 'cyan',
         ],
         [
             'id' => 'manufacture-plan',
-            'label' => 'Manufacture Case Plan',
+            'label' => 'Treatment Plan',
             'icon' => 'zmdi-assignment-check',
             'tone' => 'green',
         ],
         [
             'id' => 'modification',
-            'label' => 'Modification',
+            'label' => 'Request Modification',
             'icon' => 'zmdi-refresh-sync',
             'tone' => 'amber',
         ],
@@ -28,7 +28,7 @@ return [
         ],
         [
             'id' => 'messages',
-            'label' => 'Messages',
+            'label' => 'Live Chat & Files',
             'icon' => 'zmdi-comments',
             'tone' => 'blue',
         ],

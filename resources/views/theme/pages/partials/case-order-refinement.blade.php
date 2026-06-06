@@ -47,7 +47,7 @@
         <i class="zmdi zmdi-time" aria-hidden="true"></i>
         <div>
             <p><strong>Refinement #{{ $activeRefinement->version }} in progress</strong> (started {{ $activeRefinement->created_at?->format('M j, Y g:i A') }}).</p>
-            <p>LineUp will upload new treatment plan(s) in the <strong>Manufacture Case Plan</strong> tab. After you approve them, this refinement cycle ends. Previous scans and history stay in View Case Data and Case History.</p>
+            <p>LineUp will upload new treatment plan(s) in the <strong>Treatment Plan</strong> tab. After you approve them, this refinement cycle ends. Previous scans and history stay in 3D Scans &amp; Photos and Case History.</p>
             @if($activeRefinement->hasScans())
             <p class="case-refinement__hint-inline">Scans attached: {{ $activeRefinement->upper_jaw_scan ? 'Upper' : '' }}{{ $activeRefinement->upper_jaw_scan && $activeRefinement->lower_jaw_scan ? ' · ' : '' }}{{ $activeRefinement->lower_jaw_scan ? 'Lower' : '' }}</p>
             @endif
@@ -82,6 +82,7 @@
             @csrf
 
             <div class="case-refinement__uploads">
+                @include('theme.pages.partials.case-photos-upload', ['uploadId' => 'refinement-photos'])
                 <div class="case-refinement__field">
                     <label for="refinement-upper">Upper jaw 3D file</label>
                     <input type="file" id="refinement-upper" name="upper_jaw_scan" accept=".stl,.obj,.ply" @disabled(! $uploadLimitsOk)>
@@ -115,14 +116,14 @@
         <div class="case-refinement__notice case-refinement__notice--info">
             <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
             <p>
-                Refinement is available after LineUp marks the case as <strong>Manufactured</strong> on the Manufacture Case Plan tab.
+                Refinement is available after LineUp marks the case as <strong>Manufactured</strong> on the Treatment Plan tab.
                 Current workflow: <strong>{{ $patient->workflowStageLabel() }}</strong>.
             </p>
         </div>
     @else
         <div class="case-refinement__notice case-refinement__notice--info">
             <i class="zmdi zmdi-account" aria-hidden="true"></i>
-            <p>Only the assigned doctor can order a refinement. When active, LineUp admin uploads plans under Manufacture Case Plan for this new cycle.</p>
+            <p>Only the assigned doctor can order a refinement. When active, LineUp admin uploads plans under Treatment Plan for this new cycle.</p>
         </div>
     @endif
 </div>

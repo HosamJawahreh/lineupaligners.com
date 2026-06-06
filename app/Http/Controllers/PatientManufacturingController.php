@@ -39,7 +39,7 @@ class PatientManufacturingController extends Controller
         if ($request->boolean('from_index')) {
             return redirect()
                 ->route('patients.index')
-                ->with('success', "Case {$patient->patient_id} marked as manufactured.");
+                ->with('success', "Case {$patient->display_patient_id} marked as manufactured.");
         }
 
         return $redirect;

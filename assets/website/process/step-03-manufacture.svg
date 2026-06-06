@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Manufacturing dashboard">
+  <rect width="640" height="400" fill="#f0f2f5"/>
+  <rect x="24" y="24" width="592" height="56" rx="14" fill="#fff"/>
+  <text x="44" y="58" fill="#0f172a" font-family="Arial,sans-serif" font-size="18" font-weight="700">Production tracking</text>
+  <rect x="500" y="38" width="96" height="28" rx="14" fill="#dcfce7"/>
+  <text x="518" y="57" fill="#15803d" font-family="Arial,sans-serif" font-size="12" font-weight="700">In production</text>
+  <rect x="24" y="96" width="180" height="280" rx="14" fill="#fff"/>
+  <text x="44" y="126" fill="#0f172a" font-family="Arial,sans-serif" font-size="14" font-weight="700">Workflow</text>
+  <circle cx="52" cy="158" r="8" fill="#14b8a6"/><text x="68" y="163" fill="#334155" font-family="Arial,sans-serif" font-size="12">Plan approved</text>
+  <circle cx="52" cy="190" r="8" fill="#14b8a6"/><text x="68" y="195" fill="#334155" font-family="Arial,sans-serif" font-size="12">Manufacturing</text>
+  <circle cx="52" cy="222" r="8" fill="#facc15"/><text x="68" y="227" fill="#334155" font-family="Arial,sans-serif" font-size="12">Quality check</text>
+  <circle cx="52" cy="254" r="8" fill="#cbd5e1"/><text x="68" y="259" fill="#64748b" font-family="Arial,sans-serif" font-size="12">Shipped</text>
+  <rect x="220" y="96" width="396" height="132" rx="14" fill="#fff"/>
+  <text x="240" y="126" fill="#0f172a" font-family="Arial,sans-serif" font-size="14" font-weight="700">Case LU-1042</text>
+  <rect x="240" y="142" width="96" height="56" rx="10" fill="#ecfeff"/>
+  <text x="252" y="164" fill="#0f766e" font-family="Arial,sans-serif" font-size="11">Stages</text>
+  <text x="252" y="186" fill="#0f172a" font-family="Arial,sans-serif" font-size="20" font-weight="700">18</text>
+  <rect x="348" y="142" width="96" height="56" rx="10" fill="#f8fafc"/>
+  <text x="360" y="164" fill="#64748b" font-family="Arial,sans-serif" font-size="11">Delivered</text>
+  <text x="360" y="186" fill="#0f172a" font-family="Arial,sans-serif" font-size="20" font-weight="700">0/18</text>
+  <rect x="456" y="142" width="140" height="56" rx="10" fill="#fef3c7"/>
+  <text x="468" y="164" fill="#92400e" font-family="Arial,sans-serif" font-size="11">ETA</text>
+  <text x="468" y="186" fill="#0f172a" font-family="Arial,sans-serif" font-size="20" font-weight="700">5 days</text>
+  <rect x="220" y="244" width="396" height="132" rx="14" fill="#fff"/>
+  <text x="240" y="274" fill="#0f172a" font-family="Arial,sans-serif" font-size="14" font-weight="700">Recent activity</text>
+  <rect x="240" y="290" width="356" height="12" rx="6" fill="#e2e8f0"/>
+  <rect x="240" y="290" width="240" height="12" rx="6" fill="#14b8a6"/>
+  <text x="240" y="326" fill="#64748b" font-family="Arial,sans-serif" font-size="11">Manufacturing started � Batch queued � QC pending</text>
+  <text x="240" y="350" fill="#64748b" font-family="Arial,sans-serif" font-size="11">Updated 2 hours ago</text>
+</svg>

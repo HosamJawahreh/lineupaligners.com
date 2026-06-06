@@ -132,11 +132,11 @@
                                     <input type="file" name="photos[]" id="case-photos-input" multiple accept="image/jpeg,image/png,image/webp">
                                 </div>
                                 <div id="case-photos-preview" class="case-photos-preview m-t-10"></div>
-                                @if($isEdit && $patient->photos->isNotEmpty())
+                                @if($isEdit && $patient->originalPhotos->isNotEmpty())
                                 <div class="case-photos-existing m-t-15">
                                     <small class="text-muted d-block m-b-10">Current photos</small>
                                     <div class="row">
-                                        @foreach($patient->photos as $photo)
+                                        @foreach($patient->originalPhotos as $photo)
                                         <div class="col-6 col-md-4 m-b-10">
                                             <div class="case-photo-thumb">
                                                 <img src="{{ $photo->url() }}" alt="Case photo">
@@ -161,9 +161,15 @@
                     </div>
 
                     <div class="row clearfix">
+                        <div class="col-12">
+                            <p class="text-muted m-b-15">
+                                <i class="zmdi zmdi-rotate-3d m-r-5"></i>
+                                3D scans are optional — upload upper, lower, both, or add them later when editing the case.
+                            </p>
+                        </div>
                         <div class="col-md-6 col-sm-12">
                             <div class="form-group scan-upload-box">
-                                <label for="upper_jaw_scan">Please Upload Upper 3D Model</label>
+                                <label for="upper_jaw_scan">Upper 3D Model <span class="text-success small">optional</span></label>
                                 <input type="file" name="upper_jaw_scan" id="upper_jaw_scan" accept=".stl,.obj,.ply,model/stl,model/obj,application/octet-stream">
                                 <small class="text-muted d-block m-t-5">STL, OBJ or PLY — max 100MB</small>
                                 @if($isEdit && $patient->upper_jaw_scan)
@@ -179,7 +185,7 @@
                         </div>
                         <div class="col-md-6 col-sm-12">
                             <div class="form-group scan-upload-box">
-                                <label for="lower_jaw_scan">Please Upload Lower 3D Model</label>
+                                <label for="lower_jaw_scan">Lower 3D Model <span class="text-success small">optional</span></label>
                                 <input type="file" name="lower_jaw_scan" id="lower_jaw_scan" accept=".stl,.obj,.ply,model/stl,model/obj,application/octet-stream">
                                 <small class="text-muted d-block m-t-5">STL, OBJ or PLY — max 100MB</small>
                                 @if($isEdit && $patient->lower_jaw_scan)

@@ -70,6 +70,16 @@ class Patient extends Model
         return $this->hasMany(PatientPhoto::class)->orderBy('sort_order');
     }
 
+    public function originalPhotos(): HasMany
+    {
+        return $this->photos()->whereNull('modification_id')->whereNull('refinement_id');
+    }
+
+    public function hasAnyCasePhotos(): bool
+    {
+        return $this->photos()->exists();
+    }
+
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
@@ -319,6 +329,20 @@ class Patient extends Model
         return $this->caseModifications()->where('is_current', true)->exists();
     }
 
+    public function hasModificationHistory(): bool
+    {
+        if (! Schema::hasTable('patient_case_modifications')) {
+            return false;
+        }
+
+        return $this->caseModifications()->exists();
+    }
+
+    public function shouldShowModificationInProgressBar(): bool
+    {
+        return $this->hasActiveModificationForAny() || $this->hasModificationHistory();
+    }
+
     /**
      * Doctor may request a modification whenever the current plan for this scope is approved
      * and no modification is already awaiting a revised plan from LineUp.
@@ -384,58 +408,122 @@ class Patient extends Model
         return $this->hasActiveModificationFor($stageNumber);
     }
 
+    public function defaultScanSetKey(): string
+    {
+        $candidates = $this->caseScanSetCandidates();
+
+        return $candidates[0]['key'] ?? 'original';
+    }
+
     /**
-     * @return list<array{key: string, label: string, notes: ?string, files: list<array>}>
+     * @return array<string, list<array{id: int, url: string, name: string, download_url: string}>>
+     */
+    public function casePhotosGalleryBySet(): array
+    {
+        $bySet = [];
+
+        foreach ($this->caseScanSetCandidates() as $candidate) {
+            $bySet[$candidate['key']] = $this->photosForSetKey($candidate['key'])
+                ->map(fn (PatientPhoto $photo) => [
+                    'id' => $photo->id,
+                    'url' => $photo->url(),
+                    'name' => $photo->original_name ?: basename($photo->path),
+                    'download_url' => route('patients.photos.download', [$this, $photo]),
+                ])
+                ->values()
+                ->all();
+        }
+
+        return $bySet;
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, PatientPhoto>
+     */
+    public function photosForSetKey(string $setKey)
+    {
+        return $this->photos()->forSetKey($setKey)->orderBy('sort_order')->get();
+    }
+
+    /**
+     * @return list<array{key: string, label: string, notes: ?string, files: list<array>, photo_count: int}>
      */
     public function caseScanSetsForViewer(): array
     {
-        $sets = [];
+        return array_map(function (array $candidate) {
+            return [
+                'key' => $candidate['key'],
+                'label' => $candidate['label'],
+                'notes' => $candidate['notes'],
+                'files' => $candidate['files'],
+                'photo_count' => $this->photosForSetKey($candidate['key'])->count(),
+            ];
+        }, $this->caseScanSetCandidates());
+    }
 
-        $original = $this->caseScanFiles();
-        if (count($original) > 0) {
-            $sets[] = [
+    /**
+     * Latest action first (refinement, modification, or original case).
+     *
+     * @return list<array{key: string, label: string, notes: ?string, files: list<array>, at: \Carbon\Carbon}>
+     */
+    protected function caseScanSetCandidates(): array
+    {
+        $candidates = [];
+
+        $originalFiles = $this->caseScanFiles();
+        $originalPhotoCount = $this->photosForSetKey('original')->count();
+
+        if (count($originalFiles) > 0 || $originalPhotoCount > 0) {
+            $candidates[] = [
                 'key' => 'original',
-                'label' => 'Original case scans',
+                'label' => 'Original case data',
                 'notes' => null,
-                'files' => $original,
+                'files' => $originalFiles,
+                'at' => $this->created_at ?? now(),
             ];
         }
 
-        if (! Schema::hasTable('patient_case_modifications')) {
-            return $sets;
-        }
+        if (Schema::hasTable('patient_case_modifications')) {
+            foreach ($this->caseModifications()->orderBy('version')->get() as $mod) {
+                $files = $mod->caseScanFiles();
+                $photoCount = $mod->photos()->count();
 
-        foreach ($this->caseModifications()->orderBy('version')->get() as $mod) {
-            $files = $mod->caseScanFiles();
-            if (count($files) === 0) {
-                continue;
+                if (count($files) === 0 && $photoCount === 0) {
+                    continue;
+                }
+
+                $candidates[] = [
+                    'key' => 'mod-'.$mod->id,
+                    'label' => $mod->scopeLabel(),
+                    'notes' => $mod->notes,
+                    'files' => $files,
+                    'at' => $mod->created_at ?? now(),
+                ];
             }
-
-            $sets[] = [
-                'key' => 'mod-'.$mod->id,
-                'label' => $mod->scopeLabel(),
-                'notes' => $mod->notes,
-                'files' => $files,
-            ];
         }
 
         if (Schema::hasTable('patient_case_refinements')) {
             foreach ($this->caseRefinements()->orderBy('version')->get() as $ref) {
                 $files = $ref->caseScanFiles();
-                if (count($files) === 0) {
+                $photoCount = $ref->photos()->count();
+
+                if (count($files) === 0 && $photoCount === 0) {
                     continue;
                 }
 
-                $sets[] = [
+                $candidates[] = [
                     'key' => 'ref-'.$ref->id,
                     'label' => $ref->scopeLabel(),
                     'notes' => $ref->notes,
                     'files' => $files,
+                    'at' => $ref->created_at ?? now(),
                 ];
             }
         }
 
-        return $sets;
+        usort($candidates, fn (array $a, array $b) => $b['at'] <=> $a['at']);
+
+        return $candidates;
     }
 
     /**
@@ -454,13 +542,20 @@ class Patient extends Model
             return $plans;
         }
 
-        if ($current->isApproved() && ! $this->hasActiveModificationFor(null) && ! $this->hasActiveRefinement()) {
-            return collect([$current]);
-        }
-
         return $plans->filter(function (PatientTreatmentPlan $plan) use ($current) {
-            return $plan->is_current
-                || ($plan->version < $current->version && ($plan->isRejected() || $plan->isApproved()));
+            if ($plan->is_current) {
+                return true;
+            }
+
+            if ($plan->isRejected()) {
+                return true;
+            }
+
+            if ($current->isApproved() && ! $this->hasActiveModificationFor(null) && ! $this->hasActiveRefinement()) {
+                return false;
+            }
+
+            return $plan->version < $current->version;
         })->values();
     }
 
@@ -480,13 +575,20 @@ class Patient extends Model
             return $plans;
         }
 
-        if ($current->isApproved() && ! $this->hasActiveModificationFor($stageNumber) && ! $this->hasActiveRefinement()) {
-            return collect([$current]);
-        }
+        return $plans->filter(function (PatientTreatmentPlan $plan) use ($current, $stageNumber) {
+            if ($plan->is_current) {
+                return true;
+            }
 
-        return $plans->filter(function (PatientTreatmentPlan $plan) use ($current) {
-            return $plan->is_current
-                || ($plan->version < $current->version && ($plan->isRejected() || $plan->isApproved()));
+            if ($plan->isRejected()) {
+                return true;
+            }
+
+            if ($current->isApproved() && ! $this->hasActiveModificationFor($stageNumber) && ! $this->hasActiveRefinement()) {
+                return false;
+            }
+
+            return $plan->version < $current->version;
         })->values();
     }
 
@@ -559,7 +661,7 @@ class Patient extends Model
 
         return match ($internal) {
             'manufactured' => 'approved',
-            'modification' => 'waiting_plan',
+            'modification' => 'modification',
             'created' => 'created',
             'approved' => 'approved',
             'waiting_plan' => 'waiting_plan',
@@ -573,6 +675,14 @@ class Patient extends Model
     public function workflowProgress(): array
     {
         $steps = config('patient-case-workflow.progress_steps', []);
+
+        if (! $this->shouldShowModificationInProgressBar()) {
+            $steps = array_values(array_filter(
+                $steps,
+                fn (array $step) => $step['key'] !== 'modification'
+            ));
+        }
+
         $progressKey = $this->progressBarStageKey();
         $internalKey = $this->workflowStageKey();
         $planOverlay = $this->planReviewOverlay();
@@ -598,21 +708,30 @@ class Patient extends Model
             $variant = null;
 
             if ($key === 'waiting_plan') {
-                if ($inModification && $index === $currentIndex) {
-                    $label = 'Modification · Awaiting new plan';
-                    $variant = 'modification';
-                } elseif ($index === $currentIndex && $internalKey === 'waiting_plan' && $planOverlay === null) {
+                if ($index === $currentIndex && $internalKey === 'waiting_plan' && $planOverlay === null) {
                     $label = 'Awaiting treatment plan';
                 } elseif ($index < $currentIndex) {
-                    $label = $inModification ? 'Modification requested' : 'Treatment plan uploaded';
+                    $label = 'Treatment plan ready';
+                }
+            }
+
+            if ($key === 'modification') {
+                if ($index === $currentIndex) {
+                    $state = 'current';
+                    $variant = 'modification';
+                    $label = 'Awaiting new plan';
+                } elseif ($index < $currentIndex) {
+                    $state = 'completed';
+                    $label = 'Modification done';
+                    $variant = 'modification';
                 }
             }
 
             if ($key === 'case_status') {
                 if ($planOverlay === 'pending' && $index === $currentIndex) {
                     $state = 'current';
-                    $label = $inModification || $this->hasActiveModificationForAny()
-                        ? 'Awaiting doctor approval · Mod'
+                    $label = $this->hasActiveModificationForAny()
+                        ? 'Awaiting doctor approval · After mod'
                         : 'Awaiting doctor approval';
                     if ($this->hasActiveRefinement()) {
                         $label = 'Awaiting doctor approval · Refinement';
@@ -633,13 +752,13 @@ class Patient extends Model
                     $label = 'Ready to mark manufactured';
                 } elseif ($internalKey === 'manufactured' && $index === $currentIndex) {
                     $state = 'current';
-                    $label = 'Manufactured · Complete';
+                    $label = 'Treatment plan Manufactured';
                 } elseif ($internalKey === 'approved' && $index === $currentIndex) {
                     $state = 'current';
                     $label = 'Approved for manufacture';
                 } elseif ($index < $currentIndex && ($this->manufactured_at || $internalKey === 'manufactured')) {
                     $state = 'completed';
-                    $label = 'Manufactured';
+                    $label = 'Treatment plan Manufactured';
                 }
             }
 
@@ -662,6 +781,7 @@ class Patient extends Model
                 'label' => $label,
                 'state' => $state,
                 'index' => $index,
+                'tone' => $this->workflowStepTone($key, $state, $variant),
             ];
 
             if ($variant !== null) {
@@ -670,6 +790,56 @@ class Patient extends Model
 
             return $row;
         })->all();
+    }
+
+    public function workflowProgressPercent(): float
+    {
+        $steps = $this->workflowProgress();
+        $total = count($steps);
+
+        if ($total <= 1) {
+            return 0.0;
+        }
+
+        $currentIndex = 0;
+
+        foreach ($steps as $i => $step) {
+            if (in_array($step['state'], ['current', 'rejected'], true)) {
+                $currentIndex = $i;
+                break;
+            }
+        }
+
+        return round(($currentIndex / ($total - 1)) * 100, 1);
+    }
+
+    private function workflowStepTone(string $key, string $state, ?string $variant): string
+    {
+        if ($state === 'rejected') {
+            return 'rejected';
+        }
+
+        if ($variant === 'no-mod' || $state === 'skipped') {
+            return 'skipped';
+        }
+
+        if ($variant === 'modification') {
+            return 'modification';
+        }
+
+        if (in_array($variant, ['refinement', 'refinement-review'], true)) {
+            return 'refinement';
+        }
+
+        return match ($key) {
+            'created' => 'created',
+            'waiting_plan' => 'plan',
+            'case_status' => 'review',
+            'modification' => 'modification',
+            'approved' => 'approved',
+            'refinement' => 'refinement',
+            default => 'default',
+        };
     }
 
     /** Same label as the active step on the case workflow progress bar. */
@@ -692,6 +862,19 @@ class Patient extends Model
         return ucfirst(str_replace('_', ' ', $this->progressBarStageKey()));
     }
 
+    public function patientAge(): ?int
+    {
+        if ($this->age !== null) {
+            return (int) $this->age;
+        }
+
+        if ($this->date_of_birth) {
+            return $this->date_of_birth->age;
+        }
+
+        return null;
+    }
+
     public function genderAgeLabel(): string
     {
         $gender = match ($this->gender) {
@@ -701,12 +884,7 @@ class Patient extends Model
             default => '—',
         };
 
-        $age = $this->age;
-        if ($age === null && $this->date_of_birth) {
-            $age = $this->date_of_birth->age;
-        }
-
-        return $gender.' / '.($age ?? 0).' Years';
+        return $gender.' / '.($this->patientAge() ?? 0).' Years';
     }
 
     public function fullName(): string
@@ -1012,11 +1190,23 @@ class Patient extends Model
         }
     }
 
+    public static function normalizePatientId(?string $patientId): string
+    {
+        $id = trim((string) $patientId);
+
+        return trim(preg_replace('/^LA\s+/i', '', $id)) ?: $id;
+    }
+
+    public function getDisplayPatientIdAttribute(): string
+    {
+        return static::normalizePatientId($this->patient_id);
+    }
+
     public static function generatePatientId(): string
     {
         $number = str_pad((string) ((static::max('id') ?? 0) + 1), 5, '0', STR_PAD_LEFT);
 
-        return 'LA '.$number;
+        return $number;
     }
 
     public static function splitName(string $name): array

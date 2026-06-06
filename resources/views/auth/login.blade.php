@@ -55,7 +55,7 @@
 
                 </div>
 
-                <p class="login-card__subtitle">Sign in to start your session</p>
+                <p class="login-card__subtitle">For LineUp administrators and doctors</p>
 
 
 
@@ -174,6 +174,8 @@
 
 
                     <a href="{{ route('pages.forgot-password') }}" class="login-forgot">Forgot password?</a>
+
+                    <a href="{{ route('website.home') }}" class="login-forgot login-forgot--back">← Back to website</a>
 
                 </form>
 

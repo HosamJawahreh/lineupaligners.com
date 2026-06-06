@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use App\Models\PatientCaseMessage;
 use App\Models\User;
+use App\Models\Setting;
+use App\Services\CaseChatContacts;
 use App\Services\LineUpNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -141,7 +143,8 @@ class PatientCaseMessageController extends Controller
     private function formatMessage(PatientCaseMessage $message, Patient $patient, ?int $latestSeenOwnId = null): array
     {
         $user = $message->user;
-        $roleLabel = $this->authorRoleLabel($user, $patient);
+        $logoUrl = Setting::logoUrl();
+        $author = app(CaseChatContacts::class)->messageAuthor($user, $patient, $logoUrl);
         $isMine = (int) $message->user_id === (int) auth()->id();
         $latestSeenOwnId ??= $this->latestSeenOwnMessageId($patient);
         $showSeen = $isMine
@@ -152,10 +155,10 @@ class PatientCaseMessageController extends Controller
         return [
             'id' => $message->id,
             'body' => $message->body ?? '',
-            'author' => $user?->displayName() ?? 'System',
-            'role' => $roleLabel,
-            'role_short' => $user?->isAdmin() ? 'ADMINISTRATOR' : 'DOCTOR',
-            'avatar_url' => $user?->photoUrl() ?? asset('assets/images/logo.svg'),
+            'author' => $author['name'],
+            'role' => $author['role'],
+            'role_short' => $author['role_short'],
+            'avatar_url' => $author['avatar'],
             'is_mine' => $isMine,
             'is_seen' => $isMine && $message->read_at !== null,
             'show_seen' => $showSeen,
@@ -198,31 +201,17 @@ class PatientCaseMessageController extends Controller
         ];
     }
 
-    private function authorRoleLabel(?User $user, Patient $patient): string
-    {
-        if (! $user) {
-            return 'System';
-        }
-
-        if ($user->isAdmin()) {
-            return 'Administrator';
-        }
-
-        if ($user->isDoctor() && $patient->doctor_id && $user->doctor?->id === $patient->doctor_id) {
-            return 'Assigned Doctor';
-        }
-
-        return 'Doctor';
-    }
-
     private function participants(Patient $patient): array
     {
-        $doctor = $patient->relationLoaded('doctor') ? $patient->doctor : $patient->doctor()->with('user')->first();
+        $logoUrl = Setting::logoUrl();
+        $contacts = app(CaseChatContacts::class)->participants($patient, $logoUrl);
 
         return [
-            'doctor_name' => $doctor ? 'Dr. '.$doctor->fullName() : null,
-            'doctor_user_id' => $doctor?->user_id,
-            'admin_label' => 'System Administrator',
+            'doctor_name' => $contacts['doctor'] ? 'Dr. '.$contacts['doctor']['name'] : null,
+            'doctor_user_id' => $patient->doctor?->user_id,
+            'admin_label' => $contacts['lineup']['name'],
+            'lineup' => $contacts['lineup'],
+            'doctor' => $contacts['doctor'],
         ];
     }
 }

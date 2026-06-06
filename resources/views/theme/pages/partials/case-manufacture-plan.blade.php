@@ -13,7 +13,7 @@
         <i class="zmdi zmdi-swap-vertical" aria-hidden="true"></i>
         <div>
             <strong>Refinement case in progress</strong>
-            <p>The doctor ordered a refinement (returning patient). Treat this as a <strong>new case cycle</strong> — upload new plan link(s) below. Previous manufactured plans and scans remain in Case History and View Case Data.</p>
+            <p>The doctor ordered a refinement (returning patient). Treat this as a <strong>new case cycle</strong> — upload new plan link(s) below. Previous manufactured plans and scans remain in Case History and 3D Scans &amp; Photos.</p>
         </div>
     </div>
     @elseif($patient->hasActiveModificationForAny())
@@ -26,47 +26,14 @@
     </div>
     @endif
 
-    @if(($canMarkManufactured ?? false) && $patient->isReadyForManufacturedMark())
-    <div class="mfg-plan__mod-banner mfg-plan__mod-banner--manufactured" role="status">
-        <i class="zmdi zmdi-check-circle" aria-hidden="true"></i>
-        <div>
-            <strong>Ready to mark as manufactured</strong>
-            <p>The doctor approved the treatment plan{{ $patient->hasActiveRefinement() ? ' for this refinement cycle' : '' }}. Confirm manufacturing is complete to close modifications and allow refinement when the patient returns.</p>
-            <form method="post" action="{{ route('patients.mark-manufactured', $patient) }}" class="mfg-plan__mark-form">
-                @csrf
-                <button type="submit" class="mfg-plan__btn mfg-plan__btn--manufactured">
-                    <i class="zmdi zmdi-check-circle"></i> Mark case as manufactured
-                </button>
-            </form>
-        </div>
-    </div>
-    @elseif($patient->isManufactured())
-    <div class="mfg-plan__mod-banner mfg-plan__mod-banner--manufactured is-complete" role="status">
-        <i class="zmdi zmdi-check-circle" aria-hidden="true"></i>
-        <div>
-            <strong>Manufactured · case cycle complete</strong>
-            <p>
-                @if($patient->manufactured_at)
-                    Marked {{ $patient->manufactured_at->format('M j, Y g:i A') }}.
-                @else
-                    This case cycle is complete.
-                @endif
-                The doctor cannot request modifications; they may order refinement from the Order Refinement tab.
-            </p>
-        </div>
-    </div>
-    @endif
-
     <header class="mfg-plan__head">
         <div class="mfg-plan__head-text">
-            <h3 class="mfg-plan__title">Manufacture Case Plan</h3>
+            <h3 class="mfg-plan__title @if(!$isDivided) mfg-plan__title--solo @endif">Treatment Plan</h3>
+            @if($isDivided)
             <p class="mfg-plan__subtitle">
-                @if($isDivided)
-                    Each stage covers a step range (from–to) with its own viewer link. Every stage follows a full approve / reject cycle, like a full case.
-                @else
-                    LineUp admin submits the treatment plan canvas link from the viewer. The doctor approves or rejects before manufacturing proceeds.
-                @endif
+                Each stage covers a step range (from–to) with its own viewer link. Every stage follows a full approve / reject cycle, like a full case.
             </p>
+            @endif
         </div>
         <span class="mfg-plan__type-badge">{{ $patient->caseTypeLabel() }}</span>
     </header>
@@ -162,9 +129,11 @@
                     @foreach($plansInStage as $plan)
                         @include('theme.pages.partials.case-manufacture-plan-card', [
                             'plan' => $plan,
+                            'patient' => $patient,
                             'title' => $plan->stageLabel(),
                             'canReview' => $canReviewTreatmentPlan ?? false,
                             'canUpload' => $canUploadTreatmentPlan ?? false,
+                            'canMarkManufactured' => $canMarkManufactured ?? false,
                             'inStagePicker' => true,
                             'isHistorical' => ! $plan->is_current,
                         ])
@@ -235,16 +204,29 @@
             <p>No treatment plan has been uploaded for this case.</p>
             @if($canUploadFull)
             <span class="mfg-plan__empty-hint">Paste the canvas link from the LineUp viewer below.</span>
+            @else
+            <p class="mfg-plan__canvas-desc">LineUp admin submits the treatment plan canvas link from the viewer. The doctor approves or rejects before manufacturing proceeds.</p>
             @endif
         </div>
+        @if($patient->isManufactured() || (($canMarkManufactured ?? false) && $patient->isReadyForManufacturedMark()))
+        @include('theme.pages.partials.case-manufacture-plan-manufactured-banner', [
+            'patient' => $patient,
+            'canMarkManufactured' => $canMarkManufactured ?? false,
+        ])
+        @endif
         @else
+        @if($visibleFullPlans->contains(fn ($plan) => ! $plan->is_current && $plan->isRejected()))
+        <p class="mfg-plan__history-note m-b-15">Rejected submissions remain visible below for reference until the current plan is approved.</p>
+        @endif
         <div class="mfg-plan__stage-stack">
             @foreach($visibleFullPlans as $plan)
                 @include('theme.pages.partials.case-manufacture-plan-card', [
                     'plan' => $plan,
+                    'patient' => $patient,
                     'title' => $plan->version > 1 ? 'Treatment plan · Version '.$plan->version : 'Treatment case plan',
                     'canReview' => $canReviewTreatmentPlan ?? false,
                     'canUpload' => $canUploadTreatmentPlan ?? false,
+                    'canMarkManufactured' => $canMarkManufactured ?? false,
                     'isHistorical' => ! $plan->is_current,
                 ])
             @endforeach
@@ -281,6 +263,7 @@
                     <label for="mfg-full-url">Treatment plan canvas link</label>
                     <input type="url" id="mfg-full-url" name="plan_url" value="{{ old('plan_url') }}" placeholder="https://viewer.lineup.com/…" required>
                     <span class="mfg-plan__hint">Use the share link from the LineUp treatment plan viewer (canvas).</span>
+                    <p class="mfg-plan__canvas-desc">LineUp admin submits the treatment plan canvas link from the viewer. The doctor approves or rejects before manufacturing proceeds.</p>
                 </div>
                 <button type="submit" class="mfg-plan__btn mfg-plan__btn--primary">
                     {{ $fullPlan ? 'Submit revision for review' : 'Submit plan for review' }}

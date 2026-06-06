@@ -12,6 +12,7 @@ class PatientCaseModification extends Model
     {
         static::deleting(function (PatientCaseModification $modification) {
             $modification->deleteScanFiles();
+            $modification->deletePhotos();
         });
     }
 
@@ -51,6 +52,11 @@ class PatientCaseModification extends Model
     public function treatmentPlan(): BelongsTo
     {
         return $this->belongsTo(PatientTreatmentPlan::class, 'treatment_plan_id');
+    }
+
+    public function photos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PatientPhoto::class, 'modification_id')->orderBy('sort_order');
     }
 
     public function hasScans(): bool
@@ -139,5 +145,15 @@ class PatientCaseModification extends Model
                 Storage::disk('public')->delete($path);
             }
         }
+    }
+
+    public function deletePhotos(): void
+    {
+        foreach ($this->photos as $photo) {
+            if ($photo->path && Storage::disk('public')->exists($photo->path)) {
+                Storage::disk('public')->delete($photo->path);
+            }
+        }
+        $this->photos()->delete();
     }
 }

@@ -1,4 +1,4 @@
-{{-- Case messages (Messages tab) --}}
+{{-- Live Chat & Files tab --}}
 <div class="ig-chat ig-chat--case-tab @if(!$canCaseChat) ig-chat--disabled @endif"
      id="case-chat"
      data-messages-url="{{ route('patients.messages.index', $patient) }}"
@@ -9,30 +9,24 @@
      data-seen-msg-id="{{ $latestSeenOwnMessageId ?? 0 }}">
     <header class="ig-chat-toolbar ig-chat-toolbar--light">
         <div class="ig-chat-toolbar-left">
-            <h2 class="ig-chat-title">Case messages</h2>
+            <h2 class="ig-chat-title">Live Chat &amp; Files</h2>
             @if($canCaseChat && $chatDoctorName)
             <div class="ig-participants">
-                @if(auth()->user()->isAdmin())
                 <div class="ig-participant-pill">
                     <span class="ig-participant-avatar">
-                        <img src="{{ $chatParticipants['doctor']['avatar'] }}" alt="">
+                        <img src="{{ $chatCounterparty['avatar'] }}" alt="">
                     </span>
                     <span class="ig-participant-text">
-                        <span class="ig-participant-name">Dr. {{ $chatParticipants['doctor']['name'] }}</span>
-                        <span class="ig-participant-role">{{ $chatParticipants['doctor']['role'] }}</span>
+                        <span class="ig-participant-name">
+                            @if(auth()->user()->isAdmin() && ($chatParticipants['doctor'] ?? null))
+                                Dr. {{ $chatCounterparty['name'] }}
+                            @else
+                                {{ $chatCounterparty['name'] }}
+                            @endif
+                        </span>
+                        <span class="ig-participant-role">{{ $chatCounterparty['role'] }}</span>
                     </span>
                 </div>
-                @else
-                <div class="ig-participant-pill">
-                    <span class="ig-participant-avatar">
-                        <img src="{{ $chatParticipants['admin']['avatar'] }}" alt="">
-                    </span>
-                    <span class="ig-participant-text">
-                        <span class="ig-participant-name">{{ $chatParticipants['admin']['name'] }}</span>
-                        <span class="ig-participant-role">{{ $chatParticipants['admin']['role'] }}</span>
-                    </span>
-                </div>
-                @endif
             </div>
             @endif
         </div>

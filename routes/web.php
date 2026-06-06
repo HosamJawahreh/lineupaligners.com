@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\DoctorRoleController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\WebsiteController;
+use App\Http\Controllers\PublicWebsiteController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
@@ -17,7 +19,69 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\DoctorClinicSettingsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ThemePageController;
+use App\Http\Middleware\SetWebsiteLocale;
 use Illuminate\Support\Facades\Route;
+
+Route::get('sitemap.xml', \App\Http\Controllers\PublicWebsiteSitemapController::class)->name('website.sitemap');
+Route::get('robots.txt', function () {
+    $lines = [
+        'User-agent: *',
+        'Allow: /',
+        'Disallow: /admin',
+        'Disallow: /dashboard',
+        'Disallow: /login',
+        'Disallow: /patients',
+        'Disallow: /profile',
+        '',
+        'Sitemap: '.url('/sitemap.xml'),
+    ];
+
+    return response(implode("\n", $lines), 200, ['Content-Type' => 'text/plain']);
+})->name('website.robots');
+
+$smilizPages = require __DIR__.'/smiliz-pages.php';
+
+Route::middleware(SetWebsiteLocale::class)->group(function () use ($smilizPages) {
+    Route::post('website/inquiry', [\App\Http\Controllers\PublicWebsiteInquiryController::class, 'store'])
+        ->middleware('throttle:6,1')
+        ->name('website.inquiry.store');
+    Route::get('/', [PublicWebsiteController::class, 'show'])->name('website.home');
+    $smilizPages('', 'website.page.');
+    Route::get('services/{slug}', [PublicWebsiteController::class, 'serviceDetail'])
+        ->where('slug', '[a-z0-9\-]+')
+        ->name('website.service');
+    Route::get('blog/{slug}', [PublicWebsiteController::class, 'blogDetail'])
+        ->where('slug', '[a-z0-9\-]+')
+        ->name('website.blog');
+    Route::get('case-studies/{slug}', [PublicWebsiteController::class, 'caseStudyDetail'])
+        ->where('slug', '[a-z0-9\-]+')
+        ->name('website.case-study');
+});
+
+Route::prefix('ar')->middleware(SetWebsiteLocale::class)->group(function () use ($smilizPages) {
+    Route::post('website/inquiry', [\App\Http\Controllers\PublicWebsiteInquiryController::class, 'store'])
+        ->middleware('throttle:6,1')
+        ->defaults('locale', 'ar')
+        ->name('website.ar.inquiry.store');
+    Route::get('/', [PublicWebsiteController::class, 'show'])
+        ->defaults('locale', 'ar')
+        ->name('website.ar.home');
+    $smilizPages('', 'website.ar.page.', 'ar');
+    Route::get('services/{slug}', [PublicWebsiteController::class, 'serviceDetail'])
+        ->where('slug', '[a-z0-9\-]+')
+        ->defaults('locale', 'ar')
+        ->name('website.ar.service');
+    Route::get('blog/{slug}', [PublicWebsiteController::class, 'blogDetail'])
+        ->where('slug', '[a-z0-9\-]+')
+        ->defaults('locale', 'ar')
+        ->name('website.ar.blog');
+    Route::get('case-studies/{slug}', [PublicWebsiteController::class, 'caseStudyDetail'])
+        ->where('slug', '[a-z0-9\-]+')
+        ->defaults('locale', 'ar')
+        ->name('website.ar.case-study');
+});
+
+Route::redirect('/site', '/', 301);
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -32,7 +96,7 @@ Route::post('logout', [LoginController::class, 'logout'])
     ->name('logout');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('notifications/feed', [NotificationController::class, 'feed'])->name('notifications.feed');
@@ -47,6 +111,10 @@ Route::middleware('auth')->group(function () {
         Route::get('patients/{patient}/scans/{scan}', [PatientController::class, 'downloadScan'])
             ->whereIn('scan', ['upper', 'lower'])
             ->name('patients.scans.download');
+        Route::get('patients/{patient}/photos/download-all', [PatientController::class, 'downloadAllPhotos'])
+            ->name('patients.photos.download-all');
+        Route::get('patients/{patient}/photos/{photo}/download', [PatientController::class, 'downloadPhoto'])
+            ->name('patients.photos.download');
         Route::get('patients/{patient}/messages', [PatientCaseMessageController::class, 'index'])
             ->name('patients.messages.index');
         Route::post('patients/{patient}/messages', [PatientCaseMessageController::class, 'store'])
@@ -80,6 +148,14 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin')->group(function () {
+        Route::get('website', [WebsiteController::class, 'index'])->name('admin.website.index');
+        Route::put('website/content', [WebsiteController::class, 'updateContent'])->name('admin.website.content.update');
+        Route::put('website/pages', [WebsiteController::class, 'updatePages'])->name('admin.website.pages.update');
+        Route::put('website/main-menu', [WebsiteController::class, 'updateMainMenu'])->name('admin.website.main-menu.update');
+        Route::post('website/showcases', [WebsiteController::class, 'storeShowcase'])->name('admin.website.showcases.store');
+        Route::put('website/showcases/{showcase}', [WebsiteController::class, 'updateShowcase'])->name('admin.website.showcases.update');
+        Route::delete('website/showcases/{showcase}', [WebsiteController::class, 'destroyShowcase'])->name('admin.website.showcases.destroy');
+
         Route::resource('doctors', DoctorController::class);
         Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');

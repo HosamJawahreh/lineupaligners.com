@@ -85,7 +85,6 @@ body.lineup-app #leftsidebar.lineup-sidebar {
     overflow: hidden;
     flex-shrink: 0;
     border: 2px solid #fff;
-    background: linear-gradient(145deg, #0a3d47 0%, #0f5c6b 100%);
     box-shadow:
         0 0 0 1px var(--lineup-topbar-control-border),
         0 2px 8px rgba(15, 23, 42, 0.1);
@@ -140,9 +139,37 @@ body.lineup-app #leftsidebar.lineup-sidebar {
 }
 
 .lineup-topbar-tools {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+}
+
+.lineup-topbar-tools .lineup-topbar-btn {
+    width: 44px;
+    height: 44px;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--lineup-icon-muted, #6b7280) !important;
+}
+
+.lineup-topbar-tools .lineup-topbar-btn i,
+.lineup-topbar-tools .lineup-notify__icon-idle,
+.lineup-topbar-tools .lineup-notify__icon-active,
+.lineup-topbar-tools .lineup-theme-icon i {
+    font-size: var(--lineup-icon-topbar-size, 28px);
+}
+
+.lineup-topbar-tools .lineup-topbar-btn:hover,
+.lineup-topbar-tools .lineup-topbar-btn:focus {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--lineup-skin) !important;
 }
 
 .lineup-topbar-divider {
@@ -172,6 +199,37 @@ body.lineup-app #leftsidebar.lineup-sidebar {
 .lineup-topbar-btn i {
     font-size: 18px;
     line-height: 1;
+}
+
+/* Theme toggle — sun (light) / moon (dark) */
+.lineup-theme-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--lineup-icon-topbar-size, 28px);
+    height: var(--lineup-icon-topbar-size, 28px);
+}
+
+.lineup-theme-icon i {
+    font-size: inherit;
+    line-height: 1;
+    color: inherit;
+}
+
+.lineup-theme-icon--sun {
+    display: none;
+}
+
+.lineup-theme-icon--moon {
+    display: inline-block;
+}
+
+body.lineup-app.lineup-color-dark .lineup-theme-icon--sun {
+    display: inline-block;
+}
+
+body.lineup-app.lineup-color-dark .lineup-theme-icon--moon {
+    display: none;
 }
 
 .lineup-topbar-btn:hover,

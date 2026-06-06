@@ -85,7 +85,7 @@
                                 @foreach($recentCases as $case)
                                 <tr>
                                     <td>
-                                        <a href="{{ route('patients.show', $case) }}" class="lineup-dashboard__case-link">{{ $case->patient_id }}</a>
+                                        <a href="{{ route('patients.show', $case) }}" class="lineup-dashboard__case-link">{{ $case->display_patient_id }}</a>
                                     </td>
                                     <td>{{ $case->fullName() }}</td>
                                     @if($isAdmin)

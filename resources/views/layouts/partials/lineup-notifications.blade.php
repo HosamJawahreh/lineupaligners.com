@@ -1,4 +1,5 @@
 @php
+    use App\Models\Setting;
     $unreadCount = auth()->user()->unreadNotifications()->count();
 @endphp
 <div class="lineup-notify" id="lineup-notify"
@@ -6,9 +7,19 @@
      data-read-base="{{ url('notifications') }}"
      data-read-all-url="{{ route('notifications.read-all') }}"
      data-sound-url="{{ asset(config('lineup-notifications.sound', 'assets/sounds/notification.mp3')) }}?v=5"
+     data-sound-enabled="{{ Setting::notificationSoundEnabled() ? '1' : '0' }}"
      data-csrf="{{ csrf_token() }}">
-    <button type="button" class="lineup-topbar-btn lineup-notify__trigger d-inline-flex" id="lineup-notify-trigger" aria-expanded="false" aria-haspopup="true" title="Notifications" aria-label="Notifications">
-        <i class="zmdi zmdi-notifications"></i>
+    <button type="button"
+            class="lineup-topbar-btn lineup-notify__trigger @if($unreadCount > 0) has-unread @endif"
+            id="lineup-notify-trigger"
+            aria-expanded="false"
+            aria-haspopup="true"
+            title="Notifications"
+            aria-label="Notifications{{ $unreadCount > 0 ? ' ('.$unreadCount.' unread)' : '' }}">
+        <span class="lineup-notify__icon" aria-hidden="true">
+            <i class="zmdi zmdi-notifications-none lineup-notify__icon-idle"></i>
+            <i class="zmdi zmdi-notifications-active lineup-notify__icon-active"></i>
+        </span>
         <span class="lineup-notify__badge" id="lineup-notify-badge" @if($unreadCount < 1) hidden @endif>{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
     </button>
 

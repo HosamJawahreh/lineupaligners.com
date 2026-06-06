@@ -36,4 +36,28 @@ return [
         'refinement_requested',
     ],
 
+    'type_labels' => [
+        'case_created' => 'Case created / submitted',
+        'case_message' => 'Case chat message',
+        'plan_uploaded' => 'Treatment plan uploaded',
+        'plan_approved' => 'Plan approved by doctor',
+        'plan_rejected' => 'Plan rejected by doctor',
+        'modification_requested' => 'Modification requested',
+        'case_ready_for_manufacture' => 'Ready to mark manufactured',
+        'case_manufactured' => 'Case marked manufactured',
+        'refinement_requested' => 'Refinement ordered',
+    ],
+
+    'type_recipients' => [
+        'case_created' => 'Admin & assigned doctor',
+        'case_message' => 'Admin ↔ assigned doctor',
+        'plan_uploaded' => 'Assigned doctor',
+        'plan_approved' => 'Admin',
+        'plan_rejected' => 'Admin',
+        'modification_requested' => 'Admin',
+        'case_ready_for_manufacture' => 'Admin',
+        'case_manufactured' => 'Assigned doctor',
+        'refinement_requested' => 'Admin',
+    ],
+
 ];

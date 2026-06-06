@@ -39,6 +39,15 @@
         return normalizeUrl(SOUND_FALLBACK);
     }
 
+    function soundEnabled() {
+        var root = document.getElementById('lineup-notify');
+        if (!root) {
+            return true;
+        }
+
+        return root.getAttribute('data-sound-enabled') !== '0';
+    }
+
     function getSharedAudioContext() {
         if (sharedAudioCtx) {
             return sharedAudioCtx;
@@ -262,6 +271,10 @@
     }
 
     function playNotificationSound() {
+        if (!soundEnabled()) {
+            return;
+        }
+
         if (!audioUnlocked) {
             pendingChimes += 1;
             return;
@@ -273,13 +286,18 @@
     function updateBadge(count) {
         var $badge = $('#lineup-notify-badge');
         var $sidebar = $('#lineup-sidebar-notify-badge');
+        var $trigger = $('#lineup-notify-trigger');
         if (count > 0) {
             var label = count > 99 ? '99+' : String(count);
             $badge.text(label).prop('hidden', false);
             $sidebar.text(label).prop('hidden', false);
+            $trigger.addClass('has-unread');
+            $trigger.attr('aria-label', 'Notifications (' + label + ' unread)');
         } else {
             $badge.prop('hidden', true);
             $sidebar.prop('hidden', true);
+            $trigger.removeClass('has-unread');
+            $trigger.attr('aria-label', 'Notifications');
         }
     }
 

@@ -2,21 +2,34 @@
  * LineUp — iOS-style activity indicator (12 fading radial bars)
  */
 
-body.lineup-app .page-loader-wrapper.lineup-page-loader {
+body.lineup-app .page-loader-wrapper.lineup-page-loader,
+body.lineup-smiliz-site .page-loader-wrapper.lineup-page-loader {
     background: #fff !important;
     z-index: 999999;
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-body.lineup-app .page-loader-wrapper.lineup-page-loader .loader {
+body.lineup-app .page-loader-wrapper.lineup-page-loader .loader,
+body.lineup-smiliz-site .page-loader-wrapper.lineup-page-loader .loader {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
+    position: static;
+    margin: 0;
+    width: auto;
+    max-width: none;
 }
 
 body.lineup-app .page-loader-wrapper.lineup-page-loader .loader p,
-body.lineup-app .page-loader-wrapper.lineup-page-loader .loader img {
+body.lineup-app .page-loader-wrapper.lineup-page-loader .loader img,
+body.lineup-smiliz-site .page-loader-wrapper.lineup-page-loader .loader p,
+body.lineup-smiliz-site .page-loader-wrapper.lineup-page-loader .loader img {
     display: none !important;
 }
 
