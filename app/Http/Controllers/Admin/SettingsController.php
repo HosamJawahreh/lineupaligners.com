@@ -27,9 +27,24 @@ class SettingsController extends Controller
             'systemStats' => $this->systemStats(),
             'logoUrl' => Setting::logoUrl(),
             'brandColors' => app(BrandColors::class)->tokens(),
-            'doctorRoles' => DoctorRole::withCount('doctors')->orderBy('sort_order')->orderBy('name')->get(),
+            'doctorRoles' => $this->doctorRolesForSettings(),
             'notificationTypes' => Setting::notificationTypeSettings(),
         ]);
+    }
+
+    private function doctorRolesForSettings()
+    {
+        if (! Schema::hasTable('doctor_roles')) {
+            return collect();
+        }
+
+        $query = DoctorRole::query()->orderBy('sort_order')->orderBy('name');
+
+        if (Schema::hasColumn('doctors', 'doctor_role_id')) {
+            $query->withCount('doctors');
+        }
+
+        return $query->get();
     }
 
     public function update(Request $request): RedirectResponse
@@ -148,8 +163,7 @@ class SettingsController extends Controller
         $cpuPercent = 0;
         if (function_exists('sys_getloadavg')) {
             $load = sys_getloadavg()[0] ?? 0;
-            $cores = (int) trim((string) @shell_exec('nproc 2>/dev/null')) ?: 1;
-            $cpuPercent = min(100, (int) round(($load / $cores) * 100));
+            $cpuPercent = min(100, (int) round($load * 100));
         }
 
         $casesByStage = [];

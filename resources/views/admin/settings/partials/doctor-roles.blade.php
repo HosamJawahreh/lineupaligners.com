@@ -55,7 +55,7 @@
                         <div class="d-flex justify-content-between align-items-start flex-wrap m-b-15">
                             <div>
                                 <h6 class="m-b-5">{{ $role->name }}</h6>
-                                <small class="text-muted">{{ $role->doctors_count }} doctor(s) assigned</small>
+                                <small class="text-muted">{{ $role->doctors_count ?? 0 }} doctor(s) assigned</small>
                             </div>
                             <span class="badge @if($role->is_active) badge-success @else badge-default @endif">
                                 {{ $role->is_active ? 'Active' : 'Inactive' }}
@@ -97,7 +97,7 @@
                             </button>
                         </div>
                     </form>
-                    @if($role->doctors_count === 0)
+                    @if(($role->doctors_count ?? 0) === 0)
                         <form method="POST" action="{{ route('doctor-roles.destroy', $role) }}" class="doctor-role-delete-form m-t-10"
                               data-role-name="{{ $role->name }}">
                             @csrf

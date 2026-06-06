@@ -52,7 +52,8 @@
     <div class="tab-pane active" id="tab-branding" role="tabpanel">
         <div class="row clearfix">
             <div class="col-lg-7 col-md-12">
-                <p class="settings-section-title">Project Branding</p>
+                <p class="settings-section-title">Site branding</p>
+                <p class="text-muted small m-b-20">Main administrator settings — this logo and project name appear on the public website and in the admin top bar. This is not a doctor profile photo (use <strong>Admin Profile</strong> for your personal avatar).</p>
                 <div class="settings-logo-box">
                     <img src="{{ $logoUrl }}" id="logo-preview" alt="Logo">
                 </div>
