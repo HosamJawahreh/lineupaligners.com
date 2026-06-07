@@ -1,6 +1,49 @@
 (function ($) {
     'use strict';
 
+    function initVersionPicker($root) {
+        $root.find('[data-mfg-version-nav]').each(function () {
+            var $nav = $(this);
+            var navKey = String($nav.data('mfg-version-nav'));
+
+            function showVersion(version) {
+                var versionKey = String(version);
+
+                $nav.find('[data-mfg-version-btn]').each(function () {
+                    var $btn = $(this);
+                    var isActive = String($btn.data('version')) === versionKey;
+                    $btn.toggleClass('is-active', isActive);
+                    $btn.attr('aria-selected', isActive ? 'true' : 'false');
+                });
+
+                $root.find('[data-mfg-version-panel][data-version-nav="' + navKey + '"]').each(function () {
+                    var $panel = $(this);
+                    var isActive = String($panel.data('mfg-version-panel')) === versionKey;
+                    $panel.toggleClass('is-active', isActive);
+                    if (isActive) {
+                        $panel.removeAttr('hidden');
+                    } else {
+                        $panel.attr('hidden', true);
+                    }
+                });
+            }
+
+            $nav.on('click', '[data-mfg-version-btn]', function () {
+                showVersion($(this).data('version'));
+            });
+
+            var $active = $nav.find('[data-mfg-version-btn].is-active').first();
+            if ($active.length) {
+                showVersion($active.data('version'));
+            } else {
+                var $last = $nav.find('[data-mfg-version-btn]').last();
+                if ($last.length) {
+                    showVersion($last.data('version'));
+                }
+            }
+        });
+    }
+
     function initStagePicker($root) {
         var $nav = $root.find('[data-mfg-stage-nav]');
         if (!$nav.length) {
@@ -74,6 +117,7 @@
         }
 
         initStagePicker($root);
+        initVersionPicker($root);
         initStepRangeFields($root);
 
         $root.find('[data-mfg-review-form]').each(function () {

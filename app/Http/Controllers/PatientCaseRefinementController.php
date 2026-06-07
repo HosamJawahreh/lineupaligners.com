@@ -55,18 +55,12 @@ class PatientCaseRefinementController extends Controller
         }
 
         $validated = $request->validate([
-            'notes' => ['required', 'string', 'min:10', 'max:10000'],
+            'notes' => ['nullable', 'string', 'max:10000'],
             'upper_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
             'lower_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
+            'photos' => ['nullable', 'array'],
+            'photos.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:'.CasePhotoStorage::MAX_KB],
         ]);
-
-        if (! $request->hasFile('upper_jaw_scan') && ! $request->hasFile('lower_jaw_scan')) {
-            return $this->redirectToTab(
-                $patient,
-                'Upload at least one 3D file (upper or lower jaw) to start the refinement case.',
-                'error'
-            );
-        }
 
         $anchorPlan = $patient->isDividedStages()
             ? $patient->originalCycleStageTreatmentPlans()->sortByDesc('stage_number')->first()
@@ -87,7 +81,7 @@ class PatientCaseRefinementController extends Controller
                     'patient_id' => $patient->id,
                     'version' => max(1, (int) $maxVersion + 1),
                     'is_current' => true,
-                    'notes' => $validated['notes'],
+                    'notes' => trim((string) ($validated['notes'] ?? '')),
                     'requested_by' => auth()->id(),
                     'treatment_plan_id' => $anchorPlan?->id,
                 ]);

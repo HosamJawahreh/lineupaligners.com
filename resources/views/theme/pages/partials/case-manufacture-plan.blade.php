@@ -119,22 +119,16 @@
                  aria-labelledby="mfg-stage-tab-{{ $stageNum }}"
                  data-mfg-stage-panel="{{ $stageNum }}"
                  @if($stageNum !== $activeStage) hidden @endif>
-                <div class="mfg-plan__stage-stack">
-                    @foreach($plansInStage as $plan)
-                        @include('theme.pages.partials.case-manufacture-plan-card', [
-                            'plan' => $plan,
-                            'patient' => $patient,
-                            'title' => $plan->stageLabel(),
-                            'canReview' => ($canReviewTreatmentPlan ?? false)
-                                && $patient->canDoctorReviewStage($stageNum)
-                                && $plan->is_current,
-                            'canUpload' => $canUploadTreatmentPlan ?? false,
-                            'canMarkManufactured' => $canMarkManufactured ?? false,
-                            'inStagePicker' => true,
-                            'isHistorical' => ! $plan->is_current,
-                        ])
-                    @endforeach
-                </div>
+                @include('theme.pages.partials.case-manufacture-plan-versions', [
+                    'plans' => $plansInStage,
+                    'patient' => $patient,
+                    'navKey' => 'stage-'.$stageNum,
+                    'titleResolver' => fn ($plan) => $plan->stageLabel(),
+                    'canReview' => ($canReviewTreatmentPlan ?? false) && $patient->canDoctorReviewStage($stageNum),
+                    'canUpload' => $canUploadTreatmentPlan ?? false,
+                    'canMarkManufactured' => $canMarkManufactured ?? false,
+                    'inStagePicker' => true,
+                ])
 
                 @if($canUploadThisStage && $currentStagePlan?->isRejected())
                 <section class="mfg-plan__panel mfg-plan__panel--admin mfg-plan__panel--revision">
@@ -244,22 +238,19 @@
         ])
         @endif
         @else
-        @if($visibleFullPlans->contains(fn ($plan) => ! $plan->is_current && $plan->isRejected()))
-        <p class="mfg-plan__history-note m-b-15">Rejected submissions remain visible below for reference until the current plan is approved.</p>
+        @if($visibleFullPlans->count() > 1)
+        <p class="mfg-plan__history-note m-b-15">Use the version switcher to compare submissions. The latest version is shown by default.</p>
+        @elseif($visibleFullPlans->contains(fn ($plan) => ! $plan->is_current && $plan->isRejected()))
+        <p class="mfg-plan__history-note m-b-15">Rejected submissions remain visible for reference until the current plan is approved.</p>
         @endif
-        <div class="mfg-plan__stage-stack">
-            @foreach($visibleFullPlans as $plan)
-                @include('theme.pages.partials.case-manufacture-plan-card', [
-                    'plan' => $plan,
-                    'patient' => $patient,
-                    'title' => $plan->version > 1 ? 'Treatment plan · Version '.$plan->version : 'Treatment case plan',
-                    'canReview' => $canReviewTreatmentPlan ?? false,
-                    'canUpload' => $canUploadTreatmentPlan ?? false,
-                    'canMarkManufactured' => $canMarkManufactured ?? false,
-                    'isHistorical' => ! $plan->is_current,
-                ])
-            @endforeach
-        </div>
+        @include('theme.pages.partials.case-manufacture-plan-versions', [
+            'plans' => $visibleFullPlans,
+            'patient' => $patient,
+            'navKey' => 'full',
+            'canReview' => $canReviewTreatmentPlan ?? false,
+            'canUpload' => $canUploadTreatmentPlan ?? false,
+            'canMarkManufactured' => $canMarkManufactured ?? false,
+        ])
         @endif
 
         @php

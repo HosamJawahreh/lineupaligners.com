@@ -5,7 +5,7 @@
 @section('body-class', 'patient-case-study-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=42">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=44">
 @endpush
 
 @section('content')
@@ -254,10 +254,10 @@
     }
 }
 </script>
-<script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=8"></script>
+<script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=9"></script>
 @endif
 <script src="{{ asset('assets/js/patient-case-study.js') }}?v=2"></script>
-<script src="{{ asset('assets/js/case-manufacture-plan.js') }}"></script>
+<script src="{{ asset('assets/js/case-manufacture-plan.js') }}?v=2"></script>
 <script src="{{ asset('assets/js/case-photos-upload.js') }}?v=1"></script>
 @if(!empty($caseScanSets))
 <script>window.caseScanSetsMeta = @json($caseScanSets);</script>

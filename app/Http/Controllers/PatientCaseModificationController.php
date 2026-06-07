@@ -47,20 +47,12 @@ class PatientCaseModificationController extends Controller
             'stage_number' => $patient->isDividedStages()
                 ? ['required', 'integer', 'min:1', 'max:99']
                 : ['nullable'],
-            'notes' => ['required', 'string', 'min:10', 'max:10000'],
+            'notes' => ['nullable', 'string', 'max:10000'],
             'upper_jaw_scan' => ['nullable', 'file', Rule::file()->extensions(self::SCAN_EXTENSIONS)->max(self::SCAN_MAX_KB)],
             'lower_jaw_scan' => ['nullable', 'file', Rule::file()->extensions(self::SCAN_EXTENSIONS)->max(self::SCAN_MAX_KB)],
             'photos' => ['nullable', 'array'],
             'photos.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:'.CasePhotoStorage::MAX_KB],
         ]);
-
-        if (! $request->hasFile('upper_jaw_scan') && ! $request->hasFile('lower_jaw_scan')) {
-            return $this->redirectToTab(
-                $patient,
-                'Upload at least one 3D file (upper or lower jaw) with your modification request.',
-                'error'
-            );
-        }
 
         $plan = $patient->isDividedStages()
             ? $patient->currentTreatmentPlanForStage($stageNumber)
@@ -85,7 +77,7 @@ class PatientCaseModificationController extends Controller
                 'stage_number' => $stageNumber,
                 'version' => max(1, $version),
                 'is_current' => true,
-                'notes' => $validated['notes'],
+                'notes' => trim((string) ($validated['notes'] ?? '')),
                 'requested_by' => auth()->id(),
                 'treatment_plan_id' => $plan?->id,
             ]);

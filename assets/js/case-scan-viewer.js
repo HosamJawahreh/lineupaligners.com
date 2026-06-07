@@ -1422,8 +1422,68 @@ if (root && canvas) {
     }
 
     const occlusalSampleVec = new THREE.Vector3();
+    const occlusalNormalVec = new THREE.Vector3();
 
-    function getArchOcclusalY(wrapper, arch) {
+    function ensureMeshNormals(object) {
+        object.traverse((child) => {
+            if (!child.isMesh || !child.geometry) {
+                return;
+            }
+            if (!child.geometry.attributes.normal) {
+                child.geometry.computeVertexNormals();
+            }
+        });
+    }
+
+    /** Occlusal plane height from upward (lower) or downward (upper) facing triangles. */
+    function getOcclusalPlaneY(wrapper, arch) {
+        let sumY = 0;
+        let sumWeight = 0;
+
+        wrapper.updateMatrixWorld(true);
+        wrapper.traverse((child) => {
+            if (!child.isMesh || !child.geometry?.attributes?.position) {
+                return;
+            }
+
+            const positions = child.geometry.attributes.position;
+            const normals = child.geometry.attributes.normal;
+            const threshold = 0.25;
+
+            for (let i = 0; i < positions.count; i += 1) {
+                occlusalSampleVec.fromBufferAttribute(positions, i);
+                occlusalSampleVec.applyMatrix4(child.matrixWorld);
+
+                let weight = 0;
+                if (normals) {
+                    occlusalNormalVec.fromBufferAttribute(normals, i);
+                    occlusalNormalVec.transformDirection(child.matrixWorld);
+                    if (arch === 'lower' && occlusalNormalVec.y > threshold) {
+                        weight = occlusalNormalVec.y;
+                    } else if (arch === 'upper' && occlusalNormalVec.y < -threshold) {
+                        weight = -occlusalNormalVec.y;
+                    }
+                } else if (arch === 'lower' && occlusalSampleVec.y > 0) {
+                    weight = 1;
+                } else if (arch === 'upper' && occlusalSampleVec.y < 0) {
+                    weight = 1;
+                }
+
+                if (weight > 0) {
+                    sumY += occlusalSampleVec.y * weight;
+                    sumWeight += weight;
+                }
+            }
+        });
+
+        if (sumWeight > 0) {
+            return sumY / sumWeight;
+        }
+
+        return getArchOcclusalYFallback(wrapper, arch);
+    }
+
+    function getArchOcclusalYFallback(wrapper, arch) {
         const ys = [];
 
         wrapper.updateMatrixWorld(true);
@@ -1447,28 +1507,13 @@ if (root && canvas) {
 
         ys.sort((a, b) => a - b);
         const index = arch === 'lower'
-            ? Math.floor(ys.length * 0.88)
-            : Math.floor(ys.length * 0.12);
+            ? Math.floor(ys.length * 0.9)
+            : Math.floor(ys.length * 0.1);
 
         return ys[Math.min(Math.max(index, 0), ys.length - 1)];
     }
 
-    function alignBiteOcclusal(upper, lower) {
-        lower.wrapper.position.set(0, 0, 0);
-        upper.wrapper.position.set(0, 0, 0);
-
-        lower.wrapper.updateMatrixWorld(true);
-        upper.wrapper.updateMatrixWorld(true);
-
-        const lowerOcc = getArchOcclusalY(lower.wrapper, 'lower');
-        const upperOcc = getArchOcclusalY(upper.wrapper, 'upper');
-
-        lower.wrapper.position.y = -lowerOcc;
-        upper.wrapper.position.y = -upperOcc;
-
-        lower.wrapper.updateMatrixWorld(true);
-        upper.wrapper.updateMatrixWorld(true);
-
+    function alignArchCentersXZ(upper, lower) {
         const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
         const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
         const midX = ((lowerBox.min.x + lowerBox.max.x) + (upperBox.min.x + upperBox.max.x)) * 0.25;
@@ -1480,99 +1525,134 @@ if (root && canvas) {
         upper.wrapper.position.z -= midZ;
     }
 
-    /** Pick Y rotation using the stacked bite so both arches face the camera together. */
-    function findBestBiteFacingRotation(upper, lower) {
-        const baseLowerX = lower.object.rotation.x;
-        const baseLowerZ = lower.object.rotation.z;
-        const baseUpperX = upper.object.rotation.x;
-        const baseUpperZ = upper.object.rotation.z;
-        const rotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
-        let bestRotation = 0;
-        let bestScore = -Infinity;
+    function alignBiteOcclusal(upper, lower, applyClosedBitePress = true) {
+        lower.wrapper.position.set(0, 0, 0);
+        upper.wrapper.position.set(0, 0, 0);
 
-        rotations.forEach((yRotation) => {
-            lower.object.rotation.set(baseLowerX, yRotation, baseLowerZ);
-            upper.object.rotation.set(baseUpperX, yRotation, baseUpperZ);
-            centerObjectInWrapper(lower.object);
-            centerObjectInWrapper(upper.object);
-            alignBiteOcclusal(upper, lower);
+        lower.wrapper.updateMatrixWorld(true);
+        upper.wrapper.updateMatrixWorld(true);
 
-            const box = new THREE.Box3();
-            box.expandByObject(lower.wrapper);
-            box.expandByObject(upper.wrapper);
-            const size = box.getSize(new THREE.Vector3());
-            const score = size.x / Math.max(size.z, 0.001);
+        const lowerOcc = getOcclusalPlaneY(lower.wrapper, 'lower');
+        const upperOcc = getOcclusalPlaneY(upper.wrapper, 'upper');
 
-            if (score > bestScore) {
-                bestScore = score;
-                bestRotation = yRotation;
-            }
-        });
+        lower.wrapper.position.y = -lowerOcc;
+        upper.wrapper.position.y = -upperOcc;
 
-        return bestRotation;
+        lower.wrapper.updateMatrixWorld(true);
+        upper.wrapper.updateMatrixWorld(true);
+        alignArchCentersXZ(upper, lower);
+
+        if (applyClosedBitePress) {
+            lower.wrapper.updateMatrixWorld(true);
+            upper.wrapper.updateMatrixWorld(true);
+            const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
+            const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
+            const press = Math.min(
+                lowerBox.getSize(new THREE.Vector3()).y,
+                upperBox.getSize(new THREE.Vector3()).y,
+                12
+            ) * 0.02;
+            upper.wrapper.position.y -= press;
+        }
     }
 
-    function applyFacingRotation(object, wrapper, yRotation) {
-        object.rotation.y = yRotation;
+    function scoreBiteAlignment(upper, lower) {
+        alignBiteOcclusal(upper, lower, false);
+
+        lower.wrapper.updateMatrixWorld(true);
+        upper.wrapper.updateMatrixWorld(true);
+
+        const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
+        const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
+        const gap = upperBox.min.y - lowerBox.max.y;
+        const combined = lowerBox.clone().union(upperBox);
+        const combinedSize = combined.getSize(new THREE.Vector3());
+        const lowerHeight = lowerBox.getSize(new THREE.Vector3()).y;
+        const upperHeight = upperBox.getSize(new THREE.Vector3()).y;
+        const stackHeight = lowerHeight + upperHeight + 0.001;
+        const overlapRatio = 1 - (combinedSize.y / stackHeight);
+        const frontalScore = combinedSize.x / Math.max(combinedSize.z, 0.001);
+        const gapPenalty = gap > 0 ? gap * 8 : 0;
+        const contactBonus = gap <= 0.75 ? 2.5 : 0;
+
+        return overlapRatio * 4 + frontalScore * 0.75 + contactBonus - gapPenalty;
+    }
+
+    function applyArchRotation(object, wrapper, rotX, rotY) {
+        object.rotation.set(rotX, rotY, 0);
         centerObjectInWrapper(object);
     }
 
-    /** Pick Y rotation for a single arch (upper-only or lower-only view). */
-    function findBestFacingRotation(object, wrapper) {
-        const baseX = object.rotation.x;
-        const baseZ = object.rotation.z;
-        const rotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
-        let bestRotation = 0;
+    /** Search orientations and pick the stacked QA bite with minimal vertical gap. */
+    function findBestBiteOrientation(upper, lower) {
+        normalizeToYUp(lower.object, lower.wrapper);
+        normalizeToYUp(upper.object, upper.wrapper);
+
+        const yRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+        const xFlips = [0, Math.PI];
         let bestScore = -Infinity;
+        let best = { rotY: 0, lowerRotX: 0, upperRotX: Math.PI };
 
-        rotations.forEach((yRotation) => {
-            object.rotation.set(baseX, yRotation, baseZ);
-            centerObjectInWrapper(object);
+        yRotations.forEach((rotY) => {
+            xFlips.forEach((lowerRotX) => {
+                xFlips.forEach((upperRotX) => {
+                    applyArchRotation(lower.object, lower.wrapper, lowerRotX, rotY);
+                    applyArchRotation(upper.object, upper.wrapper, upperRotX, rotY);
 
-            const size = new THREE.Box3().setFromObject(wrapper).getSize(new THREE.Vector3());
-            const score = size.x / Math.max(size.z, 0.001);
-
-            if (score > bestScore) {
-                bestScore = score;
-                bestRotation = yRotation;
-            }
+                    const score = scoreBiteAlignment(upper, lower);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        best = { rotY, lowerRotX, upperRotX };
+                    }
+                });
+            });
         });
 
-        return bestRotation;
+        return best;
     }
 
-    /** Normalize scanner exports and arch facing for occlusal bite + frontal view. */
-    function applyDentalOrientation(entry, arch) {
-        const object = entry.object;
-        normalizeToYUp(object, entry.wrapper);
+    function findBestFacingRotation(object, wrapper) {
+        normalizeToYUp(object, wrapper);
 
-        let box = new THREE.Box3().setFromObject(entry.wrapper);
-        const center = box.getCenter(new THREE.Vector3());
-        const topHalf = box.max.y - center.y;
-        const bottomHalf = center.y - box.min.y;
+        const xFlips = [0, Math.PI];
+        const yRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+        let bestRotation = 0;
+        let bestRotX = 0;
+        let bestScore = -Infinity;
 
-        if (arch === 'upper') {
-            // Intraoral exports share the same axis as lower; invert upper for closed bite.
-            object.rotation.x += Math.PI;
-            centerObjectInWrapper(object);
-        } else if (topHalf > bottomHalf * 1.12) {
-            // Lower arch exported upside-down — flip so cusps point up (+Y).
-            object.rotation.x += Math.PI;
-            centerObjectInWrapper(object);
-        }
+        xFlips.forEach((rotX) => {
+            yRotations.forEach((yRotation) => {
+                object.rotation.set(rotX, yRotation, 0);
+                centerObjectInWrapper(object);
+
+                const size = new THREE.Box3().setFromObject(wrapper).getSize(new THREE.Vector3());
+                const score = size.x / Math.max(size.z, 0.001);
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestRotation = yRotation;
+                    bestRotX = rotX;
+                }
+            });
+        });
+
+        object.rotation.set(bestRotX, bestRotation, 0);
+        centerObjectInWrapper(object);
+
+        return bestRotation;
     }
 
     function stackUpperLowerMeshes(upper, lower) {
         resetWrapperTransform(upper);
         resetWrapperTransform(lower);
 
-        applyDentalOrientation(upper, 'upper');
-        applyDentalOrientation(lower, 'lower');
+        ensureMeshNormals(lower.object);
+        ensureMeshNormals(upper.object);
 
-        const facingRotation = findBestBiteFacingRotation(upper, lower);
-        applyFacingRotation(lower.object, lower.wrapper, facingRotation);
-        applyFacingRotation(upper.object, upper.wrapper, facingRotation);
-        alignBiteOcclusal(upper, lower);
+        const best = findBestBiteOrientation(upper, lower);
+        applyArchRotation(lower.object, lower.wrapper, best.lowerRotX, best.rotY);
+        applyArchRotation(upper.object, upper.wrapper, best.upperRotX, best.rotY);
+        alignBiteOcclusal(upper, lower, true);
 
         const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
         const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
@@ -1668,9 +1748,8 @@ if (root && canvas) {
         if (entries.length < 2) {
             entries.forEach((entry) => {
                 entry.wrapper.position.set(0, 0, 0);
-                applyDentalOrientation(entry, entry.wrapper.name === 'upper' ? 'upper' : 'lower');
-                const facingRotation = findBestFacingRotation(entry.object, entry.wrapper);
-                applyFacingRotation(entry.object, entry.wrapper, facingRotation);
+                ensureMeshNormals(entry.object);
+                findBestFacingRotation(entry.object, entry.wrapper);
             });
         } else {
             entries.forEach((entry) => {
@@ -1741,6 +1820,7 @@ if (root && canvas) {
                 }
 
                 const usesFileColors = prepareObjectMaterials(object, scanId);
+                ensureMeshNormals(object);
                 centerObjectInWrapper(object);
                 const wrapper = new THREE.Group();
                 wrapper.name = scanId;

@@ -2516,6 +2516,33 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     color: #b91c1c;
 }
 
+.mfg-plan__stage-nav--versions {
+    margin-bottom: 14px;
+}
+
+.mfg-plan__stage-panel .mfg-plan__stage-nav--versions {
+    margin-top: 0;
+}
+
+.mfg-plan__version-current-tag {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+.mfg-plan__version-panels {
+    position: relative;
+    min-height: 0;
+}
+
+.mfg-plan__version-panel {
+    display: none;
+}
+
+.mfg-plan__version-panel.is-active {
+    display: block;
+}
+
 .mfg-plan__stage-stack {
     display: flex;
     flex-direction: column;
@@ -4352,6 +4379,87 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 .case-modification-card__submit:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 18px rgba(234, 88, 12, 0.34);
+}
+
+.case-modification-card__optional {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #94a3b8;
+}
+
+.case-modification-card.is-disabled {
+    opacity: 0.72;
+    pointer-events: none;
+}
+
+/* Refinement form card — same layout as modification, rose accent */
+.case-modification-card--refinement {
+    background: linear-gradient(180deg, #ffffff 0%, #fff1f2 100%);
+    border-color: #fecdd3;
+    box-shadow: 0 4px 24px rgba(225, 29, 72, 0.08);
+}
+
+.case-modification-card--refinement .case-modification-card__accent {
+    background: linear-gradient(90deg, #be123c 0%, #e11d48 50%, #fb7185 100%);
+}
+
+.case-modification-card--refinement .case-modification-card__icon {
+    background: linear-gradient(135deg, #be123c 0%, #e11d48 100%);
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.28);
+}
+
+.case-modification-card--refinement .case-modification-card__kicker {
+    color: #be123c;
+}
+
+.case-modification-card--refinement .case-modification-card__section {
+    border-color: #ffe4e6;
+}
+
+.case-modification-card--refinement .case-modification-card__section-title {
+    color: #be123c;
+}
+
+.case-modification-card--refinement .case-modification-card__select-wrap,
+.case-modification-card--refinement .case-modification-card__file-wrap {
+    border-color: #fecdd3;
+}
+
+.case-modification-card--refinement .case-modification-card__select-wrap:focus-within,
+.case-modification-card--refinement .case-modification-card__file-wrap:focus-within {
+    border-color: #e11d48;
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.12);
+}
+
+.case-modification-card--refinement .case-modification-card__select-icon,
+.case-modification-card--refinement .case-modification-card__file-icon {
+    background: #fff1f2;
+    border-color: #ffe4e6;
+    color: #e11d48;
+}
+
+.case-modification-card--refinement .case-modification-card__field textarea {
+    border-color: #fecdd3;
+}
+
+.case-modification-card--refinement .case-modification-card__field textarea:focus {
+    border-color: #e11d48;
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.12);
+}
+
+.case-modification-card--refinement .case-modification-card__foot {
+    border-top-color: #ffe4e6;
+}
+
+.case-modification-card--refinement .case-modification-card__submit {
+    background: linear-gradient(135deg, #be123c 0%, #e11d48 100%);
+    box-shadow: 0 4px 14px rgba(225, 29, 72, 0.28);
+}
+
+.case-modification-card--refinement .case-modification-card__submit:hover {
+    box-shadow: 0 6px 18px rgba(225, 29, 72, 0.34);
 }
 
 /* ── Order refinement tab (placeholder) ── */

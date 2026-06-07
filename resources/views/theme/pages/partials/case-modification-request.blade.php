@@ -14,7 +14,7 @@
     <header class="case-modification__head">
         <h3 class="case-modification__title">Request Modification</h3>
         <p class="case-modification__subtitle">
-            Request changes by uploading revised 3D scans and notes. You can request a modification on the current pending plan before approving, or on an approved plan to start a new cycle. LineUp will submit an updated plan for your review.
+            Request changes by uploading revised 3D scans, photos, and/or notes — all optional. You can request a modification on the current pending plan before approving, or on an approved plan to start a new cycle.
         </p>
     </header>
 
@@ -36,7 +36,7 @@
                 <div class="case-modification-card__head-text">
                     <p class="case-modification-card__kicker">Plan changes</p>
                     <h4 class="case-modification-card__title" id="case-modification-form-title">Submit modification request</h4>
-                    <p class="case-modification-card__lead">Upload revised 3D scans and notes. LineUp will prepare an updated plan for your review.</p>
+                    <p class="case-modification-card__lead">Upload revised 3D scans, photos, and/or notes — all optional. LineUp will prepare an updated plan for your review.</p>
                 </div>
             </header>
 
@@ -80,20 +80,20 @@
                             @include('theme.pages.partials.case-photos-upload', ['uploadId' => 'modification-photos'])
                         </div>
                         <div class="case-modification-card__upload-block">
-                            <label for="modification-upper">Upper jaw 3D file</label>
+                            <label for="modification-upper">Upper jaw 3D file <span class="case-modification-card__optional">optional</span></label>
                             <div class="case-modification-card__file-wrap">
                                 <span class="case-modification-card__file-icon" aria-hidden="true"><i class="zmdi zmdi-file"></i></span>
                                 <input type="file" id="modification-upper" name="upper_jaw_scan" accept=".stl,.obj,.ply">
                             </div>
-                            <span class="case-modification-card__hint">STL, OBJ, or PLY — optional if lower jaw is provided.</span>
+                            <span class="case-modification-card__hint">STL, OBJ, or PLY — upload when you have a new upper scan.</span>
                         </div>
                         <div class="case-modification-card__upload-block">
-                            <label for="modification-lower">Lower jaw 3D file</label>
+                            <label for="modification-lower">Lower jaw 3D file <span class="case-modification-card__optional">optional</span></label>
                             <div class="case-modification-card__file-wrap">
                                 <span class="case-modification-card__file-icon" aria-hidden="true"><i class="zmdi zmdi-file"></i></span>
                                 <input type="file" id="modification-lower" name="lower_jaw_scan" accept=".stl,.obj,.ply">
                             </div>
-                            <span class="case-modification-card__hint">Upload at least one jaw model with your request.</span>
+                            <span class="case-modification-card__hint">STL, OBJ, or PLY — upload when you have a new lower scan.</span>
                         </div>
                     </div>
                 </div>
@@ -101,18 +101,16 @@
                 <div class="case-modification-card__section">
                     <h5 class="case-modification-card__section-title">
                         <i class="zmdi zmdi-edit" aria-hidden="true"></i>
-                        Modification notes
+                        Modification notes <span class="case-modification-card__optional">optional</span>
                     </h5>
                     <div class="case-modification-card__field">
                         <label for="modification-notes">What should change?</label>
                         <textarea id="modification-notes"
                                   name="notes"
                                   rows="5"
-                                  required
-                                  minlength="10"
                                   maxlength="10000"
                                   placeholder="Describe what should change in the new treatment plan (tooth movements, attachments, staging, etc.)">{{ old('notes') }}</textarea>
-                        <span class="case-modification-card__hint">Minimum 10 characters — be specific so LineUp can revise the plan accurately.</span>
+                        <span class="case-modification-card__hint">Optional — add context to help LineUp revise the plan accurately.</span>
                     </div>
                 </div>
 
