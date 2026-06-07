@@ -28,10 +28,15 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if ($this->app->environment('production')) {
+        $appUrl = (string) config('app.url');
+        $forceHttps = filter_var(env('FORCE_HTTPS', false), FILTER_VALIDATE_BOOL)
+            || str_starts_with($appUrl, 'https://')
+            || $this->app->environment('production');
+
+        if ($forceHttps) {
             URL::forceScheme('https');
             config([
-                'session.secure' => true,
+                'session.secure' => filter_var(env('SESSION_SECURE_COOKIE', true), FILTER_VALIDATE_BOOL),
                 'session.same_site' => 'lax',
             ]);
         }
