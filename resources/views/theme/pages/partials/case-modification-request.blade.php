@@ -1,10 +1,13 @@
 @php
     $isDivided = $patient->isDividedStages();
     $eligibleStages = $patient->modificationEligibleStageNumbers();
-    $canRequest = ($canRequestModification ?? false) && $patient->canRequestModificationNow();
+    $hasWorkflowPermission = $canRequestModification ?? false;
+    $canRequestNow = $patient->canRequestModificationNow();
+    $canRequest = $hasWorkflowPermission && $canRequestNow;
     $awaitingPlan = $isDivided
         ? $patient->hasActiveModificationForAny()
         : $patient->hasModificationAwaitingPlan(null);
+    $reviewStage = $isDivided ? $patient->doctorReviewStageNumber() : null;
 @endphp
 
 <div class="case-modification" id="case-modification-request">
@@ -91,10 +94,20 @@
             <i class="zmdi zmdi-time" aria-hidden="true"></i>
             <p>A modification cycle is in progress{{ $isDivided ? ' for one or more stages' : '' }}. LineUp will upload a revised plan for you to review. After you approve it, this modification cycle ends and you may start a new one here.</p>
         </div>
+        @elseif($hasWorkflowPermission && ! $canRequestNow && $reviewStage)
+        <div class="case-modification__notice case-modification__notice--info">
+            <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
+            <p>Stage {{ $reviewStage }} is ready on the <strong>Treatment Plan</strong> tab — approve it there or request a modification before approving.</p>
+        </div>
+        @elseif(! $hasWorkflowPermission)
+        <div class="case-modification__notice case-modification__notice--info">
+            <i class="zmdi zmdi-lock" aria-hidden="true"></i>
+            <p>Your account role does not include modification requests. Contact LineUp admin to update your permissions.</p>
+        </div>
         @else
         <div class="case-modification__notice case-modification__notice--info">
             <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-            <p>Review the current stage in the Treatment Plan tab. You can approve it or request a modification there before approving.</p>
+            <p>No stage is ready for modification right now. Approve the current stage on the Treatment Plan tab first.</p>
         </div>
         @endif
     @else

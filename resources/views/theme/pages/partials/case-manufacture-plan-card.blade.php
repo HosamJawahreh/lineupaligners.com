@@ -5,6 +5,10 @@
         default => 'is-pending',
     };
     $isHistorical = ! empty($isHistorical);
+    $showDoctorActions = (
+        (($canReview ?? false) && $plan->isPending() && $plan->is_current && ! $isHistorical)
+        || (! empty($canRequestModificationOnStage) && $plan->isPending() && $plan->is_current && ! $isHistorical && isset($patient))
+    );
 @endphp
 
 <article class="mfg-plan__card {{ $statusClass }} @if(!empty($inStagePicker)) mfg-plan__card--in-picker @endif @if($isHistorical) mfg-plan__card--historical @endif">
@@ -24,7 +28,15 @@
         </div>
     </header>
 
-    <div class="mfg-plan__canvas-wrap">
+    @include('theme.pages.partials.case-manufacture-plan-doctor-actions', [
+        'plan' => $plan,
+        'patient' => $patient ?? null,
+        'canReview' => $canReview ?? false,
+        'canRequestModificationOnStage' => $canRequestModificationOnStage ?? false,
+        'isHistorical' => $isHistorical,
+    ])
+
+    <div class="mfg-plan__canvas-wrap @if($showDoctorActions) mfg-plan__canvas-wrap--with-actions @endif">
         <iframe
             src="{{ $plan->plan_url }}"
             title="{{ $title }} treatment plan"
@@ -74,36 +86,6 @@
             <strong>Doctor feedback</strong>
             <p>{{ $plan->review_comment }}</p>
         </div>
-        @endif
-
-        @if($canReview && $plan->isPending() && $plan->is_current && ! $isHistorical)
-        <form method="post"
-              action="{{ route('patients.treatment-plan.review', $plan->patient) }}"
-              class="mfg-plan__review-form"
-              data-mfg-review-form>
-            @csrf
-            <input type="hidden" name="plan_id" value="{{ $plan->id }}">
-            <div class="mfg-plan__field">
-                <label for="mfg-comment-{{ $plan->id }}">Comment <span class="mfg-plan__optional">(required if rejecting)</span></label>
-                <textarea id="mfg-comment-{{ $plan->id }}" name="comment" rows="3" maxlength="5000" placeholder="Notes for LineUp admin if changes are needed…">{{ old('comment') }}</textarea>
-            </div>
-            <div class="mfg-plan__review-actions">
-                <button type="submit" name="decision" value="approved" class="mfg-plan__btn mfg-plan__btn--approve">
-                    <i class="zmdi zmdi-check"></i> Approve For Manufacture
-                </button>
-                <button type="submit" name="decision" value="rejected" class="mfg-plan__btn mfg-plan__btn--reject" data-requires-comment>
-                    <i class="zmdi zmdi-close"></i> Reject
-                </button>
-            </div>
-            <p class="mfg-plan__review-hint">LineUp will manufacture the treatment plan after you approve.</p>
-        </form>
-        @endif
-
-        @if(! empty($canRequestModificationOnStage) && $plan->isPending() && $plan->is_current && ! $isHistorical && isset($patient))
-        @include('theme.pages.partials.case-modification-inline', [
-            'patient' => $patient,
-            'stageNumber' => $plan->stage_number,
-        ])
         @endif
 
         @if($isHistorical)

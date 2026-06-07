@@ -66,17 +66,17 @@ class PatientPolicy
             return false;
         }
 
-        return $this->assignedDoctorWithPermission($user, $patient, 'review_plans');
+        return $this->assignedDoctorWithWorkflowAccess($user, $patient, 'review_plans');
     }
 
-    /** Request case modification with new 3D scans (assigned doctor, after plan approval). */
+    /** Request case modification with new 3D scans (assigned doctor). */
     public function requestModification(User $user, Patient $patient): bool
     {
         if ($user->isAdmin()) {
             return false;
         }
 
-        return $this->assignedDoctorWithPermission($user, $patient, 'request_modification');
+        return $this->assignedDoctorWithWorkflowAccess($user, $patient, 'request_modification');
     }
 
     /** Order refinement after the case is fully manufactured (returning patient, new cycle). */
@@ -103,5 +103,26 @@ class PatientPolicy
             && $user->doctor
             && $patient->doctor_id === $user->doctor->id
             && $user->doctorCan($permission);
+    }
+
+    /**
+     * Assigned doctors who can view a case may always review plans and request modifications.
+     * Granular role keys still apply to other workflow actions (e.g. refinement).
+     */
+    private function assignedDoctorWithWorkflowAccess(User $user, Patient $patient, string $permission): bool
+    {
+        if (! $this->view($user, $patient)
+            || ! $user->isDoctor()
+            || ! $patient->doctor_id
+            || ! $user->doctor
+            || $patient->doctor_id !== $user->doctor->id) {
+            return false;
+        }
+
+        if (in_array($permission, ['review_plans', 'request_modification'], true)) {
+            return $user->doctorCan($permission) || $user->doctorCan('view_cases');
+        }
+
+        return $user->doctorCan($permission);
     }
 }

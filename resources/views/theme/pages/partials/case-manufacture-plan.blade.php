@@ -39,61 +39,41 @@
     </header>
 
     @if($isDivided)
-        @if(($canUploadTreatmentPlan ?? false) && $patient->canAdminAddNewDividedStage())
         @php
             $suggestedStage = (int) ($stageNumbers->max() + 1);
             if ($stageNumbers->isEmpty()) {
                 $suggestedStage = 1;
             }
             $suggestedStepFrom = (int) (old('step_from', $stagePlans->max('step_to') ? $stagePlans->max('step_to') + 1 : 1));
-        @endphp
-        <section class="mfg-plan__panel mfg-plan__panel--admin">
-            <h4 class="mfg-plan__panel-title"><i class="zmdi zmdi-plus-circle-o"></i> Add new stage</h4>
-            <p class="mfg-plan__panel-desc">Add the next stage only after the previous one is approved and has no modification in progress. To fix a rejected stage, open that stage and submit a revision there.</p>
-            <form method="post" action="{{ route('patients.treatment-plan.stage.store', $patient) }}" class="mfg-plan__form mfg-plan__form--stage-add">
-                @csrf
-                <div class="mfg-plan__form-row">
-                    <div class="mfg-plan__field mfg-plan__field--narrow">
-                        <label for="mfg-stage-number">Stage #</label>
-                        <input type="number" id="mfg-stage-number" name="stage_number" min="1" max="99" value="{{ old('stage_number', $suggestedStage) }}" required>
-                    </div>
-                    <div class="mfg-plan__field mfg-plan__field--narrow">
-                        <label for="mfg-step-from">Steps from</label>
-                        <input type="number" id="mfg-step-from" name="step_from" min="1" max="999" value="{{ $suggestedStepFrom }}" required>
-                    </div>
-                    <div class="mfg-plan__field mfg-plan__field--narrow">
-                        <label for="mfg-step-to">Steps to</label>
-                        <input type="number" id="mfg-step-to" name="step_to" min="1" max="999" value="{{ old('step_to', $suggestedStepFrom) }}" required>
-                    </div>
-                </div>
-                <div class="mfg-plan__field">
-                    <label for="mfg-stage-url">Treatment plan canvas link</label>
-                    <input type="url" id="mfg-stage-url" name="plan_url" value="{{ old('plan_url') }}" placeholder="https://viewer.lineup.com/…" required>
-                    <span class="mfg-plan__hint">Share link from the LineUp treatment plan viewer for this step range.</span>
-                </div>
-                <button type="submit" class="mfg-plan__btn mfg-plan__btn--primary">Save stage &amp; send for review</button>
-            </form>
-        </section>
-        @elseif($canUploadTreatmentPlan ?? false)
-        @php
+            $canAddNewStage = ($canUploadTreatmentPlan ?? false) && $patient->canAdminAddNewDividedStage();
             $reviewStage = $patient->doctorReviewStageNumber();
-            $blockedReason = $reviewStage !== null
-                ? 'Stage '.$reviewStage.' is awaiting doctor approval. Add the next stage only after it is approved.'
-                : ($patient->hasActiveModificationForAny()
-                    ? 'A modification is in progress. Upload the revised plan for the current stage before adding a new one.'
-                    : 'Complete the current stage before adding another.');
+            $addStageBlockedReason = null;
+            if (($canUploadTreatmentPlan ?? false) && ! $canAddNewStage) {
+                $addStageBlockedReason = $reviewStage !== null
+                    ? 'Stage '.$reviewStage.' is awaiting doctor approval. Add the next stage only after it is approved.'
+                    : ($patient->hasActiveModificationForAny()
+                        ? 'A modification is in progress. Upload the revised plan for the current stage before adding a new one.'
+                        : 'Complete the current stage before adding another.');
+            }
         @endphp
-        <p class="mfg-plan__locked-note"><i class="zmdi zmdi-lock"></i> {{ $blockedReason }}</p>
-        @endif
 
         @if($stageNumbers->isEmpty())
         <div class="mfg-plan__empty">
             <i class="zmdi zmdi-assignment-o" aria-hidden="true"></i>
             <p>No stage plans uploaded yet.</p>
             @if($canUploadTreatmentPlan ?? false)
-            <span class="mfg-plan__empty-hint">Add stage steps (e.g. 1–6) with a canvas link for each.</span>
+            <span class="mfg-plan__empty-hint">Start with stage 1 — define the step range and canvas link below.</span>
             @endif
         </div>
+
+        @include('theme.pages.partials.case-manufacture-plan-add-stage', [
+            'patient' => $patient,
+            'canUploadTreatmentPlan' => $canUploadTreatmentPlan ?? false,
+            'canAdd' => $canAddNewStage,
+            'blockedReason' => $addStageBlockedReason,
+            'suggestedStage' => $suggestedStage,
+            'suggestedStepFrom' => $suggestedStepFrom,
+        ])
         @else
         @php
             $reviewStage = $patient->doctorReviewStageNumber();
@@ -239,6 +219,15 @@
             </div>
             @endforeach
         </div>
+
+        @include('theme.pages.partials.case-manufacture-plan-add-stage', [
+            'patient' => $patient,
+            'canUploadTreatmentPlan' => $canUploadTreatmentPlan ?? false,
+            'canAdd' => $canAddNewStage,
+            'blockedReason' => $addStageBlockedReason,
+            'suggestedStage' => $suggestedStage,
+            'suggestedStepFrom' => $suggestedStepFrom,
+        ])
         @endif
     @else
         @if($visibleFullPlans->isEmpty())
