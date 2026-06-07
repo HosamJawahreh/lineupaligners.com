@@ -1435,7 +1435,7 @@ if (root && canvas) {
         });
     }
 
-    /** Occlusal plane height from upward (lower) or downward (upper) facing triangles. */
+    /** Weighted mean Y of occlusal-facing vertices (lower = up, upper = down). */
     function getOcclusalPlaneY(wrapper, arch) {
         let sumY = 0;
         let sumWeight = 0;
@@ -1449,8 +1449,9 @@ if (root && canvas) {
             const positions = child.geometry.attributes.position;
             const normals = child.geometry.attributes.normal;
             const threshold = 0.25;
+            const step = positions.count > 120000 ? 3 : 1;
 
-            for (let i = 0; i < positions.count; i += 1) {
+            for (let i = 0; i < positions.count; i += step) {
                 occlusalSampleVec.fromBufferAttribute(positions, i);
                 occlusalSampleVec.applyMatrix4(child.matrixWorld);
 
@@ -1481,6 +1482,51 @@ if (root && canvas) {
         }
 
         return getArchOcclusalYFallback(wrapper, arch);
+    }
+
+    /** How confidently the arch faces the correct way (lower up, upper down). */
+    function getArchFacingScore(wrapper, arch) {
+        let correct = 0;
+        let samples = 0;
+        const threshold = 0.35;
+
+        wrapper.updateMatrixWorld(true);
+        wrapper.traverse((child) => {
+            if (!child.isMesh || !child.geometry?.attributes?.position) {
+                return;
+            }
+
+            const positions = child.geometry.attributes.position;
+            const normals = child.geometry.attributes.normal;
+            if (!normals) {
+                return;
+            }
+
+            const step = positions.count > 80000 ? 4 : 2;
+            for (let i = 0; i < positions.count; i += step) {
+                occlusalNormalVec.fromBufferAttribute(normals, i);
+                occlusalNormalVec.transformDirection(child.matrixWorld);
+                samples += 1;
+                if (arch === 'lower' && occlusalNormalVec.y > threshold) {
+                    correct += occlusalNormalVec.y;
+                } else if (arch === 'upper' && occlusalNormalVec.y < -threshold) {
+                    correct += -occlusalNormalVec.y;
+                }
+            }
+        });
+
+        return samples > 0 ? correct / samples : 0;
+    }
+
+    function getBoxXzOverlapRatio(boxA, boxB) {
+        const overlapX = Math.max(0, Math.min(boxA.max.x, boxB.max.x) - Math.max(boxA.min.x, boxB.min.x));
+        const overlapZ = Math.max(0, Math.min(boxA.max.z, boxB.max.z) - Math.max(boxA.min.z, boxB.min.z));
+        const overlapArea = overlapX * overlapZ;
+        const areaA = Math.max((boxA.max.x - boxA.min.x) * (boxA.max.z - boxA.min.z), 0.001);
+        const areaB = Math.max((boxB.max.x - boxB.min.x) * (boxB.max.z - boxB.min.z), 0.001);
+        const unionArea = areaA + areaB - overlapArea;
+
+        return unionArea > 0 ? overlapArea / unionArea : 0;
     }
 
     function getArchOcclusalYFallback(wrapper, arch) {
@@ -1525,7 +1571,11 @@ if (root && canvas) {
         upper.wrapper.position.z -= midZ;
     }
 
-    function alignBiteOcclusal(upper, lower, applyClosedBitePress = true) {
+    /**
+     * Stack arches on a shared occlusal plane (y = 0), then settle to light contact.
+     * Lower occlusal faces up; upper occlusal faces down — like clinical QA bite viewers.
+     */
+    function alignBiteOcclusal(upper, lower, applyClosedBite = true) {
         lower.wrapper.position.set(0, 0, 0);
         upper.wrapper.position.set(0, 0, 0);
 
@@ -1542,17 +1592,28 @@ if (root && canvas) {
         upper.wrapper.updateMatrixWorld(true);
         alignArchCentersXZ(upper, lower);
 
-        if (applyClosedBitePress) {
-            lower.wrapper.updateMatrixWorld(true);
-            upper.wrapper.updateMatrixWorld(true);
-            const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
-            const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
-            const press = Math.min(
-                lowerBox.getSize(new THREE.Vector3()).y,
-                upperBox.getSize(new THREE.Vector3()).y,
-                12
-            ) * 0.02;
-            upper.wrapper.position.y -= press;
+        if (!applyClosedBite) {
+            return;
+        }
+
+        lower.wrapper.updateMatrixWorld(true);
+        upper.wrapper.updateMatrixWorld(true);
+
+        const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
+        const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
+        const gap = upperBox.min.y - lowerBox.max.y;
+        const archHeight = Math.min(
+            lowerBox.getSize(new THREE.Vector3()).y,
+            upperBox.getSize(new THREE.Vector3()).y,
+            40
+        );
+        const maxPenetration = archHeight * 0.012;
+        const targetGap = 0;
+
+        if (gap > targetGap + 0.05) {
+            upper.wrapper.position.y -= Math.min(gap - targetGap, archHeight * 0.08);
+        } else if (gap < -maxPenetration) {
+            upper.wrapper.position.y -= gap + maxPenetration;
         }
     }
 
@@ -1564,18 +1625,49 @@ if (root && canvas) {
 
         const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
         const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
+        const lowerSize = lowerBox.getSize(new THREE.Vector3());
+        const upperSize = upperBox.getSize(new THREE.Vector3());
+        const lowerCenterY = (lowerBox.min.y + lowerBox.max.y) * 0.5;
+        const upperCenterY = (upperBox.min.y + upperBox.max.y) * 0.5;
+
+        if (upperCenterY <= lowerCenterY) {
+            return -1000;
+        }
+
+        if (lowerSize.y < lowerSize.x * 0.2 && lowerSize.y < lowerSize.z * 0.2) {
+            return -500;
+        }
+
         const gap = upperBox.min.y - lowerBox.max.y;
+        const archHeight = Math.max(Math.min(lowerSize.y, upperSize.y), 1);
+        const xzOverlap = getBoxXzOverlapRatio(lowerBox, upperBox);
+        const lowerFacing = getArchFacingScore(lower.wrapper, 'lower');
+        const upperFacing = getArchFacingScore(upper.wrapper, 'upper');
         const combined = lowerBox.clone().union(upperBox);
         const combinedSize = combined.getSize(new THREE.Vector3());
-        const lowerHeight = lowerBox.getSize(new THREE.Vector3()).y;
-        const upperHeight = upperBox.getSize(new THREE.Vector3()).y;
-        const stackHeight = lowerHeight + upperHeight + 0.001;
-        const overlapRatio = 1 - (combinedSize.y / stackHeight);
         const frontalScore = combinedSize.x / Math.max(combinedSize.z, 0.001);
-        const gapPenalty = gap > 0 ? gap * 8 : 0;
-        const contactBonus = gap <= 0.75 ? 2.5 : 0;
+        const stackRatio = combinedSize.y / (lowerSize.y + upperSize.y + 0.001);
 
-        return overlapRatio * 4 + frontalScore * 0.75 + contactBonus - gapPenalty;
+        let score = 0;
+        score += xzOverlap * 8;
+        score += lowerFacing * 3 + upperFacing * 3;
+        score += frontalScore * 0.6;
+
+        if (stackRatio > 0.42 && stackRatio < 0.92) {
+            score += 4;
+        } else {
+            score -= Math.abs(stackRatio - 0.72) * 6;
+        }
+
+        if (gap >= -archHeight * 0.02 && gap <= archHeight * 0.06) {
+            score += 5;
+        } else if (gap > archHeight * 0.06) {
+            score -= gap * 4;
+        } else {
+            score -= Math.abs(gap) * 12;
+        }
+
+        return score;
     }
 
     function applyArchRotation(object, wrapper, rotX, rotY) {
@@ -1583,7 +1675,7 @@ if (root && canvas) {
         centerObjectInWrapper(object);
     }
 
-    /** Search orientations and pick the stacked QA bite with minimal vertical gap. */
+    /** Search orientations and pick a natural stacked QA bite (upper above lower, occlusal contact). */
     function findBestBiteOrientation(upper, lower) {
         normalizeToYUp(lower.object, lower.wrapper);
         normalizeToYUp(upper.object, upper.wrapper);
@@ -1607,6 +1699,10 @@ if (root && canvas) {
                 });
             });
         });
+
+        if (bestScore <= -500) {
+            best = { rotY: 0, lowerRotX: 0, upperRotX: Math.PI };
+        }
 
         return best;
     }
