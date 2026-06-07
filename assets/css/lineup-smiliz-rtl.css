@@ -265,13 +265,13 @@
 }
 
 @media (max-width: 1200px) {
-    .lineup-smiliz-site--rtl .pbmit-navbar > div {
+    .lineup-smiliz-site--rtl .pbmit-main-header-area .pbmit-navbar > div {
         right: auto;
         left: -400px;
         transform: translateX(-400px);
     }
 
-    .lineup-smiliz-site--rtl .pbmit-navbar > div.active {
+    .lineup-smiliz-site--rtl .pbmit-main-header-area .pbmit-navbar > div.active {
         left: 0;
         right: auto;
         transform: translateX(0);

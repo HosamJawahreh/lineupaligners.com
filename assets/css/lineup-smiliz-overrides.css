@@ -8,7 +8,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    --lineup-header-surface: var(--pbmit-light-color, #f1f5f9);
+    --lineup-header-surface: #ffffff;
 }
 
 .lineup-smiliz-site h1,
@@ -212,9 +212,34 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
         line-height: 40px;
         font-size: 28px;
         color: var(--lineup-brand-secondary, #0f172a);
+        transition: opacity 0.2s ease, visibility 0.2s ease;
     }
 
-    .lineup-smiliz-site .pbmit-navbar > div {
+    .lineup-smiliz-site.active .pbmit-burger-menu-wrapper,
+    .lineup-smiliz-site.lineup-mobile-nav-open .pbmit-burger-menu-wrapper,
+    .lineup-smiliz-site.active .nav-menu-toggle,
+    .lineup-smiliz-site.lineup-mobile-nav-open .nav-menu-toggle,
+    .lineup-smiliz-site.active #menu-toggle,
+    .lineup-smiliz-site.active #menu-toggle2,
+    .lineup-smiliz-site.lineup-mobile-nav-open #menu-toggle,
+    .lineup-smiliz-site.lineup-mobile-nav-open #menu-toggle2 {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    .lineup-smiliz-site.lineup-mobile-nav-open .pbmit-sticky-header.pbmit-fixed-header {
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    /* Sticky header clones the nav panel off-screen — only use the main header panel */
+    .lineup-smiliz-site .pbmit-sticky-header .pbmit-navbar > div {
+        display: none !important;
+    }
+
+    .lineup-smiliz-site .pbmit-main-header-area .pbmit-navbar > div {
         background-color: #fff;
         position: fixed;
         top: 0;
@@ -230,7 +255,7 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
         visibility: hidden;
     }
 
-    .lineup-smiliz-site .pbmit-navbar > div.active {
+    .lineup-smiliz-site .pbmit-main-header-area .pbmit-navbar > div.active {
         right: 0;
         visibility: visible;
         opacity: 1;
@@ -263,7 +288,7 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
         touch-action: none;
     }
 
-    .lineup-smiliz-site .pbmit-navbar > div .closepanel {
+    .lineup-smiliz-site .pbmit-main-header-area .pbmit-navbar > div .closepanel {
         display: block;
     }
 
@@ -351,8 +376,15 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 
 .lineup-smiliz-site .main-menu .navigation > li > a {
     font-weight: 600;
-    font-size: 13px !important;
-    letter-spacing: 0.04em;
+    font-size: 15px !important;
+    letter-spacing: 0.03em;
+}
+
+@media (min-width: 1201px) {
+    .lineup-smiliz-site .main-menu .navigation > li > a {
+        font-size: 16px !important;
+        letter-spacing: 0.02em;
+    }
 }
 
 .lineup-smiliz-site .site-navigation ul.navigation > li > a {
@@ -402,7 +434,7 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 
 .lineup-smiliz-site .site-header .pbmit-right-box > .lineup-header-lang-desktop .lineup-lang-switcher {
     padding: 3px !important;
-    background: #f1f5f9 !important;
+    background: var(--pbmit-light-color, #f1f5f9) !important;
     border-radius: 999px !important;
 }
 
@@ -433,25 +465,23 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
     line-height: 1.2;
 }
 
-@media (min-width: 1200px) {
-    .lineup-smiliz-site .lineup-nav-lang-item > a {
-        height: 80px !important;
-        line-height: 80px !important;
-        padding: 0 12px !important;
-    }
-}
-
 @media (max-width: 1200px) {
     .lineup-smiliz-site .main-menu .navigation {
         display: flex;
         flex-direction: column;
     }
 
+    .lineup-smiliz-site .main-menu .navigation > li:not(.lineup-nav-lang-item):not(.lineup-nav-lang-heading):not(.lineup-nav-lang-divider) > a {
+        font-size: 17px !important;
+        padding: 16px 24px !important;
+    }
+
+    /* Language switch — last items in mobile menu */
     .lineup-smiliz-site .lineup-nav-lang-divider {
         display: block !important;
-        order: -3;
+        order: 900;
         height: 1px;
-        margin: 4px 24px 12px;
+        margin: 12px 24px 8px;
         padding: 0;
         background: rgba(148, 163, 184, 0.35);
         pointer-events: none;
@@ -460,7 +490,7 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 
     .lineup-smiliz-site .lineup-nav-lang-heading {
         display: block !important;
-        order: -2;
+        order: 901;
         margin: 0;
         padding: 0 24px 6px;
         border: 0;
@@ -468,7 +498,7 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 
     .lineup-smiliz-site .lineup-nav-lang-heading span {
         display: block;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         letter-spacing: 0.1em;
         text-transform: uppercase;
@@ -477,7 +507,7 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 
     .lineup-smiliz-site .lineup-nav-lang-item {
         display: block !important;
-        order: -1;
+        order: 902;
         float: none !important;
         margin: 0 !important;
         border-bottom: 1px solid rgba(0, 0, 0, 0.08);
@@ -488,8 +518,9 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
         width: 100%;
         height: auto !important;
         line-height: 1.4 !important;
-        padding: 14px 24px !important;
+        padding: 16px 24px !important;
         float: none !important;
+        font-size: 17px !important;
         color: #334155 !important;
     }
 
@@ -500,7 +531,7 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
     }
 
     .lineup-smiliz-site .lineup-nav-lang-item__flag {
-        font-size: 18px;
+        font-size: 20px;
     }
 }
 
@@ -605,18 +636,19 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
     font-size: 16px;
 }
 
-/* Header — logo row matches nav menu surface (#f1f5f9) */
+/* Header — logo row + nav menu: flat white (matches logo) */
+.lineup-smiliz-site .site-header,
 .lineup-smiliz-site .site-header .pbmit-main-header-area,
 .lineup-smiliz-site .site-header .pbmit-infostack-header,
 .lineup-smiliz-site .site-header .pbmit-infostack-header > .container,
 .lineup-smiliz-site .site-header .pbmit-infostack-header-inner,
 .lineup-smiliz-site .site-header .lineup-header-logo,
 .lineup-smiliz-site .site-header .pbmit-logo-area,
-.lineup-smiliz-site .site-header .site-branding {
-    background-color: var(--lineup-header-surface) !important;
-}
-
-.lineup-smiliz-site .site-header .pbmit-header-menu-area-wrapper {
+.lineup-smiliz-site .site-header .site-branding,
+.lineup-smiliz-site .site-header .pbmit-header-menu,
+.lineup-smiliz-site .site-header .pbmit-header-menu-area,
+.lineup-smiliz-site .site-header .pbmit-header-menu-area-wrapper,
+.lineup-smiliz-site .site-header .pbmit-header-content {
     background-color: var(--lineup-header-surface) !important;
 }
 

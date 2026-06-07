@@ -34,7 +34,7 @@
 
 <script src="{{ asset('assets/smiliz/js/jquery.event.move.js') }}" defer></script>
 
-<script src="{{ asset('assets/js/lineup-smiliz-nav.js') }}?v=5" defer></script>
+<script src="{{ asset('assets/js/lineup-smiliz-nav.js') }}?v=7" defer></script>
 
 <script src="{{ asset('assets/smiliz/js/gsap-animation.js') }}?v=3" defer></script>
 
