@@ -756,12 +756,22 @@ if (root && canvas) {
         switch (preset) {
             case 'top':
                 camera.position.set(center.x, center.y + distance, center.z);
+                camera.up.set(0, 1, 0);
                 break;
-            case 'front':
+            case 'front': {
+                const upper = meshesById.get('upper');
+                const lower = meshesById.get('lower');
+                if (upper && lower && upper.wrapper.visible && lower.wrapper.visible) {
+                    applyFrontBiteCameraView();
+                    return;
+                }
                 camera.position.set(center.x, center.y, center.z + distance);
+                camera.up.set(0, 1, 0);
                 break;
+            }
             case 'side':
                 camera.position.set(center.x + distance, center.y, center.z);
+                camera.up.set(0, 1, 0);
                 break;
             default:
                 break;
@@ -1529,6 +1539,192 @@ if (root && canvas) {
         return unionArea > 0 ? overlapArea / unionArea : 0;
     }
 
+    /** Occlusal normals should lie in the horizontal (XZ) plane — high |Y| on bite surfaces. */
+    function getOcclusalHorizontalScore(upper, lower) {
+        let sum = 0;
+        let samples = 0;
+        const wrappers = [
+            { wrapper: lower.wrapper, arch: 'lower' },
+            { wrapper: upper.wrapper, arch: 'upper' },
+        ];
+
+        wrappers.forEach(({ wrapper, arch }) => {
+            wrapper.updateMatrixWorld(true);
+            wrapper.traverse((child) => {
+                if (!child.isMesh || !child.geometry?.attributes?.position) {
+                    return;
+                }
+
+                const positions = child.geometry.attributes.position;
+                const normals = child.geometry.attributes.normal;
+                if (!normals) {
+                    return;
+                }
+
+                const threshold = 0.25;
+                const step = positions.count > 80000 ? 4 : 2;
+
+                for (let i = 0; i < positions.count; i += step) {
+                    occlusalNormalVec.fromBufferAttribute(normals, i);
+                    occlusalNormalVec.transformDirection(child.matrixWorld);
+
+                    let isOcclusal = false;
+                    if (arch === 'lower' && occlusalNormalVec.y > threshold) {
+                        isOcclusal = true;
+                    } else if (arch === 'upper' && occlusalNormalVec.y < -threshold) {
+                        isOcclusal = true;
+                    }
+
+                    if (isOcclusal) {
+                        sum += Math.abs(occlusalNormalVec.y);
+                        samples += 1;
+                    }
+                }
+            });
+        });
+
+        return samples > 0 ? sum / samples : 0;
+    }
+
+    /**
+     * Score how well outer (labial/buccal) tooth faces point toward the camera axis.
+     * dirZ: +1 = camera at +Z, −1 = camera at −Z.
+     */
+    function getSmileFacingScore(upper, lower, dirZ) {
+        let smile = 0;
+        let occlusalToCamera = 0;
+        let samples = 0;
+        const wrappers = [lower.wrapper, upper.wrapper];
+
+        wrappers.forEach((wrapper) => {
+            wrapper.updateMatrixWorld(true);
+            wrapper.traverse((child) => {
+                if (!child.isMesh || !child.geometry?.attributes?.position) {
+                    return;
+                }
+
+                const positions = child.geometry.attributes.position;
+                const normals = child.geometry.attributes.normal;
+                if (!normals) {
+                    return;
+                }
+
+                const step = positions.count > 80000 ? 4 : 2;
+
+                for (let i = 0; i < positions.count; i += step) {
+                    occlusalNormalVec.fromBufferAttribute(normals, i);
+                    occlusalNormalVec.transformDirection(child.matrixWorld);
+                    samples += 1;
+
+                    const towardCamera = occlusalNormalVec.z * dirZ;
+                    const absY = Math.abs(occlusalNormalVec.y);
+
+                    if (towardCamera > 0.28 && absY < 0.62) {
+                        smile += towardCamera;
+                    }
+
+                    if (absY > 0.52 && towardCamera > 0.42) {
+                        occlusalToCamera += towardCamera;
+                    }
+                }
+            });
+        });
+
+        if (samples === 0) {
+            return 0;
+        }
+
+        return (smile / samples) - (occlusalToCamera / samples) * 5;
+    }
+
+    /** Combined score for a clinical front (smile) presentation — not occlusal-toward-camera. */
+    function getClinicalFrontScore(upper, lower) {
+        const horizontal = getOcclusalHorizontalScore(upper, lower);
+        const smilePlusZ = getSmileFacingScore(upper, lower, 1);
+        const smileMinusZ = getSmileFacingScore(upper, lower, -1);
+        const smile = Math.max(smilePlusZ, smileMinusZ);
+
+        lower.wrapper.updateMatrixWorld(true);
+        upper.wrapper.updateMatrixWorld(true);
+        const combined = new THREE.Box3()
+            .setFromObject(lower.wrapper)
+            .union(new THREE.Box3().setFromObject(upper.wrapper));
+        const combinedSize = combined.getSize(new THREE.Vector3());
+        const widthDepth = combinedSize.x / Math.max(combinedSize.z, 0.001);
+
+        return horizontal * 5 + smile * 14 + Math.min(widthDepth, 4) * 0.75;
+    }
+
+    /** Which world Z direction the anterior (smile) should face for the front camera. */
+    function getFrontCameraDirection(upper, lower) {
+        const plus = getSmileFacingScore(upper, lower, 1);
+        const minus = getSmileFacingScore(upper, lower, -1);
+        return plus >= minus ? 1 : -1;
+    }
+
+    function getBiteBounds(upper, lower) {
+        const box = new THREE.Box3().setFromObject(lower.wrapper);
+        box.union(new THREE.Box3().setFromObject(upper.wrapper));
+        return box;
+    }
+
+    /** Aim at incisors — slightly below mid-height, toward the anterior of the arch. */
+    function getFrontFocusPoint(upper, lower, dirZ) {
+        const box = getBiteBounds(upper, lower);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        const anteriorZ = dirZ > 0
+            ? box.max.z - size.z * 0.2
+            : box.min.z + size.z * 0.2;
+
+        return new THREE.Vector3(center.x, center.y - size.y * 0.06, anteriorZ);
+    }
+
+    function computeFrontCameraDistance(focus, size) {
+        const maxDim = Math.max(size.x, size.y, size.z, 1);
+        const vFovRad = (camera.fov * Math.PI) / 180;
+        const halfVFov = Math.tan(vFovRad / 2);
+
+        let distance = maxDim / (2 * halfVFov);
+
+        if (camera.aspect > 0) {
+            const halfHFov = halfVFov * camera.aspect;
+            distance = Math.max(
+                distance,
+                (size.y * 0.55) / halfVFov,
+                (size.x * 0.52) / halfHFov
+            );
+        }
+
+        if (!Number.isFinite(distance) || distance < 1) {
+            distance = maxDim * 2;
+        }
+
+        return distance * CAMERA_DISTANCE_FACTOR;
+    }
+
+    function applyFrontBiteCameraView() {
+        const upper = meshesById.get('upper');
+        const lower = meshesById.get('lower');
+        if (!upper || !lower || !upper.wrapper.visible || !lower.wrapper.visible) {
+            fitCameraToModels();
+            return;
+        }
+
+        modelGroup.updateMatrixWorld(true);
+
+        const dirZ = getFrontCameraDirection(upper, lower);
+        const box = getBiteBounds(upper, lower);
+        const size = box.getSize(new THREE.Vector3());
+        const focus = getFrontFocusPoint(upper, lower, dirZ);
+        const distance = computeFrontCameraDistance(focus, size);
+
+        controls.target.copy(focus);
+        camera.position.set(focus.x, focus.y, focus.z + distance * dirZ);
+        camera.up.set(0, 1, 0);
+        controls.update();
+    }
+
     function getArchOcclusalYFallback(wrapper, arch) {
         const ys = [];
 
@@ -1667,6 +1863,8 @@ if (root && canvas) {
             score -= Math.abs(gap) * 12;
         }
 
+        score += getClinicalFrontScore(upper, lower) * 2.5;
+
         return score;
     }
 
@@ -1705,6 +1903,26 @@ if (root && canvas) {
         }
 
         return best;
+    }
+
+    /** Pick 0° or 180° yaw so labial surfaces face the front camera, not occlusal. */
+    function ensureFrontSmileOrientation(upper, lower, best) {
+        const tryOrientation = (rotY) => {
+            applyArchRotation(lower.object, lower.wrapper, best.lowerRotX, rotY);
+            applyArchRotation(upper.object, upper.wrapper, best.upperRotX, rotY);
+            alignBiteOcclusal(upper, lower, true);
+            return getClinicalFrontScore(upper, lower);
+        };
+
+        const score0 = tryOrientation(best.rotY);
+        const score180 = tryOrientation(best.rotY + Math.PI);
+        const rotY = score180 > score0 ? best.rotY + Math.PI : best.rotY;
+
+        applyArchRotation(lower.object, lower.wrapper, best.lowerRotX, rotY);
+        applyArchRotation(upper.object, upper.wrapper, best.upperRotX, rotY);
+        alignBiteOcclusal(upper, lower, true);
+
+        return rotY;
     }
 
     function findBestFacingRotation(object, wrapper) {
@@ -1746,9 +1964,7 @@ if (root && canvas) {
         ensureMeshNormals(upper.object);
 
         const best = findBestBiteOrientation(upper, lower);
-        applyArchRotation(lower.object, lower.wrapper, best.lowerRotX, best.rotY);
-        applyArchRotation(upper.object, upper.wrapper, best.upperRotX, best.rotY);
-        alignBiteOcclusal(upper, lower, true);
+        ensureFrontSmileOrientation(upper, lower, best);
 
         const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
         const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
@@ -1775,48 +1991,7 @@ if (root && canvas) {
     }
 
     function fitFrontBiteCamera() {
-        const visible = getVisibleMeshEntries();
-        if (!visible.length) {
-            return;
-        }
-
-        modelGroup.updateMatrixWorld(true);
-
-        const box = new THREE.Box3();
-        visible.forEach((entry) => {
-            box.expandByObject(entry.wrapper);
-        });
-
-        if (box.isEmpty()) {
-            return;
-        }
-
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z, 1);
-        const vFovRad = (camera.fov * Math.PI) / 180;
-        const halfVFov = Math.tan(vFovRad / 2);
-
-        let distance = maxDim / (2 * halfVFov);
-
-        if (camera.aspect > 0) {
-            const halfHFov = halfVFov * camera.aspect;
-            distance = Math.max(
-                distance,
-                (size.y * 0.5) / halfVFov,
-                (size.x * 0.5) / halfHFov
-            );
-        }
-
-        if (!Number.isFinite(distance) || distance < 1) {
-            distance = maxDim * 2;
-        }
-
-        distance *= CAMERA_DISTANCE_FACTOR;
-
-        controls.target.copy(center);
-        camera.position.set(center.x, center.y, center.z + distance);
-        controls.update();
+        applyFrontBiteCameraView();
     }
 
     function applyInitialCameraView() {
