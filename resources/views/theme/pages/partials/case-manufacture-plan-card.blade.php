@@ -5,10 +5,7 @@
         default => 'is-pending',
     };
     $isHistorical = ! empty($isHistorical);
-    $showDoctorActions = (
-        (($canReview ?? false) && $plan->isPending() && $plan->is_current && ! $isHistorical)
-        || (! empty($canRequestModificationOnStage) && $plan->isPending() && $plan->is_current && ! $isHistorical && isset($patient))
-    );
+    $showDoctorActions = ($canReview ?? false) && $plan->isPending() && $plan->is_current && ! $isHistorical;
 @endphp
 
 <article class="mfg-plan__card {{ $statusClass }} @if(!empty($inStagePicker)) mfg-plan__card--in-picker @endif @if($isHistorical) mfg-plan__card--historical @endif">
@@ -32,7 +29,6 @@
         'plan' => $plan,
         'patient' => $patient ?? null,
         'canReview' => $canReview ?? false,
-        'canRequestModificationOnStage' => $canRequestModificationOnStage ?? false,
         'isHistorical' => $isHistorical,
     ])
 

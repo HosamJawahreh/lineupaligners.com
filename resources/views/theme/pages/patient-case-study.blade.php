@@ -5,7 +5,7 @@
 @section('body-class', 'patient-case-study-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=38">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=39">
 @endpush
 
 @section('content')
@@ -183,7 +183,6 @@
                         'patient' => $patient,
                         'canUploadTreatmentPlan' => $canUploadTreatmentPlan ?? false,
                         'canReviewTreatmentPlan' => $canReviewTreatmentPlan ?? false,
-                        'canRequestModification' => $canRequestModification ?? false,
                         'fullTreatmentPlan' => $fullTreatmentPlan ?? null,
                         'visibleFullTreatmentPlans' => $visibleFullTreatmentPlans ?? collect(),
                         'canAdminUploadFullPlan' => $canAdminUploadFullPlan ?? false,

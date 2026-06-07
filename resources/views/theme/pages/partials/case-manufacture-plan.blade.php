@@ -128,9 +128,6 @@
                             'canReview' => ($canReviewTreatmentPlan ?? false)
                                 && $patient->canDoctorReviewStage($stageNum)
                                 && $plan->is_current,
-                            'canRequestModificationOnStage' => ($canRequestModification ?? false)
-                                && $plan->is_current
-                                && $patient->canRequestModification($stageNum),
                             'canUpload' => $canUploadTreatmentPlan ?? false,
                             'canMarkManufactured' => $canMarkManufactured ?? false,
                             'inStagePicker' => true,
@@ -312,7 +309,7 @@
     @if(($canReviewTreatmentPlan ?? false) && !($canUploadTreatmentPlan ?? false))
     <p class="mfg-plan__role-note"><i class="zmdi zmdi-info-outline"></i>
         @if($isDivided && $stageNumbers->isNotEmpty())
-            Stages are reviewed in order. Approve or reject the current stage only — you can request a modification on that stage before approving. Rejection requires a comment for LineUp admin.
+            Stages are reviewed in order. Approve or reject the current stage only. Rejection requires a comment for LineUp admin.
         @else
             Review the plan below. Rejection requires a comment for LineUp admin.
         @endif

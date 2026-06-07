@@ -389,6 +389,33 @@ body.lineup-app.lineup-color-dark .mfg-plan__add-stage--locked {
     background: var(--lineup-surface);
 }
 
+body.lineup-app.lineup-color-dark .case-refinement-card {
+    background: linear-gradient(180deg, var(--lineup-surface-elevated) 0%, var(--lineup-surface) 100%);
+    border-color: var(--lineup-border);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+body.lineup-app.lineup-color-dark .case-refinement-card__title {
+    color: var(--lineup-text);
+}
+
+body.lineup-app.lineup-color-dark .case-refinement-card__section {
+    background: var(--lineup-surface);
+    border-color: var(--lineup-border);
+}
+
+body.lineup-app.lineup-color-dark .case-refinement-card__file-wrap,
+body.lineup-app.lineup-color-dark .case-refinement-card__field textarea {
+    background: var(--lineup-surface-elevated);
+    border-color: var(--lineup-border);
+    color: var(--lineup-text);
+}
+
+body.lineup-app.lineup-color-dark .case-refinement-card__file-icon {
+    background: var(--lineup-surface);
+    border-color: var(--lineup-border);
+}
+
 body.lineup-app.lineup-color-dark .case-study-panel {
     background: var(--lineup-surface-elevated);
     border-color: var(--lineup-border);

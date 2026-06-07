@@ -97,7 +97,7 @@
         @elseif($hasWorkflowPermission && ! $canRequestNow && $reviewStage)
         <div class="case-modification__notice case-modification__notice--info">
             <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-            <p>Stage {{ $reviewStage }} is ready on the <strong>Treatment Plan</strong> tab — approve it there or request a modification before approving.</p>
+            <p>Stage {{ $reviewStage }} is pending your approval on the <strong>Treatment Plan</strong> tab. You can also request a modification here before approving.</p>
         </div>
         @elseif(! $hasWorkflowPermission)
         <div class="case-modification__notice case-modification__notice--info">

@@ -1,15 +1,9 @@
 @php
     $showReview = ($canReview ?? false) && $plan->isPending() && $plan->is_current && ! ($isHistorical ?? false);
-    $showModification = ! empty($canRequestModificationOnStage)
-        && $plan->isPending()
-        && $plan->is_current
-        && ! ($isHistorical ?? false)
-        && isset($patient);
 @endphp
 
-@if($showReview || $showModification)
+@if($showReview)
 <section class="mfg-plan__doctor-actions" aria-label="Doctor actions for this stage">
-    @if($showReview)
     <form method="post"
           action="{{ route('patients.treatment-plan.review', $plan->patient) }}"
           class="mfg-plan__review-form mfg-plan__review-form--prominent"
@@ -34,14 +28,10 @@
             <label for="mfg-comment-{{ $plan->id }}">Comment <span class="mfg-plan__optional">(required if rejecting)</span></label>
             <textarea id="mfg-comment-{{ $plan->id }}" name="comment" rows="2" maxlength="5000" placeholder="Notes for LineUp admin if changes are needed…">{{ old('comment') }}</textarea>
         </div>
+        <p class="mfg-plan__doctor-actions-note">
+            <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
+            Need plan changes instead? Use the <strong>Request Modification</strong> tab to upload new scans.
+        </p>
     </form>
-    @endif
-
-    @if($showModification)
-    @include('theme.pages.partials.case-modification-inline', [
-        'patient' => $patient,
-        'stageNumber' => $plan->stage_number,
-    ])
-    @endif
 </section>
 @endif
