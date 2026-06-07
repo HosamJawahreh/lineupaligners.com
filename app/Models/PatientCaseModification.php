@@ -28,6 +28,7 @@ class PatientCaseModification extends Model
         'notes',
         'requested_by',
         'treatment_plan_id',
+        'revised_plan_url',
     ];
 
     protected function casts(): array
@@ -62,6 +63,20 @@ class PatientCaseModification extends Model
     public function hasScans(): bool
     {
         return (bool) ($this->upper_jaw_scan || $this->lower_jaw_scan);
+    }
+
+    public function hasRevisedPlan(): bool
+    {
+        return filled($this->revised_plan_url);
+    }
+
+    public function statusLabel(): string
+    {
+        if ($this->is_current) {
+            return $this->hasRevisedPlan() ? 'Awaiting doctor review' : 'Awaiting revised plan';
+        }
+
+        return $this->hasRevisedPlan() ? 'Completed' : 'Closed';
     }
 
     public function scopeLabel(): string

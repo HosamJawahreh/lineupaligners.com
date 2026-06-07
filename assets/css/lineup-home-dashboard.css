@@ -509,4 +509,22 @@ body.lineup-dashboard-page .block-header {
     .lineup-dashboard__stats {
         grid-template-columns: 1fr;
     }
+
+    .lineup-dashboard__hero-text {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 575px) {
+    .lineup-dashboard__card-head h2 {
+        font-size: 0.9375rem;
+    }
+
+    .lineup-dashboard__workflow-item {
+        gap: 8px;
+    }
+
+    .lineup-dashboard__notify-link {
+        gap: 10px;
+    }
 }

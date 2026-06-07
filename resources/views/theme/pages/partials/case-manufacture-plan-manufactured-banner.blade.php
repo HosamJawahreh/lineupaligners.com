@@ -12,7 +12,7 @@
         </form>
     </div>
 </div>
-@elseif($patient->isManufactured())
+@elseif($patient->hasCompletedManufacturing())
 <div class="mfg-plan__mod-banner mfg-plan__mod-banner--manufactured mfg-plan__mod-banner--under-canvas is-complete" role="status">
     <i class="zmdi zmdi-check-circle" aria-hidden="true"></i>
     <div>

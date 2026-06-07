@@ -68,6 +68,17 @@ class PatientCaseRefinement extends Model
         return (bool) ($this->upper_jaw_scan || $this->lower_jaw_scan);
     }
 
+    public function statusLabel(): string
+    {
+        if ($this->is_current) {
+            $hasPlan = $this->treatmentPlans()->where('is_current', true)->exists();
+
+            return $hasPlan ? 'Awaiting doctor review' : 'Awaiting treatment plan';
+        }
+
+        return 'Completed';
+    }
+
     public function scopeLabel(): string
     {
         return 'Refinement #'.$this->version;

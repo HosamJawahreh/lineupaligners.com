@@ -33,7 +33,8 @@
     min-width: 0;
 }
 
-.cases-head-actions {
+.cases-head-actions,
+.cases-panel-actions {
     display: inline-flex;
     flex-direction: row;
     align-items: center;
@@ -761,13 +762,15 @@
         width: 100%;
     }
 
-    .cases-head-actions {
+    .cases-head-actions,
+    .cases-panel-actions {
         width: 100%;
         flex-direction: row;
         justify-content: stretch;
     }
 
-    .cases-head-actions .cases-btn {
+    .cases-head-actions .cases-btn,
+    .cases-panel-actions .cases-btn {
         flex: 1 1 0;
         min-width: 0;
     }

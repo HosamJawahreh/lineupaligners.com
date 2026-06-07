@@ -1,0 +1,462 @@
+/**
+ * LineUp dashboard — global mobile / tablet responsive overrides.
+ * Loaded after page-specific styles so cross-cutting layout fixes apply everywhere.
+ */
+
+/* ── Shell: sidebar overlay + content width ── */
+@media (max-width: 1169px) {
+    body.lineup-app.overlay-open .overlay {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 1035;
+    }
+
+    body.lineup-app.overlay-open #leftsidebar.lineup-sidebar {
+        z-index: 1045;
+    }
+
+    body.lineup-app.doctor-profile-page section.content.doctor-profile-page,
+    body.lineup-app.doctor-clinic-settings-page section.content.doctor-clinic-settings-page {
+        margin-left: 0 !important;
+    }
+
+    body.lineup-app.ls-closed.doctor-profile-page .doctor-profile__wrap,
+    body.lineup-app.ls-closed.doctor-clinic-settings-page .doctor-clinic-settings__wrap {
+        width: min(100%, 630px);
+        max-width: min(100%, 630px);
+    }
+}
+
+@media (max-width: 991px) {
+    body.lineup-app {
+        overflow-x: clip;
+    }
+
+    body.lineup-app section.content {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    body.lineup-app section.content > .container-fluid,
+    body.lineup-app section.content > .lineup-dashboard__wrap,
+    body.lineup-app section.content > .case-study-wrap,
+    body.lineup-app section.content > .doctor-profile__wrap,
+    body.lineup-app section.content > .doctor-clinic-settings__wrap {
+        padding-left: 16px;
+        padding-right: 16px;
+        box-sizing: border-box;
+    }
+
+    body.lineup-app .block-header {
+        padding: 16px 16px 0;
+    }
+
+    body.lineup-app .block-header .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    body.lineup-app .block-header h2 {
+        font-size: 1.25rem;
+        line-height: 1.3;
+    }
+
+    body.lineup-app .block-header h2 small {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.8125rem;
+    }
+
+    body.lineup-app .block-header .breadcrumb.float-md-right {
+        float: none !important;
+        margin: 10px 0 0;
+        padding: 0;
+    }
+
+    body.lineup-app section.content .card:not(.settings-card) > .body,
+    body.lineup-app section.content .card:not(.settings-card) .body {
+        padding: 16px;
+    }
+
+    body.lineup-app section.content .card:not(.settings-card) > .header {
+        padding: 14px 16px;
+    }
+
+    body.lineup-app section.content .card:not(.settings-card) > .header h2 {
+        font-size: 1rem;
+    }
+
+    .cases-panel {
+        margin-bottom: 16px;
+    }
+
+    .cases-table-scroll {
+        margin: 0;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .cases-table-scroll::after {
+        content: '';
+        display: block;
+        height: 1px;
+    }
+
+    .cases-table {
+        min-width: 640px;
+    }
+
+    .settings-page .settings-notification-matrix {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .settings-page .settings-notification-matrix .table {
+        min-width: 520px;
+    }
+
+    .lineup-notify-page .lineup-notify-card > .header {
+        padding: 14px 16px;
+        gap: 10px;
+    }
+
+    .lineup-notify-page .lineup-notify-card > .header h2 {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 767px) {
+    body.lineup-app section.content > .container-fluid,
+    body.lineup-app section.content > .lineup-dashboard__wrap {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    body.lineup-app .bootstrap-select:not([class*="col-"]):not([class*="form-control"]) {
+        width: 100% !important;
+    }
+
+    body.lineup-app .bootstrap-select > .dropdown-toggle {
+        width: 100%;
+    }
+
+    body.lineup-app .dataTables_wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Cases list — hide low-priority columns on phones */
+    .cases-table thead th:nth-child(2),
+    .cases-table tbody td:nth-child(2),
+    .cases-table thead th:nth-child(3),
+    .cases-table tbody td:nth-child(3),
+    .cases-table thead th:nth-child(6),
+    .cases-table tbody td:nth-child(6) {
+        display: none;
+    }
+
+    .cases-table {
+        min-width: 520px;
+    }
+
+    .cases-patient-cell .sub {
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    #doctors-table thead th:nth-child(2),
+    #doctors-table tbody td:nth-child(2),
+    #doctors-table thead th:nth-child(4),
+    #doctors-table tbody td:nth-child(4) {
+        display: none;
+    }
+
+    .cases-panel-actions,
+    .cases-head-actions {
+        display: inline-flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .doctor-form-page .card .body,
+    .patient-form-page .patient-case-card > .body {
+        padding: 18px 14px;
+    }
+
+    .patient-case-form .patient-case-submit {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .patient-form-page .block-header,
+    .doctor-form-page .block-header,
+    .lineup-notify-page .block-header {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .lineup-notify-page__link {
+        padding: 14px 14px;
+        gap: 12px;
+    }
+
+    .lineup-notify-page__icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .lineup-notify-page__title {
+        font-size: 14px;
+    }
+
+    .lineup-notify-page__text {
+        font-size: 12px;
+    }
+
+    .lineup-dashboard__hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .lineup-dashboard__action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .lineup-dashboard__table th:last-child,
+    .lineup-dashboard__table td:last-child {
+        display: none;
+    }
+
+    .lineup-dashboard__card-head {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* Treatment plan tab */
+    .mfg-plan__head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .mfg-plan__form--inline,
+    .mfg-plan__form--revise {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .mfg-plan__field--narrow {
+        flex: 1 1 auto;
+    }
+
+    .mfg-plan__stage-nav-buttons {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        padding-bottom: 4px;
+    }
+
+    .mfg-plan__stage-btn {
+        flex: 0 0 auto;
+    }
+
+    .mfg-plan__review-actions--prominent {
+        flex-direction: column;
+    }
+
+    .mfg-plan__review-actions--prominent .mfg-plan__btn {
+        width: 100%;
+    }
+
+    .mfg-plan__doctor-actions-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .mfg-plan__canvas-wrap--with-actions {
+        height: min(420px, 52vh);
+        min-height: 240px;
+    }
+
+    .mfg-plan__card-head {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .case-cycle-records__nav .mfg-plan__stage-nav-buttons {
+        width: 100%;
+    }
+
+    /* Chat compose — safe area above floating call button */
+    .case-study-panel--messages .ig-chat-compose {
+        flex-wrap: wrap;
+        padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .case-study-panel--messages .ig-chat-send {
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 575px) {
+    body.lineup-app {
+        --lineup-topbar-height: 56px;
+    }
+
+    .lineup-topbar-user-meta {
+        display: none;
+    }
+
+    .lineup-topbar-tools .lineup-topbar-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .lineup-topbar-divider {
+        display: none;
+    }
+
+    .lineup-topbar-brand-name {
+        max-width: 42vw;
+    }
+
+    .cases-panel-head {
+        padding-top: 16px;
+    }
+
+    .cases-panel-head .cases-panel-actions,
+    .cases-panel-head .cases-head-actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .cases-panel-head .cases-panel-actions .cases-btn,
+    .cases-panel-head .cases-head-actions .cases-btn {
+        flex: 1 1 0;
+        min-width: 0;
+        justify-content: center;
+    }
+
+    .cases-filter-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .cases-filter-actions .cases-btn {
+        flex: 1 1 auto;
+    }
+
+    .cases-footer-meta {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        font-size: 12px;
+    }
+
+    .lineup-dashboard__title {
+        font-size: 1.25rem;
+    }
+
+    .lineup-dashboard__subtitle {
+        font-size: 0.875rem;
+    }
+
+    .lineup-dashboard__stat {
+        padding: 14px;
+    }
+
+    .lineup-dashboard__stat-value {
+        font-size: 1.35rem;
+    }
+
+    .lineup-call-support {
+        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        right: calc(14px + env(safe-area-inset-right, 0px));
+        width: 48px;
+        height: 48px;
+        font-size: 22px;
+    }
+
+    body.lineup-app:not(.patient-case-study-page) section.content {
+        padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .scan-upload-overlay {
+        padding: 16px;
+    }
+
+    .scan-upload-overlay__panel {
+        padding: 24px 18px;
+    }
+
+    .settings-page .settings-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .settings-page .settings-actions .btn {
+        width: 100%;
+        margin: 0;
+    }
+
+    .doctor-form-page .card .footer,
+    .doctor-form-page .card .body .btn-primary {
+        width: 100%;
+    }
+
+    .swal2-popup {
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+        margin: 0 12px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .lineup-dashboard__hero {
+        padding: 16px;
+    }
+
+    .lineup-dashboard__table th,
+    .lineup-dashboard__table td {
+        padding: 10px 10px;
+        font-size: 0.75rem;
+    }
+
+    .lineup-dashboard__badge {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+
+    .cases-table {
+        min-width: 460px;
+    }
+
+    .cases-status-tabs li a {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+}
+
+/* Profile / clinic — fix horizontal scroll between 641px and 899px */
+@media (max-width: 900px) {
+    .doctor-profile__wrap,
+    .doctor-profile__empty,
+    .doctor-clinic-settings__wrap {
+        min-width: 0;
+        width: min(100%, 630px);
+        max-width: min(100%, 630px);
+    }
+
+    body.lineup-app.doctor-profile-page section.content.doctor-profile-page,
+    body.lineup-app.doctor-clinic-settings-page section.content.doctor-clinic-settings-page {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+}

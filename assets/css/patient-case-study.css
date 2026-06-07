@@ -5168,6 +5168,77 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     flex-shrink: 0;
 }
 
+/* Tablet / mobile — stack scan header (avoid absolute overlap) */
+@media (max-width: 991px) {
+    .case-scan-section__head-inline {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        overflow: visible;
+        min-height: 0;
+        padding-bottom: 2px;
+    }
+
+    .case-scan-section__head-start {
+        width: 100%;
+        flex: none;
+        flex-wrap: wrap;
+    }
+
+    .case-scan-section__head-inline--has-photos .case-scan-section__head-start {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .case-scan-set-switcher {
+        position: static;
+        transform: none;
+        left: auto;
+        top: auto;
+        width: 100%;
+        max-width: none;
+        align-self: stretch;
+        z-index: auto;
+    }
+
+    .case-scan-set-switcher__control {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .case-scan-set-switcher__select {
+        min-width: 0;
+        max-width: none;
+        width: 100%;
+    }
+
+    .case-scan-section__head-inline .case-scan-files__list.case-scan-files__list--inline {
+        width: 100%;
+        flex: none;
+        justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        padding-bottom: 4px;
+        scrollbar-width: thin;
+    }
+
+    .case-scan-section__head-inline .case-scan-file-card.case-scan-file-card--inline {
+        max-width: min(240px, 78vw);
+    }
+
+    .case-photos-gallery-trigger {
+        max-width: none;
+        width: 100%;
+    }
+
+    .case-photos-gallery-trigger__inner {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
 .case-scan-mod-notes {
     margin: 0 0 16px;
     padding: 14px 16px;
@@ -5545,8 +5616,14 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     }
 
     .case-workflow-label {
-        font-size: 7px;
-        letter-spacing: 0.02em;
+        font-size: 9px;
+        letter-spacing: 0.01em;
+        line-height: 1.25;
+        max-height: 2.5em;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 
     .case-workflow-node__core {
@@ -5554,7 +5631,133 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     }
 
     .case-study-tabs {
-        grid-template-columns: repeat(2, 1fr);
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 8px;
+        padding: 0 2px 6px;
+        margin: 0 -2px;
+        scrollbar-width: thin;
+    }
+
+    .case-study-tab {
+        flex: 0 0 auto;
+        min-width: 0;
+        max-width: 46vw;
+        border-radius: 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+        font-size: 11px;
+        padding: 10px 12px;
+        min-height: 44px;
+        gap: 6px;
+    }
+
+    .case-study-tab span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .case-study-tab i {
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .case-study-panels {
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .case-study-panel {
+        padding: 12px 14px 20px;
+    }
+
+    .case-workflow__shell {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .case-workflow-track {
+        min-width: min(100%, 520px);
+    }
+
+    .case-scan-toolbar-wrap {
+        padding: 8px 10px 10px;
+    }
+
+    .case-scan-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        padding-left: 0;
+        gap: 8px;
+    }
+
+    .case-scan-toolbar__brand {
+        position: static;
+        bottom: auto;
+        left: auto;
+        padding: 0 0 8px;
+        border-bottom: 1px solid #cbd5e1;
+        font-size: 15px;
+    }
+
+    .case-scan-toolbar__brand i {
+        font-size: 22px;
+    }
+
+    .case-scan-toolbar__tools {
+        justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        padding: 0;
+        gap: 0;
+    }
+
+    .case-scan-toolbar__group {
+        gap: 8px;
+    }
+
+    .case-scan-toolbar__sep {
+        height: 42px;
+        margin: 0 4px 2px;
+    }
+
+    .case-scan-toolbar__label {
+        font-size: 9px;
+        max-width: 52px;
+    }
+
+    .case-scan-viewer-root {
+        --case-scan-viewer-height: min(360px, 48vh);
+        --case-scan-viewer-min-height: 240px;
+    }
+
+    .case-scan-section {
+        margin-top: 16px;
+        padding-top: 16px;
+    }
+
+    .case-scan-section__head-inline--has-photos .case-scan-section__head-start {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .case-photos-gallery-trigger__inner {
+        width: 100%;
+    }
+
+    body.patient-case-study-page .lineup-call-support {
+        bottom: 14px;
+        right: 14px;
+        width: 46px;
+        height: 46px;
+        font-size: 21px;
+        z-index: 1040;
+    }
+
+    body.patient-case-study-page .case-study-wrap {
+        padding-bottom: 64px;
     }
 
 }
@@ -6190,5 +6393,206 @@ body.case-photos-gallery-open {
 
     .case-photos-gallery-trigger__label {
         font-size: 11px;
+    }
+}
+
+/* Modification / refinement records (own tabs) */
+.case-cycle-records {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto 24px;
+}
+
+.case-cycle-records__nav {
+    margin-bottom: 14px;
+}
+
+.case-cycle-records__panels {
+    position: relative;
+}
+
+.case-cycle-records__panel {
+    display: none;
+}
+
+.case-cycle-records__panel.is-active {
+    display: block;
+}
+
+.case-cycle-record {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    padding: 18px 20px;
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+}
+
+.case-cycle-records__panel + .case-cycle-records__panel {
+    margin-top: 0;
+}
+
+.case-cycle-record__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.case-cycle-record__title {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.case-cycle-record__meta {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.case-cycle-record__status {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.case-cycle-record__status--active {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.case-cycle-record__status--done {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.case-cycle-record__block {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.case-cycle-record__label {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+}
+
+.case-cycle-record__text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #334155;
+    white-space: pre-wrap;
+}
+
+.case-cycle-record__hint {
+    margin: 0 0 10px;
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.45;
+}
+
+.case-cycle-record__files {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.case-cycle-record__file {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.case-cycle-record__file:hover {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+}
+
+.case-cycle-record__photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    gap: 8px;
+}
+
+.case-cycle-record__photo {
+    display: block;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+.case-cycle-record__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.case-cycle-record__canvas-wrap {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0f172a;
+    min-height: 320px;
+}
+
+.case-cycle-record__canvas {
+    display: block;
+    width: 100%;
+    min-height: 320px;
+    height: min(420px, 52vh);
+    border: none;
+}
+
+.case-cycle-record__pending {
+    margin: 14px 0 0;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    font-size: 13px;
+    color: #92400e;
+}
+
+.case-cycle-records--modification {
+    margin-top: 0;
+}
+
+.case-cycle-records--refinement {
+    margin-top: 0;
+}
+
+@media (max-width: 767px) {
+    .case-cycle-record__canvas {
+        min-height: 240px;
+        height: min(320px, 45vh);
+    }
+
+    .case-cycle-record__head {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }

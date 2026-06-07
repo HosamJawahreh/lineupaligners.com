@@ -173,14 +173,19 @@ class Patient extends Model
             ->get();
     }
 
+    public function hasCompletedManufacturing(): bool
+    {
+        return $this->manufactured_at !== null
+            || $this->workflowStageKey() === 'manufactured';
+    }
+
     public function isManufactured(): bool
     {
-        if ($this->hasActiveRefinement() || $this->hasActiveModificationForAny()) {
+        if ($this->hasActiveRefinement()) {
             return false;
         }
 
-        return $this->workflowStageKey() === 'manufactured'
-            || $this->manufactured_at !== null;
+        return $this->hasCompletedManufacturing();
     }
 
     /** Doctor approved all plans in the active scope; admin may mark as manufactured. */
@@ -233,7 +238,7 @@ class Patient extends Model
             return false;
         }
 
-        return $this->isManufactured();
+        return $this->hasCompletedManufacturing();
     }
 
     public function isDividedStages(): bool
@@ -466,9 +471,29 @@ class Patient extends Model
         return $this->caseModifications()->exists();
     }
 
+    public function hasRefinementHistory(): bool
+    {
+        if (! Schema::hasTable('patient_case_refinements')) {
+            return false;
+        }
+
+        return $this->caseRefinements()->exists();
+    }
+
     public function shouldShowModificationInProgressBar(): bool
     {
+        if ($this->hasCompletedManufacturing()) {
+            return false;
+        }
+
         return $this->hasActiveModificationForAny() || $this->hasModificationHistory();
+    }
+
+    public function shouldShowRefinementInProgressBar(): bool
+    {
+        return $this->hasCompletedManufacturing()
+            || $this->hasActiveRefinement()
+            || $this->hasRefinementHistory();
     }
 
     /**
@@ -477,7 +502,7 @@ class Patient extends Model
      */
     public function canRequestModification(?int $stageNumber = null): bool
     {
-        if ($this->isManufactured()) {
+        if ($this->hasCompletedManufacturing()) {
             return false;
         }
 
@@ -623,50 +648,60 @@ class Patient extends Model
             ];
         }
 
-        if (Schema::hasTable('patient_case_modifications')) {
-            foreach ($this->caseModifications()->orderBy('version')->get() as $mod) {
-                $files = $mod->caseScanFiles();
-                $photoCount = $mod->photos()->count();
-
-                if (count($files) === 0 && $photoCount === 0) {
-                    continue;
-                }
-
-                $candidates[] = [
-                    'key' => 'mod-'.$mod->id,
-                    'label' => $mod->scopeLabel(),
-                    'notes' => $mod->notes,
-                    'files' => $files,
-                    'at' => $mod->created_at ?? now(),
-                ];
-            }
-        }
-
-        if (Schema::hasTable('patient_case_refinements')) {
-            foreach ($this->caseRefinements()->orderBy('version')->get() as $ref) {
-                $files = $ref->caseScanFiles();
-                $photoCount = $ref->photos()->count();
-
-                if (count($files) === 0 && $photoCount === 0) {
-                    continue;
-                }
-
-                $candidates[] = [
-                    'key' => 'ref-'.$ref->id,
-                    'label' => $ref->scopeLabel(),
-                    'notes' => $ref->notes,
-                    'files' => $files,
-                    'at' => $ref->created_at ?? now(),
-                ];
-            }
-        }
-
-        usort($candidates, fn (array $a, array $b) => $b['at'] <=> $a['at']);
-
         return $candidates;
     }
 
     /**
+     * Treatment plan versions shown on the Treatment Plan tab (reject/revise cycles only).
+     *
+     * @return \Illuminate\Support\Collection<int, PatientTreatmentPlan>
+     */
+    protected function visibleTreatmentPlanVersions($plans)
+    {
+        return $plans->filter(function (PatientTreatmentPlan $plan) use ($plans) {
+            if ((int) $plan->version <= 1) {
+                return true;
+            }
+
+            $previous = $plans->firstWhere('version', (int) $plan->version - 1);
+
+            return $previous !== null && $previous->isRejected();
+        })->values();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, PatientCaseModification>
+     */
+    public function modificationRecords()
+    {
+        if (! Schema::hasTable('patient_case_modifications')) {
+            return collect();
+        }
+
+        return $this->caseModifications()
+            ->with(['requester', 'photos'])
+            ->orderBy('version')
+            ->get();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, PatientCaseRefinement>
+     */
+    public function refinementRecords()
+    {
+        if (! Schema::hasTable('patient_case_refinements')) {
+            return collect();
+        }
+
+        return $this->caseRefinements()
+            ->with(['requester', 'photos', 'treatmentPlans'])
+            ->orderBy('version')
+            ->get();
+    }
+
+    /**
+     * All full-case treatment plan versions in the active cycle (for version switcher).
+     *
      * @return \Illuminate\Support\Collection<int, PatientTreatmentPlan>
      */
     public function visibleFullTreatmentPlans()
@@ -676,30 +711,12 @@ class Patient extends Model
             ->orderBy('version')
             ->get();
 
-        $current = $plans->firstWhere('is_current', true);
-
-        if ($current === null) {
-            return $plans;
-        }
-
-        return $plans->filter(function (PatientTreatmentPlan $plan) use ($current) {
-            if ($plan->is_current) {
-                return true;
-            }
-
-            if ($plan->isRejected()) {
-                return true;
-            }
-
-            if ($current->isApproved() && ! $this->hasActiveModificationFor(null) && ! $this->hasActiveRefinement()) {
-                return false;
-            }
-
-            return $plan->version < $current->version;
-        })->values();
+        return $this->visibleTreatmentPlanVersions($plans);
     }
 
     /**
+     * All treatment plan versions for a stage in the active cycle (for version switcher).
+     *
      * @return \Illuminate\Support\Collection<int, PatientTreatmentPlan>
      */
     public function visibleTreatmentPlansForStage(int $stageNumber)
@@ -709,27 +726,7 @@ class Patient extends Model
             ->orderBy('version')
             ->get();
 
-        $current = $plans->firstWhere('is_current', true);
-
-        if ($current === null) {
-            return $plans;
-        }
-
-        return $plans->filter(function (PatientTreatmentPlan $plan) use ($current, $stageNumber) {
-            if ($plan->is_current) {
-                return true;
-            }
-
-            if ($plan->isRejected()) {
-                return true;
-            }
-
-            if ($current->isApproved() && ! $this->hasActiveModificationFor($stageNumber) && ! $this->hasActiveRefinement()) {
-                return false;
-            }
-
-            return $plan->version < $current->version;
-        })->values();
+        return $this->visibleTreatmentPlanVersions($plans);
     }
 
     /**
@@ -823,6 +820,13 @@ class Patient extends Model
             ));
         }
 
+        if (! $this->shouldShowRefinementInProgressBar()) {
+            $steps = array_values(array_filter(
+                $steps,
+                fn (array $step) => $step['key'] !== 'refinement'
+            ));
+        }
+
         $progressKey = $this->progressBarStageKey();
         $internalKey = $this->workflowStageKey();
         $planOverlay = $this->planReviewOverlay();
@@ -896,7 +900,7 @@ class Patient extends Model
                 } elseif ($internalKey === 'approved' && $index === $currentIndex) {
                     $state = 'current';
                     $label = 'Approved for manufacture';
-                } elseif ($index < $currentIndex && ($this->manufactured_at || $internalKey === 'manufactured')) {
+                } elseif ($index < $currentIndex && $this->hasCompletedManufacturing()) {
                     $state = 'completed';
                     $label = 'Treatment plan Manufactured';
                 }

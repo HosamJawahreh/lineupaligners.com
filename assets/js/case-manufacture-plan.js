@@ -44,6 +44,49 @@
         });
     }
 
+    function initCycleVersionPicker($scope) {
+        $scope.find('[data-cycle-version-nav]').each(function () {
+            var $nav = $(this);
+            var navKey = String($nav.data('cycle-version-nav'));
+
+            function showVersion(version) {
+                var versionKey = String(version);
+
+                $nav.find('[data-cycle-version-btn]').each(function () {
+                    var $btn = $(this);
+                    var isActive = String($btn.data('version')) === versionKey;
+                    $btn.toggleClass('is-active', isActive);
+                    $btn.attr('aria-selected', isActive ? 'true' : 'false');
+                });
+
+                $scope.find('[data-cycle-version-panel][data-cycle-version-nav="' + navKey + '"]').each(function () {
+                    var $panel = $(this);
+                    var isActive = String($panel.data('cycle-version-panel')) === versionKey;
+                    $panel.toggleClass('is-active', isActive);
+                    if (isActive) {
+                        $panel.removeAttr('hidden');
+                    } else {
+                        $panel.attr('hidden', true);
+                    }
+                });
+            }
+
+            $nav.on('click', '[data-cycle-version-btn]', function () {
+                showVersion($(this).data('version'));
+            });
+
+            var $active = $nav.find('[data-cycle-version-btn].is-active').first();
+            if ($active.length) {
+                showVersion($active.data('version'));
+            } else {
+                var $last = $nav.find('[data-cycle-version-btn]').last();
+                if ($last.length) {
+                    showVersion($last.data('version'));
+                }
+            }
+        });
+    }
+
     function initStagePicker($root) {
         var $nav = $root.find('[data-mfg-stage-nav]');
         if (!$nav.length) {
@@ -118,6 +161,7 @@
 
         initStagePicker($root);
         initVersionPicker($root);
+        initCycleVersionPicker(document);
         initStepRangeFields($root);
 
         $root.find('[data-mfg-review-form]').each(function () {

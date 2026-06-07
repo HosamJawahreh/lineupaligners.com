@@ -21,7 +21,7 @@
         <i class="zmdi zmdi-refresh-sync" aria-hidden="true"></i>
         <div>
             <strong>Modification requested</strong>
-            <p>The doctor uploaded new 3D scans and notes. Upload a revised treatment plan canvas link below to restart the review cycle.</p>
+            <p>The doctor uploaded new 3D scans and notes. Upload a revised treatment plan canvas link below for review. This updates the <strong>same plan version</strong> — modification data stays in Request Modification.</p>
         </div>
     </div>
     @endif
@@ -231,7 +231,7 @@
             <p class="mfg-plan__canvas-desc">LineUp admin submits the treatment plan canvas link from the viewer. The doctor approves or rejects before manufacturing proceeds.</p>
             @endif
         </div>
-        @if($patient->isManufactured() || (($canMarkManufactured ?? false) && $patient->isReadyForManufacturedMark()))
+        @if($patient->hasCompletedManufacturing() || (($canMarkManufactured ?? false) && $patient->isReadyForManufacturedMark()))
         @include('theme.pages.partials.case-manufacture-plan-manufactured-banner', [
             'patient' => $patient,
             'canMarkManufactured' => $canMarkManufactured ?? false,
@@ -239,9 +239,7 @@
         @endif
         @else
         @if($visibleFullPlans->count() > 1)
-        <p class="mfg-plan__history-note m-b-15">Use the version switcher to compare submissions. The latest version is shown by default.</p>
-        @elseif($visibleFullPlans->contains(fn ($plan) => ! $plan->is_current && $plan->isRejected()))
-        <p class="mfg-plan__history-note m-b-15">Rejected submissions remain visible for reference until the current plan is approved.</p>
+        <p class="mfg-plan__history-note m-b-15">Switch between versions below. The latest version is selected by default.</p>
         @endif
         @include('theme.pages.partials.case-manufacture-plan-versions', [
             'plans' => $visibleFullPlans,

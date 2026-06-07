@@ -14,9 +14,14 @@
     <header class="case-modification__head">
         <h3 class="case-modification__title">Request Modification</h3>
         <p class="case-modification__subtitle">
-            Request changes by uploading revised 3D scans, photos, and/or notes — all optional. You can request a modification on the current pending plan before approving, or on an approved plan to start a new cycle.
+            Request plan changes before the case is manufactured. Each modification keeps its own scans, photos, notes, and revised plan here. Treatment Plan versions are only for doctor rejections — not modifications.
         </p>
     </header>
+
+    @include('theme.pages.partials.case-modification-records', [
+        'patient' => $patient,
+        'modificationRecords' => $modificationRecords ?? collect(),
+    ])
 
     @if($canRequest)
         @if($isDivided && $awaitingPlan && $eligibleStages->isNotEmpty())
@@ -128,7 +133,7 @@
             <p>No stage is ready for a new modification. Review the current stage in Treatment Plan, or wait until LineUp finishes a modification already in progress.</p>
         </div>
         @endif
-    @elseif($patient->isManufactured())
+    @elseif($patient->hasCompletedManufacturing())
         <div class="case-modification__notice case-modification__notice--info">
             <i class="zmdi zmdi-lock" aria-hidden="true"></i>
             <p>This case cycle is manufactured and complete. Modifications are closed. Use <strong>Order Refinement</strong> when the patient returns for continued treatment.</p>
@@ -137,7 +142,7 @@
         @if($awaitingPlan)
         <div class="case-modification__notice case-modification__notice--pending">
             <i class="zmdi zmdi-time" aria-hidden="true"></i>
-            <p>A modification cycle is in progress{{ $isDivided ? ' for one or more stages' : '' }}. LineUp will upload a revised plan for you to review. After you approve it, this modification cycle ends and you may start a new one here.</p>
+            <p>A modification is in progress{{ $isDivided ? ' for one or more stages' : '' }}. LineUp will upload a revised plan for you to review. After you approve it, the case continues toward manufacturing — refinement is only available after LineUp marks the case as manufactured.</p>
         </div>
         @elseif($hasWorkflowPermission && ! $canRequestNow && $reviewStage)
         <div class="case-modification__notice case-modification__notice--info">

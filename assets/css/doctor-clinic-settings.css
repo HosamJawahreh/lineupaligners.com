@@ -131,10 +131,17 @@ body.lineup-app.ls-closed.doctor-clinic-settings-page .doctor-clinic-settings__w
     background: #fafbfc;
 }
 
+@media (max-width: 1169px) {
+    body.lineup-app.doctor-clinic-settings-page section.content.doctor-clinic-settings-page {
+        margin-left: 0 !important;
+    }
+}
+
 @media (max-width: 900px) {
     .doctor-clinic-settings__wrap {
         width: min(100%, 630px);
         max-width: min(100%, 630px);
+        min-width: 0;
     }
 }
 

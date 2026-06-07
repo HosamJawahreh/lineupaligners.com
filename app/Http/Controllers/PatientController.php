@@ -141,9 +141,12 @@ class PatientController extends Controller
         }
         if (Schema::hasTable('patient_case_modifications')) {
             $relations[] = 'caseModifications.requester';
+            $relations[] = 'caseModifications.photos';
         }
         if (Schema::hasTable('patient_case_refinements')) {
             $relations[] = 'caseRefinements.requester';
+            $relations[] = 'caseRefinements.photos';
+            $relations[] = 'caseRefinements.treatmentPlans';
         }
         $relations[] = 'treatmentPlans.uploader';
         $relations[] = 'treatmentPlans.reviewer';
@@ -176,9 +179,17 @@ class PatientController extends Controller
             'defaultScanSetKey' => $defaultScanSetKey = $patient->defaultScanSetKey(),
             'caseScanFiles' => collect($caseScanSets)->firstWhere('key', $defaultScanSetKey)['files'] ?? [],
             'casePhotosBySet' => $patient->casePhotosGalleryBySet(),
-            'caseModifications' => Schema::hasTable('patient_case_modifications')
-                ? $patient->caseModifications
-                : collect(),
+            'casePhotosOriginal' => $patient->photosForSetKey('original')
+                ->map(fn (PatientPhoto $photo) => [
+                    'id' => $photo->id,
+                    'url' => $photo->url(),
+                    'name' => $photo->original_name ?: basename($photo->path),
+                    'download_url' => route('patients.photos.download', [$patient, $photo]),
+                ])
+                ->values()
+                ->all(),
+            'modificationRecords' => $patient->modificationRecords(),
+            'refinementRecords' => $patient->refinementRecords(),
             'caseTimeline' => app(CaseTimelineBuilder::class)->build($patient),
             'canRequestModification' => auth()->user()->can('requestModification', $patient),
             'canRequestRefinement' => auth()->user()->can('requestRefinement', $patient),

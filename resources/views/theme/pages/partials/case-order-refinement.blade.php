@@ -12,7 +12,7 @@
     <header class="case-refinement__head">
         <h3 class="case-refinement__title">Order refinement</h3>
         <p class="case-refinement__subtitle">
-            For patients returning after months or years to continue treatment. The original case data stays on file; LineUp runs a <strong>new manufacturing cycle</strong> from your updated 3D scans and notes — like a new case on the same patient record.
+            For patients returning after manufacture. Each refinement cycle keeps its own scans, photos, notes, and plan here. Original case data stays on the 3D Scans &amp; Photos tab.
         </p>
     </header>
 
@@ -36,6 +36,11 @@
         <p>{{ $errors->first() }}</p>
     </div>
     @endif
+
+    @include('theme.pages.partials.case-refinement-records', [
+        'patient' => $patient,
+        'refinementRecords' => $refinementRecords ?? collect(),
+    ])
 
     @if(! $refinementsEnabled)
     <div class="case-refinement__notice case-refinement__notice--error" role="alert">
@@ -163,9 +168,11 @@
             <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
             <p>
                 @if($patient->hasActiveModificationForAny())
-                    Refinement opens after the current modification cycle is complete and LineUp marks the case as <strong>Manufactured</strong>.
+                    Refinement opens after the current modification is complete and LineUp marks the case as <strong>Manufactured</strong>.
+                @elseif(! $patient->hasCompletedManufacturing())
+                    Refinement is available only after LineUp marks the case as <strong>Manufactured</strong> on the Treatment Plan tab.
                 @else
-                    Refinement is available after LineUp marks the case as <strong>Manufactured</strong> on the Treatment Plan tab.
+                    Refinement is available for this manufactured case when the patient returns for continued treatment.
                 @endif
                 Current workflow: <strong>{{ $patient->workflowStageLabel() }}</strong>.
             </p>

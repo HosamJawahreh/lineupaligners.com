@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Patient;
+use App\Models\PatientCaseModification;
 use App\Models\PatientTreatmentPlan;
 use App\Services\CaseWorkflowService;
 use App\Services\LineUpNotifier;
@@ -31,48 +32,16 @@ class PatientTreatmentPlanController extends Controller
 
         DB::transaction(function () use ($patient, $validated) {
             $activeModification = $patient->currentModification(null);
-            $refinementId = $patient->activeRefinementId();
 
-            $scopeQuery = PatientTreatmentPlan::query()
-                ->where('patient_id', $patient->id)
-                ->whereNull('stage_number')
-                ->where('is_current', true);
+            if ($activeModification !== null && $patient->activeRefinementId() === null) {
+                $this->applyModificationPlanRevision($patient, $activeModification, $validated['plan_url'], null);
+                $this->workflow->afterPlanUploaded($patient);
 
-            if ($refinementId) {
-                $scopeQuery->where('refinement_id', $refinementId);
-            } else {
-                $scopeQuery->whereNull('refinement_id');
+                return;
             }
 
-            $scopeQuery->update(['is_current' => false]);
-
-            $versionQuery = PatientTreatmentPlan::query()
-                ->where('patient_id', $patient->id)
-                ->whereNull('stage_number');
-
-            if ($refinementId) {
-                $versionQuery->where('refinement_id', $refinementId);
-            } else {
-                $versionQuery->whereNull('refinement_id');
-            }
-
-            $version = (int) $versionQuery->max('version') + 1;
-
-            PatientTreatmentPlan::create([
-                'patient_id' => $patient->id,
-                'refinement_id' => $refinementId,
-                'stage_number' => null,
-                'plan_url' => $validated['plan_url'],
-                'review_status' => PatientTreatmentPlan::STATUS_PENDING,
-                'review_comment' => null,
-                'reviewed_by' => null,
-                'reviewed_at' => null,
-                'uploaded_by' => auth()->id(),
-                'version' => max(1, $version),
-                'is_current' => true,
-            ]);
-
-            $this->workflow->afterPlanUploaded($patient, $activeModification);
+            $this->createNewTreatmentPlan($patient, $validated['plan_url'], null, null, null, null);
+            $this->workflow->afterPlanUploaded($patient);
         });
 
         $patient->load('doctor.user');
@@ -119,50 +88,23 @@ class PatientTreatmentPlanController extends Controller
 
         DB::transaction(function () use ($patient, $validated, $stageNumber, $stepFrom, $stepTo) {
             $activeModification = $patient->currentModification($stageNumber);
-            $refinementId = $patient->activeRefinementId();
 
-            $scopeQuery = PatientTreatmentPlan::query()
-                ->where('patient_id', $patient->id)
-                ->where('stage_number', $stageNumber)
-                ->where('is_current', true);
+            if ($activeModification !== null && $patient->activeRefinementId() === null) {
+                $this->applyModificationPlanRevision($patient, $activeModification, $validated['plan_url'], $stageNumber);
+                $this->workflow->afterPlanUploaded($patient);
 
-            if ($refinementId) {
-                $scopeQuery->where('refinement_id', $refinementId);
-            } else {
-                $scopeQuery->whereNull('refinement_id');
+                return;
             }
 
-            $scopeQuery->update(['is_current' => false]);
-
-            $versionQuery = PatientTreatmentPlan::query()
-                ->where('patient_id', $patient->id)
-                ->where('stage_number', $stageNumber);
-
-            if ($refinementId) {
-                $versionQuery->where('refinement_id', $refinementId);
-            } else {
-                $versionQuery->whereNull('refinement_id');
-            }
-
-            $version = (int) $versionQuery->max('version') + 1;
-
-            PatientTreatmentPlan::create([
-                'patient_id' => $patient->id,
-                'refinement_id' => $refinementId,
-                'stage_number' => $stageNumber,
-                'step_from' => $stepFrom,
-                'step_to' => $stepTo,
-                'plan_url' => $validated['plan_url'],
-                'review_status' => PatientTreatmentPlan::STATUS_PENDING,
-                'review_comment' => null,
-                'reviewed_by' => null,
-                'reviewed_at' => null,
-                'uploaded_by' => auth()->id(),
-                'version' => max(1, $version),
-                'is_current' => true,
-            ]);
-
-            $this->workflow->afterPlanUploaded($patient, $activeModification);
+            $this->createNewTreatmentPlan(
+                $patient,
+                $validated['plan_url'],
+                $stageNumber,
+                $stepFrom,
+                $stepTo,
+                $patient->activeRefinementId()
+            );
+            $this->workflow->afterPlanUploaded($patient);
         });
 
         $patient->load('doctor.user');
@@ -240,12 +182,102 @@ class PatientTreatmentPlanController extends Controller
         $message = $validated['decision'] === 'approved'
             ? ($plan->refinement_id
                 ? 'Refinement plan approved. This refinement cycle is complete. The patient may order a new refinement when they return.'
-                : 'Treatment plan approved. You may start a new modification cycle from the Request Modification tab when needed.')
+                : 'Treatment plan approved. You may request another modification before manufacture, or wait for LineUp to mark the case as manufactured.')
             : 'Treatment plan rejected. LineUp admin will upload a revised plan.';
 
         $activeStage = $plan->stage_number;
 
         return $this->redirectToTab($patient, $message, 'success', $activeStage);
+    }
+
+    protected function applyModificationPlanRevision(
+        Patient $patient,
+        PatientCaseModification $modification,
+        string $planUrl,
+        ?int $stageNumber
+    ): void {
+        $plan = $modification->treatmentPlan;
+
+        if ($plan === null || ! $plan->is_current) {
+            $plan = $stageNumber === null
+                ? $patient->currentFullTreatmentPlan()
+                : $patient->currentTreatmentPlanForStage($stageNumber);
+        }
+
+        if ($plan === null) {
+            throw new \RuntimeException('No treatment plan found to revise for this modification.');
+        }
+
+        $plan->update([
+            'plan_url' => $planUrl,
+            'review_status' => PatientTreatmentPlan::STATUS_PENDING,
+            'review_comment' => null,
+            'reviewed_by' => null,
+            'reviewed_at' => null,
+            'uploaded_by' => auth()->id(),
+        ]);
+
+        $modification->update(['revised_plan_url' => $planUrl]);
+    }
+
+    protected function createNewTreatmentPlan(
+        Patient $patient,
+        string $planUrl,
+        ?int $stageNumber,
+        ?int $stepFrom,
+        ?int $stepTo,
+        ?int $refinementId
+    ): PatientTreatmentPlan {
+        $scopeQuery = PatientTreatmentPlan::query()
+            ->where('patient_id', $patient->id)
+            ->where('is_current', true);
+
+        if ($stageNumber !== null) {
+            $scopeQuery->where('stage_number', $stageNumber);
+        } else {
+            $scopeQuery->whereNull('stage_number');
+        }
+
+        if ($refinementId) {
+            $scopeQuery->where('refinement_id', $refinementId);
+        } else {
+            $scopeQuery->whereNull('refinement_id');
+        }
+
+        $scopeQuery->update(['is_current' => false]);
+
+        $versionQuery = PatientTreatmentPlan::query()
+            ->where('patient_id', $patient->id);
+
+        if ($stageNumber !== null) {
+            $versionQuery->where('stage_number', $stageNumber);
+        } else {
+            $versionQuery->whereNull('stage_number');
+        }
+
+        if ($refinementId) {
+            $versionQuery->where('refinement_id', $refinementId);
+        } else {
+            $versionQuery->whereNull('refinement_id');
+        }
+
+        $version = (int) $versionQuery->max('version') + 1;
+
+        return PatientTreatmentPlan::create([
+            'patient_id' => $patient->id,
+            'refinement_id' => $refinementId,
+            'stage_number' => $stageNumber,
+            'step_from' => $stepFrom,
+            'step_to' => $stepTo,
+            'plan_url' => $planUrl,
+            'review_status' => PatientTreatmentPlan::STATUS_PENDING,
+            'review_comment' => null,
+            'reviewed_by' => null,
+            'reviewed_at' => null,
+            'uploaded_by' => auth()->id(),
+            'version' => max(1, $version),
+            'is_current' => true,
+        ]);
     }
 
     protected function guardAdminUpload(Patient $patient, ?int $stageNumber): ?RedirectResponse

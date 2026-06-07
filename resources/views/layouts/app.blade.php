@@ -43,6 +43,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-brand-system.css') }}?v=1">
 @include('layouts.partials.brand-css-vars')
 @stack('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=1">
 </head>
 <body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"
       data-default-color-mode="{{ $dashboardColorMode }}"

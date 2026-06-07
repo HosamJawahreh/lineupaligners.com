@@ -272,11 +272,19 @@ body.lineup-app.ls-closed.doctor-profile-page .doctor-profile__wrap {
     margin: 0;
 }
 
+@media (max-width: 1169px) {
+    body.lineup-app.doctor-profile-page section.content.doctor-profile-page,
+    body.lineup-app.doctor-clinic-settings-page section.content.doctor-clinic-settings-page {
+        margin-left: 0 !important;
+    }
+}
+
 @media (max-width: 900px) {
     .doctor-profile__wrap,
     .doctor-profile__empty {
         width: min(100%, 630px);
         max-width: min(100%, 630px);
+        min-width: 0;
     }
 }
 

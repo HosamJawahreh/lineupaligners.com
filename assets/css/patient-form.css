@@ -137,4 +137,14 @@
     .patient-case-form .patient-case-card > .body {
         padding: 20px 16px;
     }
+
+    .patient-form-page .block-header {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .patient-case-form .patient-case-submit {
+        width: 100%;
+        min-width: 0;
+    }
 }
