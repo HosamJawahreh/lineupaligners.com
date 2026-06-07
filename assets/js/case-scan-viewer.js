@@ -170,7 +170,7 @@ if (root && canvas) {
         });
 
         modelGroup.updateMatrixWorld(true);
-        fitCameraToModels();
+        applyInitialCameraView();
     }
 
     function getScanIdFromObject(object) {
@@ -728,7 +728,7 @@ if (root && canvas) {
         });
 
         if (visible && getVisibleMeshEntries().length) {
-            fitCameraToModels();
+            applyInitialCameraView();
         }
     }
 
@@ -1041,8 +1041,8 @@ if (root && canvas) {
         viewerState.showGrid = on;
         if (on && !gridHelper) {
             gridHelper = new THREE.GridHelper(240, 24, 0x64748b, 0x94a3b8);
-            gridHelper.position.y = -0.01;
             scene.add(gridHelper);
+            updateGridPosition();
         } else if (!on && gridHelper) {
             scene.remove(gridHelper);
             gridHelper.geometry?.dispose();
@@ -1341,22 +1341,200 @@ if (root && canvas) {
         object.position.sub(center);
     }
 
+    function resetWrapperTransform(entry) {
+        entry.wrapper.position.set(0, 0, 0);
+        entry.wrapper.rotation.set(0, 0, 0);
+    }
+
+    /** Convert common scanner axes (Z-up / X-up) to Y-up. */
+    function normalizeToYUp(object, wrapper) {
+        object.rotation.set(0, 0, 0);
+        centerObjectInWrapper(object);
+
+        let box = new THREE.Box3().setFromObject(wrapper);
+        let size = box.getSize(new THREE.Vector3());
+
+        if (size.z > size.y * 1.05 && size.z >= size.x * 0.65) {
+            object.rotation.x = -Math.PI / 2;
+            centerObjectInWrapper(object);
+            box.setFromObject(wrapper);
+            size = box.getSize(new THREE.Vector3());
+        }
+
+        if (size.x > size.y * 1.05 && size.x >= size.z * 0.65) {
+            object.rotation.z = Math.PI / 2;
+            centerObjectInWrapper(object);
+        }
+    }
+
+    /** Pick Y rotation so the arch presents a wide frontal smile toward +Z (camera). */
+    function findBestFacingRotation(object, wrapper) {
+        const baseX = object.rotation.x;
+        const baseZ = object.rotation.z;
+        const rotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+        let bestRotation = 0;
+        let bestScore = -Infinity;
+
+        rotations.forEach((yRotation) => {
+            object.rotation.set(baseX, yRotation, baseZ);
+            centerObjectInWrapper(object);
+
+            const size = new THREE.Box3().setFromObject(wrapper).getSize(new THREE.Vector3());
+            const score = size.x / Math.max(size.z, 0.001);
+
+            if (score > bestScore) {
+                bestScore = score;
+                bestRotation = yRotation;
+            }
+        });
+
+        return bestRotation;
+    }
+
+    function applyFacingRotation(object, wrapper, yRotation) {
+        object.rotation.y = yRotation;
+        centerObjectInWrapper(object);
+    }
+
+    /** Normalize scanner exports and arch facing for occlusal bite + frontal view. */
+    function applyDentalOrientation(entry, arch) {
+        const object = entry.object;
+        normalizeToYUp(object, entry.wrapper);
+
+        let box = new THREE.Box3().setFromObject(entry.wrapper);
+        const center = box.getCenter(new THREE.Vector3());
+        const topHalf = box.max.y - center.y;
+        const bottomHalf = center.y - box.min.y;
+
+        if (arch === 'upper') {
+            // Intraoral exports usually share orientation: upper occlusal must face down for bite.
+            if (topHalf >= bottomHalf) {
+                object.rotation.x += Math.PI;
+                centerObjectInWrapper(object);
+            }
+        } else if (topHalf > bottomHalf * 1.12) {
+            // Lower arch exported upside-down — flip so cusps point up (+Y).
+            object.rotation.x += Math.PI;
+            centerObjectInWrapper(object);
+        }
+    }
+
     function stackUpperLowerMeshes(upper, lower) {
-        upper.wrapper.position.set(0, 0, 0);
-        lower.wrapper.position.set(0, 0, 0);
+        resetWrapperTransform(upper);
+        resetWrapperTransform(lower);
 
-        const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
-        const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
+        applyDentalOrientation(upper, 'upper');
+        applyDentalOrientation(lower, 'lower');
 
-        upper.size = upperBox.getSize(new THREE.Vector3());
+        const facingRotation = findBestFacingRotation(lower.object, lower.wrapper);
+        applyFacingRotation(lower.object, lower.wrapper, facingRotation);
+        applyFacingRotation(upper.object, upper.wrapper, facingRotation);
+
+        let lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
+        let upperBox = new THREE.Box3().setFromObject(upper.wrapper);
+
         lower.size = lowerBox.getSize(new THREE.Vector3());
+        upper.size = upperBox.getSize(new THREE.Vector3());
 
-        const gap = Math.max(upper.size.y, lower.size.y, 8) * 0.12;
-        const separation = upper.size.y * 0.5 + lower.size.y * 0.5 + gap;
+        // Closed bite: upper occlusal meets lower occlusal with no visible gap.
+        const biteGap = 0;
 
-        // Occlusal stack: lower below, upper above (aligned on X/Z).
-        upper.wrapper.position.set(0, separation * 0.5, 0);
-        lower.wrapper.position.set(0, -separation * 0.5, 0);
+        lower.wrapper.position.set(0, -lowerBox.max.y, 0);
+
+        lower.wrapper.updateMatrixWorld(true);
+        upperBox.setFromObject(upper.wrapper);
+        upper.wrapper.position.set(0, biteGap - upperBox.min.y, 0);
+
+        lower.wrapper.updateMatrixWorld(true);
+        upper.wrapper.updateMatrixWorld(true);
+        lowerBox.setFromObject(lower.wrapper);
+        upperBox.setFromObject(upper.wrapper);
+
+        const midX = ((lowerBox.min.x + lowerBox.max.x) + (upperBox.min.x + upperBox.max.x)) * 0.25;
+        const midZ = ((lowerBox.min.z + lowerBox.max.z) + (upperBox.min.z + upperBox.max.z)) * 0.25;
+        lower.wrapper.position.x -= midX;
+        lower.wrapper.position.z -= midZ;
+        upper.wrapper.position.x -= midX;
+        upper.wrapper.position.z -= midZ;
+    }
+
+    function updateGridPosition() {
+        if (!gridHelper) {
+            return;
+        }
+
+        const box = new THREE.Box3();
+        getVisibleMeshEntries().forEach((entry) => {
+            box.expandByObject(entry.wrapper);
+        });
+
+        if (box.isEmpty()) {
+            gridHelper.position.y = -0.01;
+            return;
+        }
+
+        gridHelper.position.y = box.min.y - Math.max(box.getSize(new THREE.Vector3()).y * 0.02, 0.5);
+    }
+
+    function fitFrontBiteCamera() {
+        const visible = getVisibleMeshEntries();
+        if (!visible.length) {
+            return;
+        }
+
+        modelGroup.updateMatrixWorld(true);
+
+        const box = new THREE.Box3();
+        visible.forEach((entry) => {
+            box.expandByObject(entry.wrapper);
+        });
+
+        if (box.isEmpty()) {
+            return;
+        }
+
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z, 1);
+        const vFovRad = (camera.fov * Math.PI) / 180;
+        const halfVFov = Math.tan(vFovRad / 2);
+
+        let distance = maxDim / (2 * halfVFov);
+
+        if (camera.aspect > 0) {
+            const halfHFov = halfVFov * camera.aspect;
+            distance = Math.max(
+                distance,
+                (size.y * 0.5) / halfVFov,
+                (size.x * 0.5) / halfHFov
+            );
+        }
+
+        if (!Number.isFinite(distance) || distance < 1) {
+            distance = maxDim * 2;
+        }
+
+        distance *= CAMERA_DISTANCE_FACTOR;
+
+        controls.target.copy(center);
+        camera.position.set(center.x, center.y, center.z + distance);
+        controls.update();
+    }
+
+    function applyInitialCameraView() {
+        const upper = meshesById.get('upper');
+        const lower = meshesById.get('lower');
+        const hasBitePair = upper
+            && lower
+            && upper.wrapper.visible
+            && lower.wrapper.visible;
+
+        if (hasBitePair) {
+            fitFrontBiteCamera();
+            return;
+        }
+
+        fitCameraToModels();
     }
 
     function layoutMeshes() {
@@ -1368,6 +1546,9 @@ if (root && canvas) {
         if (entries.length < 2) {
             entries.forEach((entry) => {
                 entry.wrapper.position.set(0, 0, 0);
+                applyDentalOrientation(entry, entry.wrapper.name === 'upper' ? 'upper' : 'lower');
+                const facingRotation = findBestFacingRotation(entry.object, entry.wrapper);
+                applyFacingRotation(entry.object, entry.wrapper, facingRotation);
             });
         } else {
             entries.forEach((entry) => {
@@ -1392,7 +1573,8 @@ if (root && canvas) {
 
         modelGroup.position.set(0, 0, 0);
         centerModelGroup();
-        fitCameraToModels();
+        updateGridPosition();
+        applyInitialCameraView();
         captureLayoutSnapshot();
         refreshAxesIfVisible();
     }
@@ -1505,7 +1687,7 @@ if (root && canvas) {
                 setScanVisibility(scanId, this.checked);
 
                 if (getVisibleMeshEntries().length) {
-                    fitCameraToModels();
+                    applyInitialCameraView();
                 }
             });
         });
@@ -1675,7 +1857,7 @@ if (root && canvas) {
 
         afterLayout(() => {
             resize();
-            fitCameraToModels();
+            applyInitialCameraView();
         });
 
         if (results.some((r) => r.status === 'rejected')) {
