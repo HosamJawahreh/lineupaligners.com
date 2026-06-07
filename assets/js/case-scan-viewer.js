@@ -1331,6 +1331,34 @@ if (root && canvas) {
         });
     }
 
+    function centerObjectInWrapper(object) {
+        const box = new THREE.Box3().setFromObject(object);
+        if (box.isEmpty()) {
+            return;
+        }
+
+        const center = box.getCenter(new THREE.Vector3());
+        object.position.sub(center);
+    }
+
+    function stackUpperLowerMeshes(upper, lower) {
+        upper.wrapper.position.set(0, 0, 0);
+        lower.wrapper.position.set(0, 0, 0);
+
+        const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
+        const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
+
+        upper.size = upperBox.getSize(new THREE.Vector3());
+        lower.size = lowerBox.getSize(new THREE.Vector3());
+
+        const gap = Math.max(upper.size.y, lower.size.y, 8) * 0.12;
+        const separation = upper.size.y * 0.5 + lower.size.y * 0.5 + gap;
+
+        // Occlusal stack: lower below, upper above (aligned on X/Z).
+        upper.wrapper.position.set(0, separation * 0.5, 0);
+        lower.wrapper.position.set(0, -separation * 0.5, 0);
+    }
+
     function layoutMeshes() {
         const entries = Array.from(meshesById.values());
         if (!entries.length) {
@@ -1351,14 +1379,12 @@ if (root && canvas) {
             const lower = meshesById.get('lower');
 
             if (upper && lower) {
-                const gap = Math.max(upper.size.x, lower.size.x, 8) * 0.35;
-                upper.wrapper.position.set(-gap, upper.size.y * 0.08, 0);
-                lower.wrapper.position.set(gap, -lower.size.y * 0.08, 0);
+                stackUpperLowerMeshes(upper, lower);
             } else {
                 let offset = 0;
                 entries.forEach((entry) => {
-                    const step = Math.max(entry.size.x, 20);
-                    entry.wrapper.position.set(offset, 0, 0);
+                    const step = Math.max(entry.size.y, 20);
+                    entry.wrapper.position.set(0, offset, 0);
                     offset += step * 1.1;
                 });
             }
@@ -1411,6 +1437,7 @@ if (root && canvas) {
                 }
 
                 const usesFileColors = prepareObjectMaterials(object, scanId);
+                centerObjectInWrapper(object);
                 const wrapper = new THREE.Group();
                 wrapper.name = scanId;
                 wrapper.visible = true;

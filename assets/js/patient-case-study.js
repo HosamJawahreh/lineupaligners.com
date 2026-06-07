@@ -458,9 +458,44 @@
         }
     }
 
+    function initSummaryNotes() {
+        $('[data-case-summary-notes]').each(function () {
+            var $wrap = $(this);
+            var $content = $wrap.find('.case-summary-notes__content');
+            var $toggle = $wrap.find('.case-summary-notes__toggle');
+
+            if (!$content.length || !$toggle.length) {
+                return;
+            }
+
+            function syncToggle() {
+                var expanded = $wrap.hasClass('is-expanded');
+                var overflows = $content[0].scrollHeight > $content[0].clientHeight + 2;
+
+                if (expanded || overflows) {
+                    $toggle.removeAttr('hidden');
+                } else {
+                    $toggle.attr('hidden', true);
+                }
+
+                $toggle.attr('aria-expanded', expanded ? 'true' : 'false');
+                $toggle.text(expanded ? 'Show less' : 'Show full notes');
+            }
+
+            $toggle.on('click', function () {
+                $wrap.toggleClass('is-expanded');
+                syncToggle();
+            });
+
+            syncToggle();
+            $(window).on('resize.caseSummaryNotes', syncToggle);
+        });
+    }
+
     $(function () {
         initTabs();
         initChat();
+        initSummaryNotes();
         openTabFromParams();
     });
 })(jQuery);

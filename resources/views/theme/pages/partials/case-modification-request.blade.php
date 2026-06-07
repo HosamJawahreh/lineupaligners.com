@@ -26,57 +26,104 @@
         </div>
         @endif
         @if(! $isDivided || $eligibleStages->isNotEmpty())
-        <form method="post"
-              action="{{ route('patients.modifications.store', $patient) }}"
-              class="case-modification__form"
-              enctype="multipart/form-data"
-              data-scan-upload>
-            @csrf
+        <section class="case-modification-card" aria-labelledby="case-modification-form-title">
+            <div class="case-modification-card__accent" aria-hidden="true"></div>
 
-            @if($isDivided)
-            <div class="case-modification__field">
-                <label for="modification-stage">Stage to modify</label>
-                <select id="modification-stage" name="stage_number" required>
-                    @foreach($eligibleStages as $stageNum)
-                    <option value="{{ $stageNum }}" @selected(old('stage_number') == $stageNum)>
-                        Stage {{ $stageNum }} (ready for modification)
-                    </option>
-                    @endforeach
-                </select>
-                <span class="case-modification__hint">Current pending stages and approved stages (with no modification in progress) appear here.</span>
-            </div>
-            @endif
-
-            <div class="case-modification__uploads">
-                @include('theme.pages.partials.case-photos-upload', ['uploadId' => 'modification-photos'])
-                <div class="case-modification__field">
-                    <label for="modification-upper">Upper jaw 3D file</label>
-                    <input type="file" id="modification-upper" name="upper_jaw_scan" accept=".stl,.obj,.ply">
-                    <span class="case-modification__hint">STL, OBJ, or PLY — optional if lower jaw is provided.</span>
+            <header class="case-modification-card__head">
+                <span class="case-modification-card__icon" aria-hidden="true">
+                    <i class="zmdi zmdi-refresh-sync"></i>
+                </span>
+                <div class="case-modification-card__head-text">
+                    <p class="case-modification-card__kicker">Plan changes</p>
+                    <h4 class="case-modification-card__title" id="case-modification-form-title">Submit modification request</h4>
+                    <p class="case-modification-card__lead">Upload revised 3D scans and notes. LineUp will prepare an updated plan for your review.</p>
                 </div>
-                <div class="case-modification__field">
-                    <label for="modification-lower">Lower jaw 3D file</label>
-                    <input type="file" id="modification-lower" name="lower_jaw_scan" accept=".stl,.obj,.ply">
-                    <span class="case-modification__hint">Upload at least one jaw model with your request.</span>
+            </header>
+
+            <form method="post"
+                  action="{{ route('patients.modifications.store', $patient) }}"
+                  class="case-modification-card__form"
+                  enctype="multipart/form-data"
+                  data-scan-upload>
+                @csrf
+
+                @if($isDivided)
+                <div class="case-modification-card__section">
+                    <h5 class="case-modification-card__section-title">
+                        <i class="zmdi zmdi-view-week" aria-hidden="true"></i>
+                        Stage
+                    </h5>
+                    <div class="case-modification-card__field">
+                        <label for="modification-stage">Stage to modify</label>
+                        <div class="case-modification-card__select-wrap">
+                            <span class="case-modification-card__select-icon" aria-hidden="true"><i class="zmdi zmdi-layers"></i></span>
+                            <select id="modification-stage" name="stage_number" required>
+                                @foreach($eligibleStages as $stageNum)
+                                <option value="{{ $stageNum }}" @selected(old('stage_number') == $stageNum)>
+                                    Stage {{ $stageNum }} (ready for modification)
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <span class="case-modification-card__hint">Current pending stages and approved stages (with no modification in progress) appear here.</span>
+                    </div>
                 </div>
-            </div>
+                @endif
 
-            <div class="case-modification__field">
-                <label for="modification-notes">Modification notes</label>
-                <textarea id="modification-notes"
-                          name="notes"
-                          rows="6"
-                          required
-                          minlength="10"
-                          maxlength="10000"
-                          placeholder="Describe what should change in the new treatment plan (tooth movements, attachments, staging, etc.)">{{ old('notes') }}</textarea>
-            </div>
+                <div class="case-modification-card__section">
+                    <h5 class="case-modification-card__section-title">
+                        <i class="zmdi zmdi-cloud-upload" aria-hidden="true"></i>
+                        Scans &amp; photos
+                    </h5>
+                    <div class="case-modification-card__uploads">
+                        <div class="case-modification-card__upload-block case-modification-card__upload-block--photos">
+                            @include('theme.pages.partials.case-photos-upload', ['uploadId' => 'modification-photos'])
+                        </div>
+                        <div class="case-modification-card__upload-block">
+                            <label for="modification-upper">Upper jaw 3D file</label>
+                            <div class="case-modification-card__file-wrap">
+                                <span class="case-modification-card__file-icon" aria-hidden="true"><i class="zmdi zmdi-file"></i></span>
+                                <input type="file" id="modification-upper" name="upper_jaw_scan" accept=".stl,.obj,.ply">
+                            </div>
+                            <span class="case-modification-card__hint">STL, OBJ, or PLY — optional if lower jaw is provided.</span>
+                        </div>
+                        <div class="case-modification-card__upload-block">
+                            <label for="modification-lower">Lower jaw 3D file</label>
+                            <div class="case-modification-card__file-wrap">
+                                <span class="case-modification-card__file-icon" aria-hidden="true"><i class="zmdi zmdi-file"></i></span>
+                                <input type="file" id="modification-lower" name="lower_jaw_scan" accept=".stl,.obj,.ply">
+                            </div>
+                            <span class="case-modification-card__hint">Upload at least one jaw model with your request.</span>
+                        </div>
+                    </div>
+                </div>
 
-            <button type="submit" class="case-modification__submit">
-                <i class="zmdi zmdi-upload" aria-hidden="true"></i>
-                Submit modification request
-            </button>
-        </form>
+                <div class="case-modification-card__section">
+                    <h5 class="case-modification-card__section-title">
+                        <i class="zmdi zmdi-edit" aria-hidden="true"></i>
+                        Modification notes
+                    </h5>
+                    <div class="case-modification-card__field">
+                        <label for="modification-notes">What should change?</label>
+                        <textarea id="modification-notes"
+                                  name="notes"
+                                  rows="5"
+                                  required
+                                  minlength="10"
+                                  maxlength="10000"
+                                  placeholder="Describe what should change in the new treatment plan (tooth movements, attachments, staging, etc.)">{{ old('notes') }}</textarea>
+                        <span class="case-modification-card__hint">Minimum 10 characters — be specific so LineUp can revise the plan accurately.</span>
+                    </div>
+                </div>
+
+                <footer class="case-modification-card__foot">
+                    <button type="submit" class="case-modification-card__submit">
+                        <i class="zmdi zmdi-upload" aria-hidden="true"></i>
+                        Submit modification request
+                    </button>
+                </footer>
+            </form>
+        </section>
         @elseif($isDivided)
         <div class="case-modification__notice case-modification__notice--info">
             <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>

@@ -158,7 +158,7 @@ class CaseTimelineBuilder
             at: $plan->created_at,
             title: $plan->refinement_id
                 ? ($isRevision ? 'Refinement plan revised' : 'Refinement plan uploaded')
-                : ($isRevision ? 'Revised treatment plan submitted' : 'Manufactured treatment plan uploaded'),
+                : ($isRevision ? 'Revised treatment plan submitted' : 'Treatment plan uploaded'),
             summary: $plan->stageLabel(),
             body: $this->truncateUrl($plan->plan_url),
             actorName: $plan->uploader?->displayName(),

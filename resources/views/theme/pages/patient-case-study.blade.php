@@ -5,7 +5,7 @@
 @section('body-class', 'patient-case-study-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=39">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=41">
 @endpush
 
 @section('content')
@@ -138,7 +138,19 @@
                         </div>
                         <div class="case-summary-cell case-summary-cell--notes">
                             <span class="case-summary-cell__label">Notes</span>
-                            <span class="case-summary-cell__value case-summary-cell__value--notes" title="{{ $patient->notes }}">{{ $patient->notes ?: '—' }}</span>
+                            @if($patient->notes)
+                            <div class="case-summary-notes" data-case-summary-notes>
+                                <div class="case-summary-notes__content">{{ $patient->notes }}</div>
+                                <button type="button"
+                                        class="case-summary-notes__toggle"
+                                        hidden
+                                        aria-expanded="false">
+                                    Show full notes
+                                </button>
+                            </div>
+                            @else
+                            <span class="case-summary-cell__empty">—</span>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -242,9 +254,9 @@
     }
 }
 </script>
-<script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=5"></script>
+<script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=6"></script>
 @endif
-<script src="{{ asset('assets/js/patient-case-study.js') }}"></script>
+<script src="{{ asset('assets/js/patient-case-study.js') }}?v=2"></script>
 <script src="{{ asset('assets/js/case-manufacture-plan.js') }}"></script>
 <script src="{{ asset('assets/js/case-photos-upload.js') }}?v=1"></script>
 @if(!empty($caseScanSets))
