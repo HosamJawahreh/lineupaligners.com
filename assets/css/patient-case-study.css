@@ -4000,11 +4000,17 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 
 /* ── Modification request tab ── */
 .case-modification {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 24px;
 }
 
 .case-modification__head {
+    width: 100%;
+    max-width: 860px;
     margin-bottom: 20px;
+    text-align: center;
 }
 
 .case-modification__title {
@@ -4015,7 +4021,7 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 }
 
 .case-modification__subtitle {
-    margin: 0;
+    margin: 0 auto;
     font-size: 14px;
     color: #64748b;
     line-height: 1.5;
@@ -4092,7 +4098,10 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     align-items: flex-start;
     padding: 16px 18px;
     border-radius: 12px;
-    max-width: 640px;
+    width: 100%;
+    max-width: 860px;
+    margin-left: auto;
+    margin-right: auto;
     font-size: 14px;
     line-height: 1.5;
 }
@@ -4121,7 +4130,10 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 /* Modification request form card */
 .case-modification-card {
     position: relative;
+    width: 100%;
     max-width: 860px;
+    margin-left: auto;
+    margin-right: auto;
     background: linear-gradient(180deg, #ffffff 0%, #fff7ed 100%);
     border: 1px solid #fed7aa;
     border-radius: 14px;
@@ -5146,11 +5158,17 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 
 /* ── Order refinement tab ── */
 .case-refinement {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 24px;
 }
 
 .case-refinement__head {
+    width: 100%;
+    max-width: 860px;
     margin-bottom: 20px;
+    text-align: center;
 }
 
 .case-refinement__title {
@@ -5161,7 +5179,7 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 }
 
 .case-refinement__subtitle {
-    margin: 0;
+    margin: 0 auto;
     font-size: 14px;
     color: #64748b;
     line-height: 1.5;
@@ -5174,7 +5192,10 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 }
 
 .case-refinement__form {
-    max-width: 720px;
+    width: 100%;
+    max-width: 860px;
+    margin-left: auto;
+    margin-right: auto;
     display: flex;
     flex-direction: column;
     gap: 18px;
@@ -5247,7 +5268,10 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     align-items: flex-start;
     padding: 16px 18px;
     border-radius: 12px;
-    max-width: 640px;
+    width: 100%;
+    max-width: 860px;
+    margin-left: auto;
+    margin-right: auto;
     font-size: 14px;
     line-height: 1.5;
 }
