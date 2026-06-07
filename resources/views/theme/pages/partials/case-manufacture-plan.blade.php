@@ -266,14 +266,16 @@
             $canSubmitFullPlan = $canUploadFull && (
                 $fullPlan === null
                 || $fullPlan->isRejected()
-                || ($fullPlan->isApproved() && $patient->hasActiveModificationFor(null))
+                || $patient->hasActiveModificationFor(null)
             );
         @endphp
         @if($canSubmitFullPlan)
         <section class="mfg-plan__panel mfg-plan__panel--admin mfg-plan__panel--revision">
             <h4 class="mfg-plan__panel-title">
                 <i class="zmdi zmdi-link"></i>
-                @if($fullPlan && $patient->hasActiveModificationFor(null))
+                @if($fullPlan && $patient->hasActiveModificationFor(null) && $fullPlan->isPending())
+                    Upload revised plan after modification
+                @elseif($fullPlan && $patient->hasActiveModificationFor(null))
                     Upload plan after modification
                 @elseif($fullPlan && $fullPlan->isRejected())
                     Submit revised plan
@@ -283,6 +285,8 @@
             </h4>
             @if($fullPlan && $fullPlan->isRejected())
             <p class="mfg-plan__panel-desc">The rejected submission stays visible above until this revision is approved.</p>
+            @elseif($fullPlan && $patient->hasActiveModificationFor(null) && $fullPlan->isPending())
+            <p class="mfg-plan__panel-desc">The doctor requested changes before approving this plan. Upload the updated canvas link for review.</p>
             @elseif($fullPlan && $patient->hasActiveModificationFor(null))
             <p class="mfg-plan__panel-desc">The doctor submitted new 3D scans. Upload the revised canvas link for review.</p>
             @endif

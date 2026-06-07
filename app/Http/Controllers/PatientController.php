@@ -543,18 +543,34 @@ class PatientController extends Controller
         }
 
         return [
-            'status' => $request->input('status', ''),
-            'patient' => trim((string) $request->input('patient', '')),
-            'doctor' => trim((string) $request->input('doctor', '')),
-            'creator' => trim((string) $request->input('creator', '')),
-            'case_type' => $request->input('case_type', ''),
-            'case_source' => $request->input('case_source', ''),
-            'date_from' => $request->input('date_from', ''),
-            'date_to' => $request->input('date_to', ''),
+            'status' => $this->filterString($request, 'status'),
+            'patient' => $this->filterString($request, 'patient'),
+            'doctor' => $this->filterString($request, 'doctor'),
+            'creator' => $this->filterString($request, 'creator'),
+            'case_type' => $this->filterString($request, 'case_type'),
+            'case_source' => $this->filterString($request, 'case_source'),
+            'date_from' => $this->filterString($request, 'date_from'),
+            'date_to' => $this->filterString($request, 'date_to'),
             'sort' => $request->input('sort', 'created_at'),
             'dir' => $request->input('dir', 'desc') === 'asc' ? 'asc' : 'desc',
             'per_page' => $perPage,
         ];
+    }
+
+    private function filterString(Request $request, string $key): string
+    {
+        $value = $request->input($key);
+
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        return trim((string) $value);
+    }
+
+    private function isValidDateFilter(string $value): bool
+    {
+        return $value !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) === 1;
     }
 
     private function filteredPatientsQuery(array $filters)
@@ -594,11 +610,11 @@ class PatientController extends Controller
             $query->where('case_type', $filters['case_type']);
         }
 
-        if ($filters['date_from'] !== '') {
+        if ($filters['date_from'] !== '' && $this->isValidDateFilter($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
 
-        if ($filters['date_to'] !== '') {
+        if ($filters['date_to'] !== '' && $this->isValidDateFilter($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 

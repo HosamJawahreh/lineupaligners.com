@@ -86,7 +86,7 @@ class PatientPolicy
             return false;
         }
 
-        return $this->assignedDoctorWithPermission($user, $patient, 'request_refinement');
+        return $this->assignedDoctorWithWorkflowAccess($user, $patient, 'request_refinement');
     }
 
     /** Confirm physical manufacturing is complete (LineUp admin, after doctor approval). */
@@ -107,7 +107,7 @@ class PatientPolicy
 
     /**
      * Assigned doctors who can view a case may always review plans and request modifications.
-     * Granular role keys still apply to other workflow actions (e.g. refinement).
+     * Assigned doctors with view_cases may also review plans, request modifications, and order refinements.
      */
     private function assignedDoctorWithWorkflowAccess(User $user, Patient $patient, string $permission): bool
     {
@@ -119,7 +119,7 @@ class PatientPolicy
             return false;
         }
 
-        if (in_array($permission, ['review_plans', 'request_modification'], true)) {
+        if (in_array($permission, ['review_plans', 'request_modification', 'request_refinement'], true)) {
             return $user->doctorCan($permission) || $user->doctorCan('view_cases');
         }
 

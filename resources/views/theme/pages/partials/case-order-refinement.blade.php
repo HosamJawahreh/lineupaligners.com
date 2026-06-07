@@ -112,11 +112,24 @@
                 Start refinement case
             </button>
         </form>
+    @elseif(auth()->user()->isDoctor() && $patient->canRequestRefinement() && ! ($canRequestRefinement ?? false))
+        <div class="case-refinement__notice case-refinement__notice--info">
+            <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
+            <p>
+                This case is ready for refinement, but your doctor role does not include the
+                <strong>Order refinement</strong> permission. Ask your clinic admin to enable it under
+                <strong>System Settings → Doctor Roles</strong>.
+            </p>
+        </div>
     @elseif(auth()->user()->isDoctor())
         <div class="case-refinement__notice case-refinement__notice--info">
             <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
             <p>
-                Refinement is available after LineUp marks the case as <strong>Manufactured</strong> on the Treatment Plan tab.
+                @if($patient->hasActiveModificationForAny())
+                    Refinement opens after the current modification cycle is complete and LineUp marks the case as <strong>Manufactured</strong>.
+                @else
+                    Refinement is available after LineUp marks the case as <strong>Manufactured</strong> on the Treatment Plan tab.
+                @endif
                 Current workflow: <strong>{{ $patient->workflowStageLabel() }}</strong>.
             </p>
         </div>

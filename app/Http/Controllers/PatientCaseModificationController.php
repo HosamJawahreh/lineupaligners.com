@@ -38,7 +38,7 @@ class PatientCaseModificationController extends Controller
                 $patient,
                 $patient->isDividedStages()
                     ? 'You can request a modification on the current pending stage before approval, or on an approved stage when no modification is already in progress.'
-                    : 'You can request a modification only after the treatment plan for this scope is approved, and while no modification is already in progress.',
+                    : 'You can request a modification on the current pending plan before approval, or on an approved plan when no modification is already in progress.',
                 'error'
             );
         }

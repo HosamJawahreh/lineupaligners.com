@@ -428,18 +428,34 @@ if (root && canvas) {
         });
     }
 
-    function vertexColorMaterial() {
-        return new THREE.MeshPhongMaterial({
+    function vertexColorMaterial(geometry) {
+        const material = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
             vertexColors: true,
-            specular: 0x333333,
-            shininess: 40,
+            metalness: 0.04,
+            roughness: 0.62,
             flatShading: false,
             side: THREE.DoubleSide,
         });
+
+        if (geometry?.alpha !== undefined && geometry.alpha < 1) {
+            material.transparent = true;
+            material.opacity = geometry.alpha;
+        }
+
+        return material;
     }
 
     function geometryHasVertexColors(geometry) {
-        const colors = geometry?.attributes?.color;
+        if (!geometry) {
+            return false;
+        }
+
+        if (geometry.hasColors) {
+            return true;
+        }
+
+        const colors = geometry.attributes?.color;
         return Boolean(colors && colors.count > 0);
     }
 
@@ -502,16 +518,38 @@ if (root && canvas) {
 
         if (materialHasFileColor(material)) {
             material.side = THREE.DoubleSide;
-            if (material.isMeshPhongMaterial || material.isMeshStandardMaterial || material.isMeshLambertMaterial) {
+
+            if (material.map) {
+                material.map.colorSpace = THREE.SRGBColorSpace;
+            }
+
+            if (material.isMeshStandardMaterial) {
                 return material;
             }
+
+            if (material.isMeshPhongMaterial || material.isMeshLambertMaterial) {
+                const enhanced = new THREE.MeshStandardMaterial({
+                    color: material.color ? material.color.clone() : 0xffffff,
+                    map: material.map || null,
+                    normalMap: material.normalMap || null,
+                    vertexColors: Boolean(material.vertexColors),
+                    metalness: 0.04,
+                    roughness: 0.62,
+                    transparent: material.transparent,
+                    opacity: material.opacity,
+                    side: THREE.DoubleSide,
+                });
+                material.dispose();
+                return enhanced;
+            }
+
             if (material.color || material.map) {
-                const enhanced = new THREE.MeshPhongMaterial({
+                const enhanced = new THREE.MeshStandardMaterial({
                     color: material.color ? material.color.clone() : 0xffffff,
                     map: material.map || null,
                     vertexColors: Boolean(material.vertexColors),
-                    specular: 0x333333,
-                    shininess: 40,
+                    metalness: 0.04,
+                    roughness: 0.62,
                     side: THREE.DoubleSide,
                 });
                 material.dispose();
@@ -549,7 +587,7 @@ if (root && canvas) {
 
             if (geometryHasVertexColors(child.geometry)) {
                 disposeMaterial(child.material);
-                child.material = vertexColorMaterial();
+                child.material = vertexColorMaterial(child.geometry);
                 return;
             }
 
@@ -566,6 +604,22 @@ if (root && canvas) {
         });
 
         return true;
+    }
+
+    function createPlyLoader() {
+        const loader = new PLYLoader();
+        loader.setPropertyNameMapping({
+            diffuse_red: 'red',
+            diffuse_green: 'green',
+            diffuse_blue: 'blue',
+            f_red: 'red',
+            f_green: 'green',
+            f_blue: 'blue',
+            red: 'red',
+            green: 'green',
+            blue: 'blue',
+        });
+        return loader;
     }
 
     function setOverlay(state, message) {
@@ -1367,7 +1421,103 @@ if (root && canvas) {
         }
     }
 
-    /** Pick Y rotation so the arch presents a wide frontal smile toward +Z (camera). */
+    const occlusalSampleVec = new THREE.Vector3();
+
+    function getArchOcclusalY(wrapper, arch) {
+        const ys = [];
+
+        wrapper.updateMatrixWorld(true);
+        wrapper.traverse((child) => {
+            if (!child.isMesh || !child.geometry?.attributes?.position) {
+                return;
+            }
+
+            const positions = child.geometry.attributes.position;
+            for (let i = 0; i < positions.count; i += 1) {
+                occlusalSampleVec.fromBufferAttribute(positions, i);
+                occlusalSampleVec.applyMatrix4(child.matrixWorld);
+                ys.push(occlusalSampleVec.y);
+            }
+        });
+
+        if (!ys.length) {
+            const box = new THREE.Box3().setFromObject(wrapper);
+            return arch === 'lower' ? box.max.y : box.min.y;
+        }
+
+        ys.sort((a, b) => a - b);
+        const index = arch === 'lower'
+            ? Math.floor(ys.length * 0.88)
+            : Math.floor(ys.length * 0.12);
+
+        return ys[Math.min(Math.max(index, 0), ys.length - 1)];
+    }
+
+    function alignBiteOcclusal(upper, lower) {
+        lower.wrapper.position.set(0, 0, 0);
+        upper.wrapper.position.set(0, 0, 0);
+
+        lower.wrapper.updateMatrixWorld(true);
+        upper.wrapper.updateMatrixWorld(true);
+
+        const lowerOcc = getArchOcclusalY(lower.wrapper, 'lower');
+        const upperOcc = getArchOcclusalY(upper.wrapper, 'upper');
+
+        lower.wrapper.position.y = -lowerOcc;
+        upper.wrapper.position.y = -upperOcc;
+
+        lower.wrapper.updateMatrixWorld(true);
+        upper.wrapper.updateMatrixWorld(true);
+
+        const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
+        const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
+        const midX = ((lowerBox.min.x + lowerBox.max.x) + (upperBox.min.x + upperBox.max.x)) * 0.25;
+        const midZ = ((lowerBox.min.z + lowerBox.max.z) + (upperBox.min.z + upperBox.max.z)) * 0.25;
+
+        lower.wrapper.position.x -= midX;
+        lower.wrapper.position.z -= midZ;
+        upper.wrapper.position.x -= midX;
+        upper.wrapper.position.z -= midZ;
+    }
+
+    /** Pick Y rotation using the stacked bite so both arches face the camera together. */
+    function findBestBiteFacingRotation(upper, lower) {
+        const baseLowerX = lower.object.rotation.x;
+        const baseLowerZ = lower.object.rotation.z;
+        const baseUpperX = upper.object.rotation.x;
+        const baseUpperZ = upper.object.rotation.z;
+        const rotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+        let bestRotation = 0;
+        let bestScore = -Infinity;
+
+        rotations.forEach((yRotation) => {
+            lower.object.rotation.set(baseLowerX, yRotation, baseLowerZ);
+            upper.object.rotation.set(baseUpperX, yRotation, baseUpperZ);
+            centerObjectInWrapper(lower.object);
+            centerObjectInWrapper(upper.object);
+            alignBiteOcclusal(upper, lower);
+
+            const box = new THREE.Box3();
+            box.expandByObject(lower.wrapper);
+            box.expandByObject(upper.wrapper);
+            const size = box.getSize(new THREE.Vector3());
+            const score = size.x / Math.max(size.z, 0.001);
+
+            if (score > bestScore) {
+                bestScore = score;
+                bestRotation = yRotation;
+            }
+        });
+
+        return bestRotation;
+    }
+
+    function applyFacingRotation(object, wrapper, yRotation) {
+        object.rotation.y = yRotation;
+        centerObjectInWrapper(object);
+    }
+
+    /** Pick Y rotation for a single arch (upper-only or lower-only view). */
     function findBestFacingRotation(object, wrapper) {
         const baseX = object.rotation.x;
         const baseZ = object.rotation.z;
@@ -1391,11 +1541,6 @@ if (root && canvas) {
         return bestRotation;
     }
 
-    function applyFacingRotation(object, wrapper, yRotation) {
-        object.rotation.y = yRotation;
-        centerObjectInWrapper(object);
-    }
-
     /** Normalize scanner exports and arch facing for occlusal bite + frontal view. */
     function applyDentalOrientation(entry, arch) {
         const object = entry.object;
@@ -1407,11 +1552,9 @@ if (root && canvas) {
         const bottomHalf = center.y - box.min.y;
 
         if (arch === 'upper') {
-            // Intraoral exports usually share orientation: upper occlusal must face down for bite.
-            if (topHalf >= bottomHalf) {
-                object.rotation.x += Math.PI;
-                centerObjectInWrapper(object);
-            }
+            // Intraoral exports share the same axis as lower; invert upper for closed bite.
+            object.rotation.x += Math.PI;
+            centerObjectInWrapper(object);
         } else if (topHalf > bottomHalf * 1.12) {
             // Lower arch exported upside-down — flip so cusps point up (+Y).
             object.rotation.x += Math.PI;
@@ -1426,36 +1569,15 @@ if (root && canvas) {
         applyDentalOrientation(upper, 'upper');
         applyDentalOrientation(lower, 'lower');
 
-        const facingRotation = findBestFacingRotation(lower.object, lower.wrapper);
+        const facingRotation = findBestBiteFacingRotation(upper, lower);
         applyFacingRotation(lower.object, lower.wrapper, facingRotation);
         applyFacingRotation(upper.object, upper.wrapper, facingRotation);
+        alignBiteOcclusal(upper, lower);
 
-        let lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
-        let upperBox = new THREE.Box3().setFromObject(upper.wrapper);
-
+        const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
+        const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
         lower.size = lowerBox.getSize(new THREE.Vector3());
         upper.size = upperBox.getSize(new THREE.Vector3());
-
-        // Closed bite: upper occlusal meets lower occlusal with no visible gap.
-        const biteGap = 0;
-
-        lower.wrapper.position.set(0, -lowerBox.max.y, 0);
-
-        lower.wrapper.updateMatrixWorld(true);
-        upperBox.setFromObject(upper.wrapper);
-        upper.wrapper.position.set(0, biteGap - upperBox.min.y, 0);
-
-        lower.wrapper.updateMatrixWorld(true);
-        upper.wrapper.updateMatrixWorld(true);
-        lowerBox.setFromObject(lower.wrapper);
-        upperBox.setFromObject(upper.wrapper);
-
-        const midX = ((lowerBox.min.x + lowerBox.max.x) + (upperBox.min.x + upperBox.max.x)) * 0.25;
-        const midZ = ((lowerBox.min.z + lowerBox.max.z) + (upperBox.min.z + upperBox.max.z)) * 0.25;
-        lower.wrapper.position.x -= midX;
-        lower.wrapper.position.z -= midZ;
-        upper.wrapper.position.x -= midX;
-        upper.wrapper.position.z -= midZ;
     }
 
     function updateGridPosition() {
@@ -1637,7 +1759,7 @@ if (root && canvas) {
             }
 
             if (ext === 'ply') {
-                new PLYLoader().load(
+                createPlyLoader().load(
                     url,
                     (geometry) => onLoaded(new THREE.Mesh(geometry)),
                     undefined,

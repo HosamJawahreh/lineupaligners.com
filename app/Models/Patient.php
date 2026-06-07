@@ -175,7 +175,12 @@ class Patient extends Model
 
     public function isManufactured(): bool
     {
-        return $this->workflowStageKey() === 'manufactured';
+        if ($this->hasActiveRefinement() || $this->hasActiveModificationForAny()) {
+            return false;
+        }
+
+        return $this->workflowStageKey() === 'manufactured'
+            || $this->manufactured_at !== null;
     }
 
     /** Doctor approved all plans in the active scope; admin may mark as manufactured. */
@@ -413,9 +418,7 @@ class Patient extends Model
         }
 
         if ($this->hasActiveModificationFor(null)) {
-            $current = $this->currentFullTreatmentPlan();
-
-            return $current === null || $current->isApproved();
+            return true;
         }
 
         $current = $this->currentFullTreatmentPlan();
@@ -506,9 +509,15 @@ class Patient extends Model
 
         $plan = $this->currentFullTreatmentPlan();
 
-        return $plan !== null
-            && $plan->is_current
-            && $plan->isApproved();
+        if ($plan === null || ! $plan->is_current) {
+            return false;
+        }
+
+        if ($plan->isPending()) {
+            return true;
+        }
+
+        return $plan->isApproved();
     }
 
     /**

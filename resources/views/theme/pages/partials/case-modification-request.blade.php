@@ -14,7 +14,7 @@
     <header class="case-modification__head">
         <h3 class="case-modification__title">Request Modification</h3>
         <p class="case-modification__subtitle">
-            Request changes by uploading revised 3D scans and notes. For divided-stage cases you can do this on the current pending stage before approving, or on an approved stage to start a new cycle. LineUp will submit an updated plan for your review.
+            Request changes by uploading revised 3D scans and notes. You can request a modification on the current pending plan before approving, or on an approved plan to start a new cycle. LineUp will submit an updated plan for your review.
         </p>
     </header>
 
@@ -154,7 +154,13 @@
         @else
         <div class="case-modification__notice case-modification__notice--info">
             <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-            <p>No stage is ready for modification right now. Approve the current stage on the Treatment Plan tab first.</p>
+            <p>
+                @if($isDivided)
+                    No stage is ready for modification right now. Approve the current stage on the Treatment Plan tab first.
+                @else
+                    No modification can be started right now. A plan must be uploaded and awaiting your review, or already approved.
+                @endif
+            </p>
         </div>
         @endif
     @else
