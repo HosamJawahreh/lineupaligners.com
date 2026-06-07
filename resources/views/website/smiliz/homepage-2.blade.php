@@ -158,7 +158,8 @@
 
     @if($content['sections']['faq'] ?? true)
     <section class="section-md pbmit-bg-color-light bottom-radius position-relative lineup-faq-section" id="faq">
-        <div class="container">
+        @include('website.smiliz.partials.section-grid-atmosphere')
+        <div class="container position-relative">
             <div class="row">
                 <div class="col-md-5 pbmit-sticky-column">
                     <div class="pbmit-heading-subheading">

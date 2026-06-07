@@ -158,12 +158,24 @@
 	}
 
 	var pbmit_before_after = function($scope = jQuery(document)) {
+		if (window.lineupSmilizBeforeAfterManaged) {
+			return;
+		}
 
 		if (typeof jQuery.fn.twentytwenty == "function") {
-			$scope.find(".pbmit-ele-before-after-inner").twentytwenty({
-				before_label: '',
-				after_label: '',
-				no_overlay: true
+			$scope.find(".pbmit-ele-before-after-inner").each(function () {
+				var $container = jQuery(this);
+
+				if ($container.hasClass('twentytwenty-container') || $container.closest('.twentytwenty-wrapper').length) {
+					return;
+				}
+
+				$container.find('.pbmit-after-image').removeClass('pbmit-hide');
+				$container.twentytwenty({
+					before_label: '',
+					after_label: '',
+					no_overlay: true
+				});
 			});
 		}
 	}

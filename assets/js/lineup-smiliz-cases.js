@@ -9,6 +9,11 @@
                 return;
             }
 
+            swiper.params.allowTouchMove = false;
+            swiper.params.simulateTouch = false;
+            swiper.params.noSwiping = true;
+            swiper.params.noSwipingClass = 'swiper-no-swiping';
+
             var breakpoints = swiper.params.breakpoints;
 
             if (breakpoints) {

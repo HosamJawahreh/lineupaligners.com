@@ -1,6 +1,8 @@
 (function ($) {
     'use strict';
 
+    window.lineupSmilizBeforeAfterManaged = true;
+
     function initBeforeAfter($scope) {
         if (typeof $.fn.twentytwenty !== 'function') {
             return;
@@ -24,7 +26,11 @@
                 before_label: window.lineupSmilizConfig?.beforeLabel || '',
                 after_label: window.lineupSmilizConfig?.afterLabel || '',
                 no_overlay: true,
+                click_to_move: true,
             });
+
+            $container.closest('.twentytwenty-wrapper').addClass('swiper-no-swiping lineup-before-after-slider');
+            $container.addClass('swiper-no-swiping lineup-before-after-slider');
         });
 
         $(window).trigger('resize.twentytwenty');

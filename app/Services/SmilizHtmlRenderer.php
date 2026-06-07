@@ -744,6 +744,34 @@ class SmilizHtmlRenderer
         $defaults = config('website.default_blog_page', []);
         $imageUrl = e($this->website->pageImageUrl($page['image'] ?? null, $defaults['image'] ?? 'images/blog/blog-img-01.jpg'));
 
+        $html = preg_replace(
+            '/<section class="site-content blog-details">/',
+            '<section class="site-content blog-details lineup-blog-detail">',
+            $html,
+            1
+        ) ?? $html;
+
+        $html = preg_replace(
+            '/<div class="col-md-\s+col-xl-3 blog-right-col">/',
+            '<div class="col-md-12 col-lg-4 col-xl-3 blog-right-col">',
+            $html,
+            1
+        ) ?? $html;
+
+        $html = preg_replace(
+            '/<aside class="widget widget-search">[\s\S]*?<\/aside>\s*/',
+            '',
+            $html,
+            1
+        ) ?? $html;
+
+        $html = preg_replace(
+            '/<aside class="widget widget-authorbox">[\s\S]*?<\/aside>\s*/',
+            '',
+            $html,
+            1
+        ) ?? $html;
+
         $html = preg_replace('/(<span class="post-root post post-post current-item">\s*).*?(<\/span>)/is', '$1'.e($page['title'] ?? '').'$2', $html, 1) ?? $html;
         $html = preg_replace(
             '/(<div class="pbmit-featured-wrapper">\s*<a[^>]*>\s*<img[^>]*src=["\']).*?(["\'])/is',
@@ -830,6 +858,151 @@ class SmilizHtmlRenderer
             }
 
             $html = preg_replace('/(<span class="pbmit-meta-tags">).*?(<\/span>)/is', '$1'.$tagHtml.'$2', $html, 1) ?? $html;
+        }
+
+        return $this->injectBlogSidebar($this->stripBlogDetailFooter($html), $content, $page);
+    }
+
+    private function stripBlogDetailFooter(string $html): string
+    {
+        $html = preg_replace(
+            '/(<\/nav>\s*)<div class="pbmit-author-box">[\s\S]*?(?=<\/article>)/',
+            '$1',
+            $html,
+            1
+        ) ?? $html;
+
+        $html = preg_replace(
+            '/(<\/article>\s*)<div class="comments-area">[\s\S]*?(?=\s*<\/div>\s*<div class="[^"]*blog-right-col"\>)/',
+            '$1',
+            $html,
+            1
+        ) ?? $html;
+
+        return $html;
+    }
+
+    /** @param  array<string, mixed>  $content
+     * @param  array<string, mixed>  $page */
+    private function injectBlogSidebar(string $html, array $content, array $page = []): string
+    {
+        $posts = $content['blog']['items'] ?? [];
+        $categoryUrl = e($this->website->blogCategoryUrl($this->locale->current()));
+        $currentSlug = $page['slug'] ?? null;
+        $recentHtml = '';
+        $recentCount = 0;
+
+        foreach ($posts as $post) {
+            if ($recentCount >= 3) {
+                break;
+            }
+
+            if (! filled($post['title'] ?? null)) {
+                continue;
+            }
+
+            if ($currentSlug && ($post['slug'] ?? null) === $currentSlug) {
+                continue;
+            }
+
+            $url = e($this->website->blogPostUrl($post, $this->locale->current()));
+            $imageUrl = e($this->website->blogPostImageUrl($post));
+            $title = e($post['title']);
+            $date = e($post['date'] ?? '');
+
+            $recentHtml .= '<li>'
+                .'<a href="'.$url.'"><span class="pbmit-rpw-img"><img src="'.$imageUrl.'" class="img-fluid" alt="'.$title.'" loading="lazy" decoding="async"></span></a>'
+                .'<span class="pbmit-rpw-content">'
+                .'<span class="pbmit-rpw-title"><a href="'.$url.'">'.$title.'</a></span>'
+                .($date !== '' ? '<span class="pbmit-rpw-date"><a href="'.$url.'">'.$date.'</a></span>' : '')
+                .'</span>'
+                .'</li>';
+            $recentCount++;
+        }
+
+        if ($recentHtml !== '') {
+            $html = preg_replace(
+                '/(<aside class="widget widget-recent-post">\s*<h2 class="widget-title">Recent Posts<\/h2>\s*<ul class="pbmit-rpw-list">\s*)([\s\S]*?)(<\/ul>\s*<\/aside>)/',
+                '$1'.$recentHtml.'$3',
+                $html,
+                1
+            ) ?? $html;
+        }
+
+        $categories = [];
+        foreach ($posts as $post) {
+            $category = trim((string) ($post['category'] ?? ''));
+            if ($category !== '') {
+                $categories[$category] = ($categories[$category] ?? 0) + 1;
+            }
+        }
+
+        if ($categories !== []) {
+            ksort($categories);
+            $categoryHtml = '';
+            foreach ($categories as $category => $count) {
+                $categoryHtml .= '<li><a href="'.$categoryUrl.'">'.e($category).'</a><span class="pbmit-brackets">( '.$count.' )</span></li>';
+            }
+
+            $html = preg_replace(
+                '/(<aside class="widget widget-categories">\s*<h2 class="widget-title">Category<\/h2>\s*<ul>\s*)([\s\S]*?)(<\/ul>\s*<\/aside>)/',
+                '$1'.$categoryHtml.'$3',
+                $html,
+                1
+            ) ?? $html;
+        }
+
+        $tags = [];
+        foreach ($posts as $post) {
+            foreach ($post['tags'] ?? [] as $tag) {
+                if (filled($tag)) {
+                    $tags[(string) $tag] = true;
+                }
+            }
+        }
+
+        foreach ($page['tags'] ?? [] as $tag) {
+            if (filled($tag)) {
+                $tags[(string) $tag] = true;
+            }
+        }
+
+        if ($tags !== []) {
+            $tagHtml = '';
+            ksort($tags);
+            foreach (array_keys($tags) as $tag) {
+                $tagHtml .= '<li><a href="'.$categoryUrl.'" class="tag-cloud-link">'.e($tag).'</a></li>';
+            }
+
+            $html = preg_replace(
+                '/(<aside class="widget widget-tag-cloud">\s*<h3 class="widget-title">Tags<\/h3>\s*<div class="tagcloud">\s*<ul class="pbmit-tag-cloud">\s*)([\s\S]*?)(<\/ul>\s*<\/div>\s*<\/aside>)/',
+                '$1'.$tagHtml.'$3',
+                $html,
+                1
+            ) ?? $html;
+        }
+
+        $cta = $content['cta_banner'] ?? config('website.default_cta_banner', []);
+        $contact = $content['contact'] ?? [];
+
+        if (filled($cta['title'] ?? null)) {
+            $html = preg_replace('/<h4 class="pbmit-ads-heading">.*?<\/h4>/is', '<h4 class="pbmit-ads-heading">'.e($cta['title']).'</h4>', $html, 1) ?? $html;
+        }
+
+        $ctaText = $cta['subtitle'] ?? $cta['text'] ?? null;
+        if (filled($ctaText)) {
+            $html = preg_replace('/<span class="pbmit-ads-decs">.*?<\/span>/is', '<span class="pbmit-ads-decs">'.e($ctaText).'</span>', $html, 1) ?? $html;
+        }
+
+        $phone = trim((string) ($contact['phone'] ?? ''));
+        if ($phone !== '') {
+            $phoneHref = e(preg_replace('/\s+/', '', $phone));
+            $html = preg_replace(
+                '/(<h3 class="pbmit-ads-call">\s*<a href=")[^"]*(">).*?(<\/a>\s*<\/h3>)/is',
+                '$1tel:'.$phoneHref.'$2'.e($phone).'$3',
+                $html,
+                1
+            ) ?? $html;
         }
 
         return $html;
@@ -1168,6 +1341,13 @@ class SmilizHtmlRenderer
             ) ?? $html;
         }
 
+        $html = preg_replace(
+            '/<section class="section-lg blog-grid-col-4">/',
+            '<section class="section-lg blog-grid-col-4 lineup-blog-listing">',
+            $html,
+            1
+        ) ?? $html;
+
         return $html;
     }
 
@@ -1193,7 +1373,7 @@ class SmilizHtmlRenderer
             ? '<div class="pbminfotech-box-desc">'.$excerpt.'</div>'
             : '';
 
-        return '<article class="pbmit-blog-style-1 col-md-6 col-lg-4 col-xl-3">'
+        return '<article class="pbmit-blog-style-1 col-md-6 col-lg-4">'
             .'<div class="post-item"><div class="pbminfotech-box-content">'
             .'<div class="pbmit-featured-container"><div class="pbmit-featured-container-inner">'
             .'<div class="pbmit-featured-img-wrapper"><div class="pbmit-featured-wrapper">'

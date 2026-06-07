@@ -2,160 +2,247 @@
     'use strict';
 
     var DESKTOP_MIN = 992;
-    var ENTER_RATIO = 0.65;
-    var EXIT_RATIO = 0.35;
+    var scrollTriggerInstance = null;
+    var scrollTimeline = null;
 
     function initProcessShowcase() {
+        var section = document.getElementById('process');
         var root = document.querySelector('.lineup-process-showcase');
 
-        if (!root) {
+        if (!section || !root) {
             return;
         }
 
+        var spacer = root.querySelector('.lineup-process-showcase__pin-spacer');
+        var sticky = root.querySelector('.lineup-process-showcase__pin-sticky');
         var tour = root.querySelector('.lineup-process-showcase__tour');
         var tabs = root.querySelectorAll('.lineup-process-showcase__tab');
         var panels = root.querySelectorAll('.lineup-process-showcase__panel');
         var fill = root.querySelector('.lineup-process-showcase__rail-fill');
         var stepCount = tabs.length;
-        var activeIndex = 0;
-        var scrollTicking = false;
         var scrollEnabled = false;
 
-        if (!tabs.length || !panels.length) {
+        if (!spacer || !sticky || !tabs.length || !panels.length) {
             return;
         }
 
-        function setActive(index, fromScroll) {
-            index = Math.max(0, Math.min(index, stepCount - 1));
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
 
-            if (index === activeIndex && fromScroll) {
-                return;
-            }
-
-            activeIndex = index;
-
-            tabs.forEach(function (tab, i) {
-                var active = i === index;
-                tab.classList.toggle('is-active', active);
-                tab.setAttribute('aria-selected', active ? 'true' : 'false');
-            });
-
-            panels.forEach(function (panel, i) {
-                var active = i === index;
-                panel.classList.toggle('is-active', active);
-                panel.setAttribute('aria-hidden', active ? 'false' : 'true');
-            });
-
-            if (fill && stepCount > 1) {
-                fill.style.height = (index / (stepCount - 1)) * 100 + '%';
-            }
+        function prefersReducedMotion() {
+            return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         }
 
         function isDesktop() {
             return window.innerWidth >= DESKTOP_MIN;
         }
 
-        function getScrollMetrics() {
-            var target = tour || root;
-            var rect = target.getBoundingClientRect();
-            var vh = window.innerHeight;
-            var sectionTop = window.scrollY + rect.top;
-            var sectionHeight = target.offsetHeight;
-            var start = sectionTop - vh * ENTER_RATIO;
-            var end = sectionTop + sectionHeight - vh * EXIT_RATIO;
-            var scrollRange = end - start;
-
-            if (scrollRange < 1) {
-                scrollRange = 1;
+        function hasScrollTrigger() {
+            if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+                return false;
             }
 
-            return {
-                start: start,
-                scrollRange: scrollRange,
-            };
+            gsap.registerPlugin(ScrollTrigger);
+
+            return true;
         }
 
-        function getStepFromScroll() {
-            var metrics = getScrollMetrics();
-            var progress = (window.scrollY - metrics.start) / metrics.scrollRange;
-            progress = Math.max(0, Math.min(1, progress));
+        function pinScrollDistance() {
+            return window.innerHeight * Math.max(stepCount - 1, 1) * 0.68;
+        }
 
-            if (stepCount === 1) {
-                return 0;
+        function resetDrivenStyles() {
+            root.removeAttribute('data-active-step');
+
+            panels.forEach(function (panel) {
+                panel.style.opacity = '';
+                panel.style.transform = '';
+                panel.style.visibility = '';
+                panel.style.display = '';
+                panel.style.pointerEvents = '';
+                panel.style.zIndex = '';
+            });
+
+            tabs.forEach(function (tab) {
+                var desc = tab.querySelector('.lineup-process-showcase__tab-desc');
+
+                if (desc) {
+                    desc.style.opacity = '';
+                    desc.style.maxHeight = '';
+                    desc.style.visibility = '';
+                    desc.style.display = '';
+                }
+            });
+        }
+
+        function showStep(index) {
+            index = clamp(index, 0, stepCount - 1);
+
+            root.setAttribute('data-active-step', String(index));
+
+            tabs.forEach(function (tab, i) {
+                var isActive = i === index;
+                var desc = tab.querySelector('.lineup-process-showcase__tab-desc');
+
+                tab.classList.toggle('is-active', isActive);
+                tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+
+                if (desc) {
+                    desc.style.display = isActive ? 'block' : 'none';
+                    desc.style.visibility = isActive ? 'visible' : 'hidden';
+                    desc.style.opacity = isActive ? '1' : '0';
+                    desc.style.maxHeight = isActive ? '120px' : '0';
+                }
+            });
+
+            panels.forEach(function (panel, i) {
+                var isActive = i === index;
+
+                panel.classList.toggle('is-active', isActive);
+                panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+                panel.style.display = isActive ? 'block' : 'none';
+                panel.style.visibility = isActive ? 'visible' : 'hidden';
+                panel.style.opacity = isActive ? '1' : '0';
+                panel.style.transform = 'none';
+                panel.style.pointerEvents = isActive ? 'auto' : 'none';
+                panel.style.zIndex = isActive ? '2' : '0';
+            });
+        }
+
+        function updateFromProgress(progress) {
+            progress = clamp(progress, 0, 1);
+
+            var continuous = progress * Math.max(stepCount - 1, 0);
+            var currentStep = clamp(Math.round(continuous), 0, stepCount - 1);
+
+            if (fill && stepCount > 1) {
+                fill.style.height = (progress * 100) + '%';
             }
 
-            return Math.min(stepCount - 1, Math.round(progress * (stepCount - 1)));
+            showStep(currentStep);
+        }
+
+        function goToStepDiscrete(index) {
+            index = clamp(index, 0, stepCount - 1);
+            var progress = stepCount <= 1 ? 0 : index / (stepCount - 1);
+            updateFromProgress(progress);
         }
 
         function scrollToStep(index) {
-            var metrics = getScrollMetrics();
-
-            if (stepCount <= 1) {
-                setActive(index, false);
+            if (!scrollEnabled || !scrollTriggerInstance) {
+                goToStepDiscrete(index);
                 return;
             }
 
-            var progress = index / (stepCount - 1);
-            var target = metrics.start + progress * metrics.scrollRange;
-            var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var progress = stepCount <= 1 ? 0 : index / (stepCount - 1);
+            var target = scrollTriggerInstance.start + progress * (scrollTriggerInstance.end - scrollTriggerInstance.start);
 
             window.scrollTo({
                 top: target,
-                behavior: reducedMotion ? 'auto' : 'smooth',
+                behavior: prefersReducedMotion() ? 'auto' : 'smooth',
             });
-
-            setActive(index, false);
         }
 
-        function updateFromScroll() {
-            scrollTicking = false;
+        function destroyScrollTrigger() {
+            if (scrollTimeline) {
+                scrollTimeline.kill();
+                scrollTimeline = null;
+            }
 
-            if (!scrollEnabled || !isDesktop()) {
+            if (scrollTriggerInstance) {
+                scrollTriggerInstance.kill();
+                scrollTriggerInstance = null;
+            }
+        }
+
+        function disableTourAos() {
+            if (!tour) {
                 return;
             }
 
-            setActive(getStepFromScroll(), true);
-        }
+            tour.removeAttribute('data-aos');
+            tour.removeAttribute('data-aos-duration');
+            tour.classList.remove('aos-animate');
 
-        function onScroll() {
-            if (!scrollTicking) {
-                scrollTicking = true;
-                window.requestAnimationFrame(updateFromScroll);
+            if (typeof AOS !== 'undefined' && typeof AOS.refreshHard === 'function') {
+                AOS.refreshHard();
             }
         }
 
         function enableScrollDrive() {
-            var shouldEnable = isDesktop() && stepCount > 1;
+            destroyScrollTrigger();
+            resetDrivenStyles();
+
+            var shouldEnable = isDesktop() && stepCount > 1 && !prefersReducedMotion();
 
             scrollEnabled = shouldEnable;
+
             root.classList.toggle('is-scroll-driven', shouldEnable);
+            root.classList.toggle('is-scroll-trigger', shouldEnable && hasScrollTrigger());
+            section.classList.toggle('is-scroll-driven', shouldEnable);
 
             if (shouldEnable) {
-                updateFromScroll();
-            } else {
-                setActive(activeIndex, false);
+                disableTourAos();
             }
+
+            if (!shouldEnable) {
+                goToStepDiscrete(0);
+                return;
+            }
+
+            if (!hasScrollTrigger()) {
+                goToStepDiscrete(0);
+                return;
+            }
+
+            var proxy = { progress: 0 };
+
+            scrollTimeline = gsap.timeline({
+                scrollTrigger: {
+                    trigger: spacer,
+                    start: 'top top',
+                    end: function () {
+                        return '+=' + pinScrollDistance();
+                    },
+                    pin: sticky,
+                    pinSpacing: true,
+                    anticipatePin: 1,
+                    invalidateOnRefresh: true,
+                    scrub: true,
+                },
+            });
+
+            scrollTimeline.to(proxy, {
+                progress: 1,
+                duration: 1,
+                ease: 'none',
+                onUpdate: function () {
+                    updateFromProgress(proxy.progress);
+                },
+            });
+
+            scrollTriggerInstance = scrollTimeline.scrollTrigger;
+            updateFromProgress(0);
+            ScrollTrigger.refresh();
         }
 
         tabs.forEach(function (tab) {
             tab.addEventListener('click', function () {
                 var index = parseInt(tab.getAttribute('data-step-index'), 10) || 0;
-
-                if (scrollEnabled) {
-                    scrollToStep(index);
-                } else {
-                    setActive(index, false);
-                }
+                scrollToStep(index);
             });
         });
 
-        setActive(0, false);
+        showStep(0);
         enableScrollDrive();
 
-        window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('resize', function () {
+        window.addEventListener('resize', enableScrollDrive);
+        window.addEventListener('load', function () {
             enableScrollDrive();
-            onScroll();
+            if (typeof ScrollTrigger !== 'undefined') {
+                ScrollTrigger.refresh();
+            }
         });
     }
 

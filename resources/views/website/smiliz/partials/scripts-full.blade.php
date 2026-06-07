@@ -30,17 +30,19 @@
 
 <script src="{{ asset('assets/smiliz/js/theia-sticky-sidebar.js') }}" defer></script>
 
+<script src="{{ asset('assets/smiliz/js/jquery.event.move.js') }}" defer></script>
+
 <script src="{{ asset('assets/smiliz/js/jquery.twentytwenty.js') }}" defer></script>
 
-<script src="{{ asset('assets/smiliz/js/jquery.event.move.js') }}" defer></script>
+<script src="{{ asset('assets/js/lineup-smiliz-before-after.js') }}?v=2" defer></script>
 
 <script src="{{ asset('assets/js/lineup-smiliz-nav.js') }}?v=7" defer></script>
 
-<script src="{{ asset('assets/smiliz/js/gsap-animation.js') }}?v=3" defer></script>
+<script src="{{ asset('assets/smiliz/js/gsap-animation.js') }}?v=4" defer></script>
 
 <script src="{{ asset('assets/smiliz/js/scripts.js') }}" defer></script>
 
-<script src="{{ asset('assets/js/lineup-smiliz-cases.js') }}?v=1" defer></script>
+<script src="{{ asset('assets/js/lineup-smiliz-cases.js') }}?v=2" defer></script>
 
 <script src="{{ asset('assets/js/lineup-website-loader.js') }}?v=3" defer></script>
 
