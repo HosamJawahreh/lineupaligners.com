@@ -11,7 +11,7 @@
     <header class="case-modification__head">
         <h3 class="case-modification__title">Request Modification</h3>
         <p class="case-modification__subtitle">
-            After you approve a manufactured treatment plan, start a modification cycle here: upload revised 3D scans and notes. LineUp will submit an updated plan for your review. When that cycle ends (you approve the new plan), you may start another modification if needed.
+            Request changes by uploading revised 3D scans and notes. For divided-stage cases you can do this on the current pending stage before approving, or on an approved stage to start a new cycle. LineUp will submit an updated plan for your review.
         </p>
     </header>
 
@@ -40,7 +40,7 @@
                     </option>
                     @endforeach
                 </select>
-                <span class="case-modification__hint">Stages with an approved plan and no modification in progress appear here.</span>
+                <span class="case-modification__hint">Current pending stages and approved stages (with no modification in progress) appear here.</span>
             </div>
             @endif
 
@@ -77,7 +77,7 @@
         @elseif($isDivided)
         <div class="case-modification__notice case-modification__notice--info">
             <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-            <p>No stage is ready for a new modification. Approve a stage plan first, or wait until LineUp finishes a modification already in progress.</p>
+            <p>No stage is ready for a new modification. Review the current stage in Treatment Plan, or wait until LineUp finishes a modification already in progress.</p>
         </div>
         @endif
     @elseif($patient->isManufactured())
@@ -94,7 +94,7 @@
         @else
         <div class="case-modification__notice case-modification__notice--info">
             <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-            <p>Approve the current manufactured treatment plan first. Each approval opens a new modification cycle on this tab.</p>
+            <p>Review the current stage in the Treatment Plan tab. You can approve it or request a modification there before approving.</p>
         </div>
         @endif
     @else

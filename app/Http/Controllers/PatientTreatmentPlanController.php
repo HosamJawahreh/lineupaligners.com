@@ -104,6 +104,19 @@ class PatientTreatmentPlanController extends Controller
             return $redirect;
         }
 
+        $existing = $patient->currentTreatmentPlanForStage($stageNumber);
+
+        if ($existing === null && ! $patient->canAdminAddNewDividedStageForStage($stageNumber)) {
+            $previous = max(1, $stageNumber - 1);
+
+            return $this->redirectToTab(
+                $patient,
+                "Stage {$stageNumber} cannot be added until stage {$previous} is approved and has no modification in progress.",
+                'error',
+                $stageNumber
+            );
+        }
+
         DB::transaction(function () use ($patient, $validated, $stageNumber, $stepFrom, $stepTo) {
             $activeModification = $patient->currentModification($stageNumber);
             $refinementId = $patient->activeRefinementId();
@@ -189,6 +202,17 @@ class PatientTreatmentPlanController extends Controller
             return $this->redirectToTab($patient, 'This plan has already been reviewed.', 'error');
         }
 
+        if ($patient->isDividedStages() && $plan->stage_number !== null) {
+            if (! $patient->canDoctorReviewStage($plan->stage_number)) {
+                return $this->redirectToTab(
+                    $patient,
+                    'You can approve or reject only the current stage in the sequence. Complete earlier stages first.',
+                    'error',
+                    $plan->stage_number
+                );
+            }
+        }
+
         DB::transaction(function () use ($plan, $validated) {
             $plan->update([
                 'review_status' => $validated['decision'],
@@ -226,6 +250,10 @@ class PatientTreatmentPlanController extends Controller
 
     protected function guardAdminUpload(Patient $patient, ?int $stageNumber): ?RedirectResponse
     {
+        if ($patient->hasActiveModificationFor($stageNumber)) {
+            return null;
+        }
+
         $query = $patient->treatmentPlans()->where('is_current', true);
 
         if ($patient->activeRefinementId()) {

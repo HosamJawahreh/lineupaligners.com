@@ -266,17 +266,142 @@ class Patient extends Model
             ->first();
     }
 
+    /**
+     * Divided stages: the stage currently in the pipeline (pending/rejected/mod, or next slot).
+     */
+    public function currentDividedStageNumber(): ?int
+    {
+        if (! $this->isDividedStages()) {
+            return null;
+        }
+
+        $stageNumbers = $this->treatmentPlanStageNumbers();
+
+        if ($stageNumbers->isEmpty()) {
+            return 1;
+        }
+
+        foreach ($stageNumbers->sort()->values() as $num) {
+            $plan = $this->currentTreatmentPlanForStage($num);
+
+            if ($plan && ($plan->isPending() || $plan->isRejected())) {
+                return $num;
+            }
+
+            if ($plan && $plan->isApproved() && $this->hasActiveModificationFor($num)) {
+                return $num;
+            }
+        }
+
+        $last = (int) $stageNumbers->max();
+        $lastPlan = $this->currentTreatmentPlanForStage($last);
+
+        if ($lastPlan && $lastPlan->isApproved() && ! $this->hasActiveModificationFor($last)) {
+            return $last + 1;
+        }
+
+        return $last;
+    }
+
+    /** Stage with a pending plan awaiting doctor approve / reject (no active modification). */
+    public function doctorReviewStageNumber(): ?int
+    {
+        if (! $this->isDividedStages()) {
+            return null;
+        }
+
+        foreach ($this->treatmentPlanStageNumbers()->sort()->values() as $num) {
+            $plan = $this->currentTreatmentPlanForStage($num);
+
+            if ($plan && $plan->isPending() && ! $this->hasActiveModificationFor($num)) {
+                return $num;
+            }
+        }
+
+        return null;
+    }
+
+    public function canDoctorReviewStage(?int $stageNumber): bool
+    {
+        if ($stageNumber === null || ! $this->isDividedStages()) {
+            return false;
+        }
+
+        return $this->doctorReviewStageNumber() === $stageNumber;
+    }
+
+    public function canAdminAddNewDividedStage(): bool
+    {
+        if (! $this->isDividedStages()) {
+            return false;
+        }
+
+        $stageNumbers = $this->treatmentPlanStageNumbers();
+
+        if ($stageNumbers->isEmpty()) {
+            return true;
+        }
+
+        if ($this->doctorReviewStageNumber() !== null) {
+            return false;
+        }
+
+        $last = (int) $stageNumbers->max();
+        $lastPlan = $this->currentTreatmentPlanForStage($last);
+
+        if (! $lastPlan || ! $lastPlan->isApproved()) {
+            return false;
+        }
+
+        if ($this->hasActiveModificationFor($last)) {
+            return false;
+        }
+
+        return $this->currentTreatmentPlanForStage($last + 1) === null;
+    }
+
+    public function canAdminAddNewDividedStageForStage(int $stageNumber): bool
+    {
+        if (! $this->isDividedStages()) {
+            return false;
+        }
+
+        if ($this->currentTreatmentPlanForStage($stageNumber) !== null) {
+            return false;
+        }
+
+        if ($stageNumber === 1) {
+            return $this->treatmentPlanStageNumbers()->isEmpty();
+        }
+
+        $previous = $this->currentTreatmentPlanForStage($stageNumber - 1);
+
+        if ($previous === null || ! $previous->isApproved()) {
+            return false;
+        }
+
+        return ! $this->hasActiveModificationFor($stageNumber - 1);
+    }
+
     public function canAdminUploadStageTreatmentPlan(int $stageNumber): bool
     {
-        if ($this->hasActiveRefinement() || $this->hasActiveModificationFor($stageNumber)) {
+        if ($this->hasActiveRefinement()) {
             $current = $this->currentTreatmentPlanForStage($stageNumber);
 
             return $current === null || $current->isApproved();
         }
 
+        if ($this->hasActiveModificationFor($stageNumber)) {
+            return true;
+        }
+
         $current = $this->currentTreatmentPlanForStage($stageNumber);
 
-        return $current === null || $current->isRejected();
+        if ($current === null) {
+            return $this->canAdminAddNewDividedStageForStage($stageNumber);
+        }
+
+        return $current->isRejected();
     }
 
     public function canAdminUploadFullTreatmentPlan(): bool
@@ -344,8 +469,8 @@ class Patient extends Model
     }
 
     /**
-     * Doctor may request a modification whenever the current plan for this scope is approved
-     * and no modification is already awaiting a revised plan from LineUp.
+     * Doctor may request modification on the current pending stage (before approve)
+     * or on an approved stage to start a new modification cycle.
      */
     public function canRequestModification(?int $stageNumber = null): bool
     {
@@ -368,9 +493,15 @@ class Patient extends Model
 
             $plan = $this->currentTreatmentPlanForStage($stageNumber);
 
-            return $plan !== null
-                && $plan->is_current
-                && $plan->isApproved();
+            if ($plan === null || ! $plan->is_current) {
+                return false;
+            }
+
+            if ($plan->isPending() && $this->doctorReviewStageNumber() === $stageNumber) {
+                return true;
+            }
+
+            return $plan->isApproved();
         }
 
         $plan = $this->currentFullTreatmentPlan();

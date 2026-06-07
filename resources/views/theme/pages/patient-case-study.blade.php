@@ -183,6 +183,7 @@
                         'patient' => $patient,
                         'canUploadTreatmentPlan' => $canUploadTreatmentPlan ?? false,
                         'canReviewTreatmentPlan' => $canReviewTreatmentPlan ?? false,
+                        'canRequestModification' => $canRequestModification ?? false,
                         'fullTreatmentPlan' => $fullTreatmentPlan ?? null,
                         'visibleFullTreatmentPlans' => $visibleFullTreatmentPlans ?? collect(),
                         'canAdminUploadFullPlan' => $canAdminUploadFullPlan ?? false,

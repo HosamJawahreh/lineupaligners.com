@@ -39,14 +39,17 @@
     </header>
 
     @if($isDivided)
-        @if($canUploadTreatmentPlan ?? false)
+        @if(($canUploadTreatmentPlan ?? false) && $patient->canAdminAddNewDividedStage())
         @php
             $suggestedStage = (int) ($stageNumbers->max() + 1);
+            if ($stageNumbers->isEmpty()) {
+                $suggestedStage = 1;
+            }
             $suggestedStepFrom = (int) (old('step_from', $stagePlans->max('step_to') ? $stagePlans->max('step_to') + 1 : 1));
         @endphp
         <section class="mfg-plan__panel mfg-plan__panel--admin">
             <h4 class="mfg-plan__panel-title"><i class="zmdi zmdi-plus-circle-o"></i> Add new stage</h4>
-            <p class="mfg-plan__panel-desc">Use a new stage number for each step range. To fix a rejected stage, open that stage and submit a revision there — you cannot replace a plan while it is pending or approved.</p>
+            <p class="mfg-plan__panel-desc">Add the next stage only after the previous one is approved and has no modification in progress. To fix a rejected stage, open that stage and submit a revision there.</p>
             <form method="post" action="{{ route('patients.treatment-plan.stage.store', $patient) }}" class="mfg-plan__form mfg-plan__form--stage-add">
                 @csrf
                 <div class="mfg-plan__form-row">
@@ -71,6 +74,16 @@
                 <button type="submit" class="mfg-plan__btn mfg-plan__btn--primary">Save stage &amp; send for review</button>
             </form>
         </section>
+        @elseif($canUploadTreatmentPlan ?? false)
+        @php
+            $reviewStage = $patient->doctorReviewStageNumber();
+            $blockedReason = $reviewStage !== null
+                ? 'Stage '.$reviewStage.' is awaiting doctor approval. Add the next stage only after it is approved.'
+                : ($patient->hasActiveModificationForAny()
+                    ? 'A modification is in progress. Upload the revised plan for the current stage before adding a new one.'
+                    : 'Complete the current stage before adding another.');
+        @endphp
+        <p class="mfg-plan__locked-note"><i class="zmdi zmdi-lock"></i> {{ $blockedReason }}</p>
         @endif
 
         @if($stageNumbers->isEmpty())
@@ -83,10 +96,11 @@
         </div>
         @else
         @php
-            $defaultStage = (int) $stageNumbers->max();
+            $reviewStage = $patient->doctorReviewStageNumber();
+            $defaultStage = $reviewStage ?? (int) ($patient->currentDividedStageNumber() ?? $stageNumbers->max());
             $activeStage = (int) (session('mfg_active_stage') ?? $defaultStage);
             if (! $stageNumbers->contains($activeStage)) {
-                $activeStage = $defaultStage;
+                $activeStage = (int) $stageNumbers->first();
             }
         @endphp
         <nav class="mfg-plan__stage-nav" aria-label="Treatment plan stages" data-mfg-stage-nav>
@@ -131,7 +145,12 @@
                             'plan' => $plan,
                             'patient' => $patient,
                             'title' => $plan->stageLabel(),
-                            'canReview' => $canReviewTreatmentPlan ?? false,
+                            'canReview' => ($canReviewTreatmentPlan ?? false)
+                                && $patient->canDoctorReviewStage($stageNum)
+                                && $plan->is_current,
+                            'canRequestModificationOnStage' => ($canRequestModification ?? false)
+                                && $plan->is_current
+                                && $patient->canRequestModification($stageNum),
                             'canUpload' => $canUploadTreatmentPlan ?? false,
                             'canMarkManufactured' => $canMarkManufactured ?? false,
                             'inStagePicker' => true,
@@ -162,6 +181,30 @@
                             <input type="url" id="mfg-revise-url-{{ $stageNum }}" name="plan_url" placeholder="https://…" required>
                         </div>
                         <button type="submit" class="mfg-plan__btn mfg-plan__btn--primary">Submit revision for review</button>
+                    </form>
+                </section>
+                @elseif($canUploadTreatmentPlan && $currentStagePlan?->isPending() && $patient->hasActiveModificationFor($stageNum))
+                <section class="mfg-plan__panel mfg-plan__panel--admin mfg-plan__panel--revision">
+                    <h4 class="mfg-plan__panel-title"><i class="zmdi zmdi-link"></i> Upload revised plan after modification</h4>
+                    <p class="mfg-plan__panel-desc">The doctor requested changes for this stage. Upload the updated canvas link for review.</p>
+                    <form method="post" action="{{ route('patients.treatment-plan.stage.store', $patient) }}" class="mfg-plan__form">
+                        @csrf
+                        <input type="hidden" name="stage_number" value="{{ $stageNum }}">
+                        <div class="mfg-plan__form-row">
+                            <div class="mfg-plan__field mfg-plan__field--narrow">
+                                <label for="mfg-mod-pending-from-{{ $stageNum }}">Steps from</label>
+                                <input type="number" id="mfg-mod-pending-from-{{ $stageNum }}" name="step_from" min="1" max="999" value="{{ $currentStagePlan->step_from ?? 1 }}" required>
+                            </div>
+                            <div class="mfg-plan__field mfg-plan__field--narrow">
+                                <label for="mfg-mod-pending-to-{{ $stageNum }}">Steps to</label>
+                                <input type="number" id="mfg-mod-pending-to-{{ $stageNum }}" name="step_to" min="1" max="999" value="{{ $currentStagePlan->step_to ?? 1 }}" required>
+                            </div>
+                        </div>
+                        <div class="mfg-plan__field">
+                            <label for="mfg-mod-pending-url-{{ $stageNum }}">Revised canvas link</label>
+                            <input type="url" id="mfg-mod-pending-url-{{ $stageNum }}" name="plan_url" placeholder="https://…" required>
+                        </div>
+                        <button type="submit" class="mfg-plan__btn mfg-plan__btn--primary">Submit revised plan for review</button>
                     </form>
                 </section>
                 @elseif($canUploadTreatmentPlan && $currentStagePlan?->isPending())
@@ -280,7 +323,7 @@
     @if(($canReviewTreatmentPlan ?? false) && !($canUploadTreatmentPlan ?? false))
     <p class="mfg-plan__role-note"><i class="zmdi zmdi-info-outline"></i>
         @if($isDivided && $stageNumbers->isNotEmpty())
-            Use the stage buttons above. Each stage has its own plan and approve / reject actions. Rejection requires a comment for LineUp admin.
+            Stages are reviewed in order. Approve or reject the current stage only — you can request a modification on that stage before approving. Rejection requires a comment for LineUp admin.
         @else
             Review the plan below. Rejection requires a comment for LineUp admin.
         @endif

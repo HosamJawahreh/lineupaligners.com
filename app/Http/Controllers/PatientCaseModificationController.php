@@ -36,7 +36,9 @@ class PatientCaseModificationController extends Controller
         if (! $patient->canRequestModification($stageNumber)) {
             return $this->redirectToTab(
                 $patient,
-                'You can request a modification only after the treatment plan for this scope is approved, and while no modification is already in progress.',
+                $patient->isDividedStages()
+                    ? 'You can request a modification on the current pending stage before approval, or on an approved stage when no modification is already in progress.'
+                    : 'You can request a modification only after the treatment plan for this scope is approved, and while no modification is already in progress.',
                 'error'
             );
         }
@@ -107,8 +109,9 @@ class PatientCaseModificationController extends Controller
 
         return $this->redirectToTab(
             $patient,
-            "Modification request submitted for {$scope}. LineUp will upload a revised plan for your review. After you approve it, you can request another modification if needed.",
-            'success'
+            "Modification request submitted for {$scope}. LineUp will upload a revised plan for your review.",
+            'success',
+            $stageNumber
         );
     }
 
@@ -172,11 +175,23 @@ class PatientCaseModificationController extends Controller
         ]);
     }
 
-    protected function redirectToTab(Patient $patient, string $message, string $type = 'success'): RedirectResponse
-    {
-        return redirect()
+    protected function redirectToTab(
+        Patient $patient,
+        string $message,
+        string $type = 'success',
+        ?int $activeStage = null
+    ): RedirectResponse {
+        $redirect = redirect()
             ->route('patients.show', $patient)
-            ->with($type, $message)
-            ->with('open_tab', 'modification');
+            ->with($type, $message);
+
+        if ($patient->isDividedStages() && $activeStage !== null) {
+            $redirect->with('open_tab', 'manufacture-plan')
+                ->with('mfg_active_stage', $activeStage);
+        } else {
+            $redirect->with('open_tab', 'modification');
+        }
+
+        return $redirect;
     }
 }

@@ -97,7 +97,16 @@
             </div>
             <p class="mfg-plan__review-hint">LineUp will manufacture the treatment plan after you approve.</p>
         </form>
-        @elseif($isHistorical)
+        @endif
+
+        @if(! empty($canRequestModificationOnStage) && $plan->isPending() && $plan->is_current && ! $isHistorical && isset($patient))
+        @include('theme.pages.partials.case-modification-inline', [
+            'patient' => $patient,
+            'stageNumber' => $plan->stage_number,
+        ])
+        @endif
+
+        @if($isHistorical)
         <p class="mfg-plan__history-note">Kept for reference until the revised plan above is approved.</p>
         @endif
     </footer>
