@@ -1410,6 +1410,200 @@ if (root && canvas) {
         entry.wrapper.rotation.set(0, 0, 0);
     }
 
+    /** Keep scanner/file coordinates — do not re-center geometry. */
+    function resetArchToFileState(entry) {
+        resetWrapperTransform(entry);
+        entry.object.rotation.set(0, 0, 0);
+        entry.object.position.set(0, 0, 0);
+    }
+
+    /** Min score to trust pre-registered upper/lower pairs (same as Trimesh / scanner export). */
+    const REGISTERED_BITE_MIN_SCORE = 8;
+
+    function getBoxOverlapOnAxes(boxA, boxB, axis1, axis2) {
+        const overlap1 = Math.max(
+            0,
+            Math.min(boxA.max[axis1], boxB.max[axis1]) - Math.max(boxA.min[axis1], boxB.min[axis1])
+        );
+        const overlap2 = Math.max(
+            0,
+            Math.min(boxA.max[axis2], boxB.max[axis2]) - Math.max(boxA.min[axis2], boxB.min[axis2])
+        );
+        const overlapArea = overlap1 * overlap2;
+        const areaA = Math.max(
+            (boxA.max[axis1] - boxA.min[axis1]) * (boxA.max[axis2] - boxA.min[axis2]),
+            0.001
+        );
+        const areaB = Math.max(
+            (boxB.max[axis1] - boxB.min[axis1]) * (boxB.max[axis2] - boxB.min[axis2]),
+            0.001
+        );
+        const unionArea = areaA + areaB - overlapArea;
+
+        return unionArea > 0 ? overlapArea / unionArea : 0;
+    }
+
+    /** Score bite as exported — upper/lower already in shared scanner coordinates. */
+    function measureRegisteredBite(upper, lower) {
+        lower.wrapper.updateMatrixWorld(true);
+        upper.wrapper.updateMatrixWorld(true);
+
+        const lb = new THREE.Box3().setFromObject(lower.wrapper);
+        const ub = new THREE.Box3().setFromObject(upper.wrapper);
+        const axisSets = [
+            { up: 'y', h1: 'x', h2: 'z' },
+            { up: 'z', h1: 'x', h2: 'y' },
+            { up: 'x', h1: 'y', h2: 'z' },
+        ];
+
+        let best = { score: -Infinity, upAxis: 'y', gap: 0, upperAbove: true, archSpan: 1 };
+
+        axisSets.forEach(({ up, h1, h2 }) => {
+            const lowerMin = lb.min[up];
+            const lowerMax = lb.max[up];
+            const upperMin = ub.min[up];
+            const upperMax = ub.max[up];
+            const lowerCenter = (lowerMin + lowerMax) * 0.5;
+            const upperCenter = (upperMin + upperMax) * 0.5;
+            const lowerSpan = lowerMax - lowerMin;
+            const upperSpan = upperMax - upperMin;
+            const archSpan = Math.max(lowerSpan, upperSpan, 0.001);
+            const overlap = getBoxOverlapOnAxes(lb, ub, h1, h2);
+
+            const variants = [
+                { upperAbove: true, gap: upperMin - lowerMax },
+                { upperAbove: false, gap: lowerMin - upperMax },
+            ];
+
+            variants.forEach(({ upperAbove, gap }) => {
+                if (upperAbove && upperCenter <= lowerCenter) {
+                    return;
+                }
+                if (!upperAbove && upperCenter >= lowerCenter) {
+                    return;
+                }
+
+                let score = overlap * 24;
+                if (gap >= -archSpan * 0.06 && gap <= archSpan * 0.1) {
+                    score += 16;
+                } else if (Math.abs(gap) <= archSpan * 0.22) {
+                    score += 8 - Math.abs(gap) * 0.35;
+                } else {
+                    score -= Math.abs(gap) * 1.2;
+                }
+
+                if (overlap > 0.42) {
+                    score += 10;
+                }
+
+                if (score > best.score) {
+                    best = { score, upAxis: up, gap, upperAbove, archSpan, h1, h2 };
+                }
+            });
+        });
+
+        return best;
+    }
+
+    function closeRegisteredBiteGap(upper, lower, analysis) {
+        if (!analysis || !analysis.upAxis) {
+            return;
+        }
+
+        lower.wrapper.updateMatrixWorld(true);
+        upper.wrapper.updateMatrixWorld(true);
+
+        const lb = new THREE.Box3().setFromObject(lower.wrapper);
+        const ub = new THREE.Box3().setFromObject(upper.wrapper);
+        const up = analysis.upAxis;
+        const maxPen = (analysis.archSpan || 1) * 0.015;
+
+        if (analysis.upperAbove !== false) {
+            const gap = ub.min[up] - lb.max[up];
+            if (gap > 0.02) {
+                upper.wrapper.position[up] -= gap;
+            } else if (gap < -maxPen) {
+                upper.wrapper.position[up] -= gap + maxPen;
+            }
+        } else {
+            const gap = lb.min[up] - ub.max[up];
+            if (gap > 0.02) {
+                lower.wrapper.position[up] -= gap;
+            } else if (gap < -maxPen) {
+                lower.wrapper.position[up] -= gap + maxPen;
+            }
+        }
+    }
+
+    function applySharedRotation(upper, lower, rotX, rotY) {
+        lower.object.rotation.set(rotX, rotY, 0);
+        upper.object.rotation.set(rotX, rotY, 0);
+    }
+
+    function findBestSharedRotation(upper, lower, analysis) {
+        const xRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+        const yRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+        let best = { rotX: 0, rotY: 0, score: -Infinity };
+
+        yRotations.forEach((rotY) => {
+            xRotations.forEach((rotX) => {
+                resetArchToFileState(upper);
+                resetArchToFileState(lower);
+                applySharedRotation(upper, lower, rotX, rotY);
+                closeRegisteredBiteGap(upper, lower, analysis);
+
+                const reg = measureRegisteredBite(upper, lower);
+                const front = getClinicalFrontScore(upper, lower);
+                const score = reg.score * 1.4 + front * 2.2;
+
+                if (score > best.score) {
+                    best = { rotX, rotY, score, analysis: reg };
+                }
+            });
+        });
+
+        resetArchToFileState(upper);
+        resetArchToFileState(lower);
+        applySharedRotation(upper, lower, best.rotX, best.rotY);
+        closeRegisteredBiteGap(upper, lower, best.analysis || analysis);
+
+        return best;
+    }
+
+    function refineSharedFrontYaw(upper, lower, rotX, rotY) {
+        const tryYaw = (yaw) => {
+            applySharedRotation(upper, lower, rotX, yaw);
+            return getClinicalFrontScore(upper, lower);
+        };
+
+        const score0 = tryYaw(rotY);
+        const score180 = tryYaw(rotY + Math.PI);
+        applySharedRotation(upper, lower, rotX, score180 > score0 ? rotY + Math.PI : rotY);
+    }
+
+    /** Trimesh-style: preserve scanner registration, rotate pair together for front bite view. */
+    function stackRegisteredBite(upper, lower) {
+        resetArchToFileState(upper);
+        resetArchToFileState(lower);
+
+        const initial = measureRegisteredBite(upper, lower);
+        closeRegisteredBiteGap(upper, lower, initial);
+
+        const rot = findBestSharedRotation(upper, lower, initial);
+        refineSharedFrontYaw(upper, lower, rot.rotX, rot.rotY);
+        closeRegisteredBiteGap(upper, lower, measureRegisteredBite(upper, lower));
+    }
+
+    function stackAutoOrientedBite(upper, lower) {
+        resetArchToFileState(upper);
+        resetArchToFileState(lower);
+        centerObjectInWrapper(lower.object);
+        centerObjectInWrapper(upper.object);
+
+        const best = findBestBiteOrientation(upper, lower);
+        ensureFrontSmileOrientation(upper, lower, best);
+    }
+
     /** Convert common scanner axes (Z-up / X-up) to Y-up. */
     function normalizeToYUp(object, wrapper) {
         object.rotation.set(0, 0, 0);
@@ -1429,6 +1623,127 @@ if (root && canvas) {
             object.rotation.z = Math.PI / 2;
             centerObjectInWrapper(object);
         }
+    }
+
+    function collectWrapperPoints(wrapper, step = 6) {
+        const points = [];
+        wrapper.updateMatrixWorld(true);
+        wrapper.traverse((child) => {
+            if (!child.isMesh || !child.geometry?.attributes?.position) {
+                return;
+            }
+
+            const positions = child.geometry.attributes.position;
+            const stride = positions.count > 100000 ? Math.max(step, 10) : step;
+
+            for (let i = 0; i < positions.count; i += stride) {
+                occlusalSampleVec.fromBufferAttribute(positions, i);
+                occlusalSampleVec.applyMatrix4(child.matrixWorld);
+                points.push(occlusalSampleVec.clone());
+            }
+        });
+
+        return points;
+    }
+
+    function computeCoordinateVariances(wrapper, step = 6) {
+        const points = collectWrapperPoints(wrapper, step);
+        if (points.length < 3) {
+            return { x: 1, y: 1, z: 1 };
+        }
+
+        const mean = new THREE.Vector3();
+        points.forEach((point) => mean.add(point));
+        mean.divideScalar(points.length);
+
+        let vx = 0;
+        let vy = 0;
+        let vz = 0;
+        points.forEach((point) => {
+            vx += (point.x - mean.x) ** 2;
+            vy += (point.y - mean.y) ** 2;
+            vz += (point.z - mean.z) ** 2;
+        });
+
+        const n = points.length;
+        return { x: vx / n, y: vy / n, z: vz / n };
+    }
+
+    /**
+     * Lay the arch flat: smallest spread axis becomes world Y (occlusal plane = XZ).
+     * Handles scans exported "standing" with occlusal facing the camera.
+     */
+    function alignArchThinnestAxisToY(object, wrapper, arch) {
+        object.rotation.set(0, 0, 0);
+        centerObjectInWrapper(object);
+        wrapper.updateMatrixWorld(true);
+
+        const pickBestTilt = (candidates) => {
+            let bestRx = 0;
+            let bestScore = -Infinity;
+
+            candidates.forEach((rx) => {
+                object.rotation.set(rx, 0, 0);
+                centerObjectInWrapper(object);
+                wrapper.updateMatrixWorld(true);
+
+                const vars = computeCoordinateVariances(wrapper);
+                const flatness = Math.min(vars.x, vars.y, vars.z) / (Math.max(vars.x, vars.y, vars.z) + 0.001);
+                const facing = getArchFacingScore(wrapper, arch);
+                const score = facing * 3 + flatness;
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestRx = rx;
+                }
+            });
+
+            object.rotation.set(bestRx, 0, 0);
+            centerObjectInWrapper(object);
+        };
+
+        let vars = computeCoordinateVariances(wrapper);
+        const order = [
+            ['x', vars.x],
+            ['y', vars.y],
+            ['z', vars.z],
+        ].sort((a, b) => a[1] - b[1]);
+        const thinnest = order[0][0];
+
+        if (thinnest === 'z') {
+            pickBestTilt([-Math.PI / 2, Math.PI / 2]);
+        } else if (thinnest === 'x') {
+            object.rotation.z = Math.PI / 2;
+            centerObjectInWrapper(object);
+            wrapper.updateMatrixWorld(true);
+            vars = computeCoordinateVariances(wrapper);
+            if (vars.z < vars.y && vars.z < vars.x) {
+                pickBestTilt([-Math.PI / 2, Math.PI / 2]);
+            }
+        }
+
+        centerObjectInWrapper(object);
+    }
+
+    function resolveArchOcclusalFlip(object, wrapper, arch) {
+        wrapper.updateMatrixWorld(true);
+        const baseScore = getArchFacingScore(wrapper, arch);
+
+        object.rotation.x += Math.PI;
+        centerObjectInWrapper(object);
+        wrapper.updateMatrixWorld(true);
+        const flippedScore = getArchFacingScore(wrapper, arch);
+
+        if (flippedScore <= baseScore) {
+            object.rotation.x -= Math.PI;
+            centerObjectInWrapper(object);
+        }
+    }
+
+    function prepareArchForBite(object, wrapper, arch) {
+        normalizeToYUp(object, wrapper);
+        alignArchThinnestAxisToY(object, wrapper, arch);
+        resolveArchOcclusalFlip(object, wrapper, arch);
     }
 
     const occlusalSampleVec = new THREE.Vector3();
@@ -1807,7 +2122,7 @@ if (root && canvas) {
         const targetGap = 0;
 
         if (gap > targetGap + 0.05) {
-            upper.wrapper.position.y -= Math.min(gap - targetGap, archHeight * 0.08);
+            upper.wrapper.position.y -= gap - targetGap;
         } else if (gap < -maxPenetration) {
             upper.wrapper.position.y -= gap + maxPenetration;
         }
@@ -1830,8 +2145,9 @@ if (root && canvas) {
             return -1000;
         }
 
-        if (lowerSize.y < lowerSize.x * 0.2 && lowerSize.y < lowerSize.z * 0.2) {
-            return -500;
+        const horizontal = getOcclusalHorizontalScore(upper, lower);
+        if (horizontal < 0.32) {
+            return -900 - (0.32 - horizontal) * 120;
         }
 
         const gap = upperBox.min.y - lowerBox.max.y;
@@ -1845,6 +2161,7 @@ if (root && canvas) {
         const stackRatio = combinedSize.y / (lowerSize.y + upperSize.y + 0.001);
 
         let score = 0;
+        score += horizontal * 10;
         score += xzOverlap * 8;
         score += lowerFacing * 3 + upperFacing * 3;
         score += frontalScore * 0.6;
@@ -1875,17 +2192,17 @@ if (root && canvas) {
 
     /** Search orientations and pick a natural stacked QA bite (upper above lower, occlusal contact). */
     function findBestBiteOrientation(upper, lower) {
-        normalizeToYUp(lower.object, lower.wrapper);
-        normalizeToYUp(upper.object, upper.wrapper);
+        prepareArchForBite(lower.object, lower.wrapper, 'lower');
+        prepareArchForBite(upper.object, upper.wrapper, 'upper');
 
         const yRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
-        const xFlips = [0, Math.PI];
+        const xRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
         let bestScore = -Infinity;
         let best = { rotY: 0, lowerRotX: 0, upperRotX: Math.PI };
 
         yRotations.forEach((rotY) => {
-            xFlips.forEach((lowerRotX) => {
-                xFlips.forEach((upperRotX) => {
+            xRotations.forEach((lowerRotX) => {
+                xRotations.forEach((upperRotX) => {
                     applyArchRotation(lower.object, lower.wrapper, lowerRotX, rotY);
                     applyArchRotation(upper.object, upper.wrapper, upperRotX, rotY);
 
@@ -1926,15 +2243,15 @@ if (root && canvas) {
     }
 
     function findBestFacingRotation(object, wrapper) {
-        normalizeToYUp(object, wrapper);
+        prepareArchForBite(object, wrapper, 'lower');
 
-        const xFlips = [0, Math.PI];
+        const xRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
         const yRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
         let bestRotation = 0;
         let bestRotX = 0;
         let bestScore = -Infinity;
 
-        xFlips.forEach((rotX) => {
+        xRotations.forEach((rotX) => {
             yRotations.forEach((yRotation) => {
                 object.rotation.set(rotX, yRotation, 0);
                 centerObjectInWrapper(object);
@@ -1957,14 +2274,19 @@ if (root && canvas) {
     }
 
     function stackUpperLowerMeshes(upper, lower) {
-        resetWrapperTransform(upper);
-        resetWrapperTransform(lower);
+        resetArchToFileState(upper);
+        resetArchToFileState(lower);
 
         ensureMeshNormals(lower.object);
         ensureMeshNormals(upper.object);
 
-        const best = findBestBiteOrientation(upper, lower);
-        ensureFrontSmileOrientation(upper, lower, best);
+        const registered = measureRegisteredBite(upper, lower);
+
+        if (registered.score >= REGISTERED_BITE_MIN_SCORE) {
+            stackRegisteredBite(upper, lower);
+        } else {
+            stackAutoOrientedBite(upper, lower);
+        }
 
         const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
         const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
@@ -2020,6 +2342,7 @@ if (root && canvas) {
             entries.forEach((entry) => {
                 entry.wrapper.position.set(0, 0, 0);
                 ensureMeshNormals(entry.object);
+                centerObjectInWrapper(entry.object);
                 findBestFacingRotation(entry.object, entry.wrapper);
             });
         } else {
@@ -2092,7 +2415,6 @@ if (root && canvas) {
 
                 const usesFileColors = prepareObjectMaterials(object, scanId);
                 ensureMeshNormals(object);
-                centerObjectInWrapper(object);
                 const wrapper = new THREE.Group();
                 wrapper.name = scanId;
                 wrapper.visible = true;
