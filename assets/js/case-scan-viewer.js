@@ -143,6 +143,7 @@ if (root && canvas) {
     function captureLayoutSnapshot() {
         layoutSnapshot = {
             modelGroup: modelGroup.position.clone(),
+            biteGroup: biteGroup.rotation.clone(),
             wrappers: new Map(),
         };
 
@@ -162,6 +163,9 @@ if (root && canvas) {
         }
 
         modelGroup.position.copy(layoutSnapshot.modelGroup);
+        if (layoutSnapshot.biteGroup) {
+            biteGroup.rotation.copy(layoutSnapshot.biteGroup);
+        }
         layoutSnapshot.wrappers.forEach((position, scanId) => {
             const entry = meshesById.get(scanId);
             if (entry) {
@@ -176,7 +180,7 @@ if (root && canvas) {
     function getScanIdFromObject(object) {
         let node = object;
         while (node) {
-            if (node.parent === modelGroup && meshesById.has(node.name)) {
+            if ((node.parent === modelGroup || node.parent === biteGroup) && meshesById.has(node.name)) {
                 return node.name;
             }
             node = node.parent;
@@ -412,6 +416,11 @@ if (root && canvas) {
 
     const modelGroup = new THREE.Group();
     scene.add(modelGroup);
+
+    /** Holds upper+lower together — rotate as one unit (Trimesh-style). */
+    const biteGroup = new THREE.Group();
+    biteGroup.name = 'bite-pair';
+    modelGroup.add(biteGroup);
 
     const meshesById = new Map();
     let animating = true;
@@ -1418,7 +1427,7 @@ if (root && canvas) {
     }
 
     /** Min score to trust pre-registered upper/lower pairs (same as Trimesh / scanner export). */
-    const REGISTERED_BITE_MIN_SCORE = 8;
+    const REGISTERED_BITE_MIN_SCORE = 0;
 
     function getBoxOverlapOnAxes(boxA, boxB, axis1, axis2) {
         const overlap1 = Math.max(
@@ -1456,7 +1465,7 @@ if (root && canvas) {
             { up: 'x', h1: 'y', h2: 'z' },
         ];
 
-        let best = { score: -Infinity, upAxis: 'y', gap: 0, upperAbove: true, archSpan: 1 };
+        let best = { score: -Infinity, upAxis: 'y', gap: 0, upperAbove: true, archSpan: 1, overlap: 0 };
 
         axisSets.forEach(({ up, h1, h2 }) => {
             const lowerMin = lb.min[up];
@@ -1497,7 +1506,7 @@ if (root && canvas) {
                 }
 
                 if (score > best.score) {
-                    best = { score, upAxis: up, gap, upperAbove, archSpan, h1, h2 };
+                    best = { score, upAxis: up, gap, upperAbove, archSpan, h1, h2, overlap };
                 }
             });
         });
@@ -1520,14 +1529,14 @@ if (root && canvas) {
 
         if (analysis.upperAbove !== false) {
             const gap = ub.min[up] - lb.max[up];
-            if (gap > 0.02) {
+            if (gap > 0.005) {
                 upper.wrapper.position[up] -= gap;
             } else if (gap < -maxPen) {
                 upper.wrapper.position[up] -= gap + maxPen;
             }
         } else {
             const gap = lb.min[up] - ub.max[up];
-            if (gap > 0.02) {
+            if (gap > 0.005) {
                 lower.wrapper.position[up] -= gap;
             } else if (gap < -maxPen) {
                 lower.wrapper.position[up] -= gap + maxPen;
@@ -1535,66 +1544,138 @@ if (root && canvas) {
         }
     }
 
-    function applySharedRotation(upper, lower, rotX, rotY) {
-        lower.object.rotation.set(rotX, rotY, 0);
-        upper.object.rotation.set(rotX, rotY, 0);
+    function forceCloseRegisteredGap(upper, lower) {
+        closeRegisteredBiteGap(upper, lower, measureRegisteredBite(upper, lower));
+
+        ['y', 'z', 'x'].forEach((axis) => {
+            lower.wrapper.updateMatrixWorld(true);
+            upper.wrapper.updateMatrixWorld(true);
+
+            const lb = new THREE.Box3().setFromObject(lower.wrapper);
+            const ub = new THREE.Box3().setFromObject(upper.wrapper);
+            const lowerMid = (lb.min[axis] + lb.max[axis]) * 0.5;
+            const upperMid = (ub.min[axis] + ub.max[axis]) * 0.5;
+
+            if (upperMid <= lowerMid) {
+                return;
+            }
+
+            const gap = ub.min[axis] - lb.max[axis];
+            if (gap > 0.005) {
+                upper.wrapper.position[axis] -= gap;
+            }
+        });
     }
 
-    function findBestSharedRotation(upper, lower, analysis) {
+    function ensureBiteGroupPair(upper, lower) {
+        if (!biteGroup.parent) {
+            modelGroup.add(biteGroup);
+        }
+
+        if (upper.wrapper.parent !== biteGroup) {
+            biteGroup.attach(upper.wrapper);
+        }
+
+        if (lower.wrapper.parent !== biteGroup) {
+            biteGroup.attach(lower.wrapper);
+        }
+    }
+
+    function detachFromBiteGroup(entry) {
+        if (entry.wrapper.parent === biteGroup) {
+            modelGroup.attach(entry.wrapper);
+        }
+    }
+
+    function resetBiteGroupOrientation() {
+        biteGroup.rotation.set(0, 0, 0);
+        biteGroup.position.set(0, 0, 0);
+    }
+
+    /** Move bite content so the pair pivot is at biteGroup origin — keeps jaw registration. */
+    function recenterBiteGroupLocally() {
+        if (!biteGroup.children.length) {
+            return;
+        }
+
+        const box = new THREE.Box3();
+        biteGroup.children.forEach((child) => {
+            box.expandByObject(child);
+        });
+
+        if (box.isEmpty()) {
+            return;
+        }
+
+        const center = box.getCenter(new THREE.Vector3());
+        biteGroup.children.forEach((child) => {
+            child.position.sub(center);
+        });
+    }
+
+    function orientBiteGroupForFrontView(upper, lower) {
         const xRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
         const yRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
         let best = { rotX: 0, rotY: 0, score: -Infinity };
 
         yRotations.forEach((rotY) => {
             xRotations.forEach((rotX) => {
-                resetArchToFileState(upper);
-                resetArchToFileState(lower);
-                applySharedRotation(upper, lower, rotX, rotY);
-                closeRegisteredBiteGap(upper, lower, analysis);
+                biteGroup.rotation.set(rotX, rotY, 0);
+                biteGroup.updateMatrixWorld(true);
 
                 const reg = measureRegisteredBite(upper, lower);
                 const front = getClinicalFrontScore(upper, lower);
-                const score = reg.score * 1.4 + front * 2.2;
+                const horizontal = getOcclusalHorizontalScore(upper, lower);
+                const score = reg.score * 8 + front * 2 + horizontal * 5;
 
                 if (score > best.score) {
-                    best = { rotX, rotY, score, analysis: reg };
+                    best = { rotX, rotY, score };
                 }
             });
         });
 
-        resetArchToFileState(upper);
-        resetArchToFileState(lower);
-        applySharedRotation(upper, lower, best.rotX, best.rotY);
-        closeRegisteredBiteGap(upper, lower, best.analysis || analysis);
-
-        return best;
+        biteGroup.rotation.set(best.rotX, best.rotY, 0);
+        biteGroup.updateMatrixWorld(true);
     }
 
-    function refineSharedFrontYaw(upper, lower, rotX, rotY) {
-        const tryYaw = (yaw) => {
-            applySharedRotation(upper, lower, rotX, yaw);
+    function refineBiteGroupFrontYaw(upper, lower) {
+        const baseRotX = biteGroup.rotation.x;
+        const baseRotY = biteGroup.rotation.y;
+
+        const tryYaw = (rotY) => {
+            biteGroup.rotation.set(baseRotX, rotY, 0);
+            biteGroup.updateMatrixWorld(true);
             return getClinicalFrontScore(upper, lower);
         };
 
-        const score0 = tryYaw(rotY);
-        const score180 = tryYaw(rotY + Math.PI);
-        applySharedRotation(upper, lower, rotX, score180 > score0 ? rotY + Math.PI : rotY);
+        const score0 = tryYaw(baseRotY);
+        const score180 = tryYaw(baseRotY + Math.PI);
+        biteGroup.rotation.set(baseRotX, score180 > score0 ? baseRotY + Math.PI : baseRotY, 0);
+        biteGroup.updateMatrixWorld(true);
     }
 
-    /** Trimesh-style: preserve scanner registration, rotate pair together for front bite view. */
+    /** Trimesh-style: preserve scanner registration, rotate the pair as one group. */
     function stackRegisteredBite(upper, lower) {
         resetArchToFileState(upper);
         resetArchToFileState(lower);
+        resetBiteGroupOrientation();
+        ensureBiteGroupPair(upper, lower);
 
-        const initial = measureRegisteredBite(upper, lower);
-        closeRegisteredBiteGap(upper, lower, initial);
+        forceCloseRegisteredGap(upper, lower);
+        recenterBiteGroupLocally();
 
-        const rot = findBestSharedRotation(upper, lower, initial);
-        refineSharedFrontYaw(upper, lower, rot.rotX, rot.rotY);
-        closeRegisteredBiteGap(upper, lower, measureRegisteredBite(upper, lower));
+        orientBiteGroupForFrontView(upper, lower);
+        forceCloseRegisteredGap(upper, lower);
+        recenterBiteGroupLocally();
+
+        refineBiteGroupFrontYaw(upper, lower);
+        forceCloseRegisteredGap(upper, lower);
     }
 
     function stackAutoOrientedBite(upper, lower) {
+        resetBiteGroupOrientation();
+        detachFromBiteGroup(upper);
+        detachFromBiteGroup(lower);
         resetArchToFileState(upper);
         resetArchToFileState(lower);
         centerObjectInWrapper(lower.object);
@@ -2282,7 +2363,7 @@ if (root && canvas) {
 
         const registered = measureRegisteredBite(upper, lower);
 
-        if (registered.score >= REGISTERED_BITE_MIN_SCORE) {
+        if (registered.score >= REGISTERED_BITE_MIN_SCORE || (registered.overlap ?? 0) > 0.15) {
             stackRegisteredBite(upper, lower);
         } else {
             stackAutoOrientedBite(upper, lower);
@@ -2490,10 +2571,14 @@ if (root && canvas) {
 
     function clearAllMeshes() {
         meshesById.forEach((entry) => {
-            modelGroup.remove(entry.wrapper);
+            if (entry.wrapper.parent) {
+                entry.wrapper.parent.remove(entry.wrapper);
+            }
             disposeObject(entry.wrapper);
         });
         meshesById.clear();
+        biteGroup.rotation.set(0, 0, 0);
+        biteGroup.position.set(0, 0, 0);
         selectedScanId = null;
         layoutSnapshot = null;
         syncMoveSelectionUi();
