@@ -22,7 +22,8 @@
         });
 
         jQuery('.swal2-container .bootstrap-select').remove();
-        jQuery('.swal2-container #swal2-html-container').empty().hide();
+        // Only toast popups — never touch confirm modal html containers.
+        jQuery('.swal2-container .swal2-popup.swal2-toast #swal2-html-container').empty().hide();
     }
 
     var Toast = Swal.mixin({
@@ -66,25 +67,6 @@
         },
     };
 
-    function escapeHtml(text) {
-        return String(text || '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
-
-    function confirmIconClass(icon) {
-        if (icon === 'warning' || icon === 'error') {
-            return 'lineup-confirm-icon--warning';
-        }
-        if (icon === 'success') {
-            return 'lineup-confirm-icon--success';
-        }
-        return 'lineup-confirm-icon--question';
-    }
-
     window.AppConfirm = {
         ask: function (options) {
             options = options || {};
@@ -94,13 +76,7 @@
                 return Promise.resolve(window.confirm(fallback));
             }
 
-            cleanupSelectpickerFromSwal();
-
             var icon = options.icon || 'question';
-            var title = options.title || 'Confirm action';
-            var text = options.text || 'Are you sure you want to continue?';
-            var confirmLabel = options.confirmButtonText || 'Yes, continue';
-            var cancelLabel = options.cancelButtonText || 'Cancel';
             var confirmClass = options.confirmButtonClass || 'lineup-confirm-btn--primary';
 
             if (icon === 'warning') {
@@ -110,61 +86,28 @@
             }
 
             return Swal.fire({
-                title: '',
-                html:
-                    '<div class="lineup-confirm">' +
-                    '<div class="lineup-confirm__brand" aria-hidden="true"></div>' +
-                    '<div class="lineup-confirm__body">' +
-                    '<div class="lineup-confirm__icon-wrap ' + confirmIconClass(icon) + '">' +
-                    '<i class="zmdi zmdi-' + (icon === 'success' ? 'check' : icon === 'warning' ? 'alert-triangle' : 'help-outline') + '" aria-hidden="true"></i>' +
-                    '</div>' +
-                    '<h2 class="lineup-confirm__title">' + escapeHtml(title) + '</h2>' +
-                    '<p class="lineup-confirm__text">' + escapeHtml(text) + '</p>' +
-                    '</div>' +
-                    '<div class="lineup-confirm__actions">' +
-                    '<button type="button" class="lineup-confirm-btn lineup-confirm-btn--muted" data-lineup-confirm-cancel>' + escapeHtml(cancelLabel) + '</button>' +
-                    '<button type="button" class="lineup-confirm-btn ' + confirmClass + '" data-lineup-confirm-ok>' + escapeHtml(confirmLabel) + '</button>' +
-                    '</div>' +
-                    '</div>',
-                showConfirmButton: true,
+                title: options.title || 'Confirm action',
+                text: options.text || 'Are you sure you want to continue?',
+                icon: icon,
                 showCancelButton: true,
-                confirmButtonText: confirmLabel,
-                cancelButtonText: cancelLabel,
+                confirmButtonText: options.confirmButtonText || 'Yes, continue',
+                cancelButtonText: options.cancelButtonText || 'Cancel',
                 showCloseButton: true,
                 buttonsStyling: false,
-                focusConfirm: false,
                 reverseButtons: true,
+                focusCancel: true,
+                heightAuto: true,
                 backdrop: 'rgba(9, 36, 60, 0.42)',
                 customClass: {
                     container: 'lineup-confirm-container',
                     popup: 'lineup-confirm-popup',
+                    title: 'lineup-confirm__title',
+                    htmlContainer: 'lineup-confirm__text',
+                    actions: 'lineup-confirm__actions',
+                    confirmButton: 'lineup-confirm-btn ' + confirmClass,
+                    cancelButton: 'lineup-confirm-btn lineup-confirm-btn--muted',
                     closeButton: 'lineup-confirm-close',
-                    actions: 'lineup-confirm-swal-actions',
-                    confirmButton: 'lineup-confirm-swal-confirm',
-                    cancelButton: 'lineup-confirm-swal-cancel',
-                },
-                didOpen: function (popup) {
-                    cleanupSelectpickerFromSwal();
-
-                    var okBtn = popup.querySelector('[data-lineup-confirm-ok]');
-                    var cancelBtn = popup.querySelector('[data-lineup-confirm-cancel]');
-                    var swalConfirm = Swal.getConfirmButton();
-                    var swalCancel = Swal.getCancelButton();
-
-                    if (cancelBtn) {
-                        cancelBtn.addEventListener('click', function () {
-                            if (swalCancel) {
-                                swalCancel.click();
-                            }
-                        });
-                        cancelBtn.focus();
-                    }
-
-                    if (okBtn && swalConfirm) {
-                        okBtn.addEventListener('click', function () {
-                            swalConfirm.click();
-                        });
-                    }
+                    icon: 'lineup-confirm-swal-icon',
                 },
             }).then(function (result) {
                 return !!result.isConfirmed;

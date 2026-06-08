@@ -47,14 +47,29 @@
     background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%) !important;
 }
 
-/* LineUp confirmation modals */
+/* LineUp confirmation modals (non-toast) */
+.lineup-confirm-container.swal2-container {
+    z-index: 200001 !important;
+}
+
 .lineup-confirm-container .swal2-popup.lineup-confirm-popup {
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
+    background: #ffffff !important;
+    border: 1px solid #d8e3ef !important;
+    border-radius: 16px !important;
+    box-shadow: 0 22px 56px rgba(9, 36, 60, 0.2) !important;
+    font-family: var(--lineup-font-sans, 'Cairo', sans-serif) !important;
     max-width: 440px !important;
-    padding: 0 !important;
+    overflow: hidden !important;
+    padding: 0 0 1.35rem !important;
     width: min(440px, calc(100vw - 2rem)) !important;
+}
+
+.lineup-confirm-container .swal2-popup.lineup-confirm-popup::before {
+    background: linear-gradient(90deg, #09243c 0%, #1a7fd4 100%);
+    content: '';
+    display: block;
+    height: 5px;
+    width: 100%;
 }
 
 .lineup-confirm-container .lineup-confirm-close {
@@ -68,89 +83,61 @@
     color: #09243c !important;
 }
 
-.lineup-confirm {
-    background: #ffffff;
-    border: 1px solid #d8e3ef;
-    border-radius: 16px;
-    box-shadow: 0 22px 56px rgba(9, 36, 60, 0.18);
-    font-family: var(--lineup-font-sans, 'Cairo', sans-serif);
-    overflow: hidden;
-    text-align: center;
+.lineup-confirm-container .lineup-confirm-swal-icon {
+    border-width: 3px !important;
+    height: 3.4rem !important;
+    margin: 1.35rem auto 0.85rem !important;
+    width: 3.4rem !important;
 }
 
-.lineup-confirm__brand {
-    background: linear-gradient(90deg, #09243c 0%, #1a7fd4 100%);
-    height: 5px;
+.lineup-confirm-container .swal2-icon.swal2-question.lineup-confirm-swal-icon {
+    border-color: #1a7fd4 !important;
+    color: #1a7fd4 !important;
 }
 
-.lineup-confirm__body {
-    padding: 1.65rem 1.75rem 0.35rem;
+.lineup-confirm-container .swal2-icon.swal2-warning.lineup-confirm-swal-icon {
+    border-color: #d97706 !important;
+    color: #d97706 !important;
 }
 
-.lineup-confirm__icon-wrap {
-    align-items: center;
-    border-radius: 50%;
-    display: inline-flex;
-    height: 58px;
-    justify-content: center;
-    margin: 0 auto 1rem;
-    width: 58px;
+.lineup-confirm-container .swal2-icon.swal2-success.lineup-confirm-swal-icon {
+    border-color: #16a34a !important;
 }
 
-.lineup-confirm__icon-wrap .zmdi {
-    font-size: 1.65rem;
-    line-height: 1;
+.lineup-confirm-container .lineup-confirm__title {
+    color: #09243c !important;
+    font-size: 1.22rem !important;
+    font-weight: 700 !important;
+    line-height: 1.35 !important;
+    padding: 0 1.5rem !important;
 }
 
-.lineup-confirm-icon--question {
-    background: rgba(26, 127, 212, 0.12);
-    color: #1a7fd4;
+.lineup-confirm-container .lineup-confirm__text {
+    color: #4a5d73 !important;
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+    padding: 0 1.5rem !important;
 }
 
-.lineup-confirm-icon--warning {
-    background: rgba(245, 158, 11, 0.14);
-    color: #d97706;
-}
-
-.lineup-confirm-icon--success {
-    background: rgba(34, 197, 94, 0.14);
-    color: #16a34a;
-}
-
-.lineup-confirm__title {
-    color: #09243c;
-    font-size: 1.22rem;
-    font-weight: 700;
-    line-height: 1.35;
-    margin: 0 0 0.65rem;
-}
-
-.lineup-confirm__text {
-    color: #4a5d73;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin: 0 auto;
-    max-width: 34ch;
-}
-
-.lineup-confirm__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.7rem;
-    justify-content: center;
-    padding: 1.15rem 1.5rem 1.45rem;
+.lineup-confirm-container .lineup-confirm__actions {
+    gap: 0.7rem !important;
+    margin-top: 1.15rem !important;
+    padding: 0 1.25rem !important;
+    width: 100% !important;
 }
 
 .lineup-confirm-btn {
-    border: 0;
-    border-radius: 9px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.92rem;
-    font-weight: 600;
-    min-width: 8.25rem;
-    padding: 0.68rem 1.1rem;
-    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    border: 0 !important;
+    border-radius: 9px !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    font-family: inherit !important;
+    font-size: 0.92rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    min-width: 8.25rem !important;
+    padding: 0.68rem 1.1rem !important;
+    transition: transform 0.12s ease, background 0.12s ease !important;
 }
 
 .lineup-confirm-btn:hover {
@@ -158,59 +145,29 @@
 }
 
 .lineup-confirm-btn--primary {
-    background: #1a7fd4;
-    box-shadow: 0 8px 18px rgba(26, 127, 212, 0.28);
-    color: #fff;
+    background: #1a7fd4 !important;
+    color: #fff !important;
 }
 
 .lineup-confirm-btn--primary:hover {
-    background: #156bb5;
+    background: #156bb5 !important;
 }
 
 .lineup-confirm-btn--success {
-    background: #16a34a;
-    box-shadow: 0 8px 18px rgba(22, 163, 74, 0.24);
-    color: #fff;
+    background: #16a34a !important;
+    color: #fff !important;
 }
 
 .lineup-confirm-btn--warning {
-    background: #d97706;
-    box-shadow: 0 8px 18px rgba(217, 119, 6, 0.22);
-    color: #fff;
+    background: #d97706 !important;
+    color: #fff !important;
 }
 
 .lineup-confirm-btn--muted {
-    background: #eef3f9;
-    color: #4a5d73;
+    background: #eef3f9 !important;
+    color: #4a5d73 !important;
 }
 
 .lineup-confirm-btn--muted:hover {
-    background: #e2eaf3;
-}
-
-/* Hide default Swal chrome inside custom confirm */
-.lineup-confirm-container .lineup-confirm-popup .swal2-icon,
-.lineup-confirm-container .lineup-confirm-popup .swal2-title {
-    display: none !important;
-    height: 0 !important;
-    margin: 0 !important;
-    overflow: hidden !important;
-    padding: 0 !important;
-}
-
-.lineup-confirm-container .lineup-confirm-popup .swal2-html-container {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.lineup-confirm-container .lineup-confirm-swal-actions {
-    border: 0 !important;
-    clip: rect(0, 0, 0, 0) !important;
-    height: 1px !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    padding: 0 !important;
-    position: absolute !important;
-    white-space: nowrap !important;
-    width: 1px !important;
+    background: #e2eaf3 !important;
 }
