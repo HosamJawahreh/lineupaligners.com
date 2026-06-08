@@ -90,7 +90,7 @@
                                     class="case-summary-card__btn case-summary-card__btn--edit case-summary-card__btn--send-update"
                                     title="Email the patient about the latest case action">
                                 <i class="zmdi zmdi-email" aria-hidden="true"></i>
-                                <span>Send the last action to patient</span>
+                                <span>Send The Last Case Updates To Patient Email</span>
                             </button>
                         </form>
                         @endif
