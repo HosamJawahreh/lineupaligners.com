@@ -1,12 +1,15 @@
+@php
+    $brand = $lineupMail ?? \App\Support\LineUpMailBranding::data();
+@endphp
 @component('mail::message')
 # {{ $title }}
 
-Hello {{ $name }},
+Hello **{{ $name }}**,
 
 {{ $body }}
 
 @component('mail::button', ['url' => $url, 'color' => 'primary'])
-Open in LineUp
+Open in {{ $brand['projectName'] }}
 @endcomponent
 
 If the button does not work, copy this link into your browser:
@@ -14,5 +17,5 @@ If the button does not work, copy this link into your browser:
 {{ $url }}
 
 Thanks,<br>
-{{ config('app.name') }}
+**{{ $brand['clinicName'] }}**
 @endcomponent

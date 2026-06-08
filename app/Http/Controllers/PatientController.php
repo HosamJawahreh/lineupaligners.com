@@ -9,6 +9,7 @@ use App\Services\CaseChatContacts;
 use App\Services\CasePhotoStorage;
 use App\Services\CaseTimelineBuilder;
 use App\Services\LineUpNotifier;
+use App\Services\PatientCaseUpdateMailer;
 use App\Support\PhpUploadLimits;
 use App\Models\User;
 use App\Models\PatientPhoto;
@@ -206,7 +207,33 @@ class PatientController extends Controller
             'treatmentPlanContexts' => $patient->treatmentPlanContextsForViewer(),
             'defaultTreatmentPlanContextKey' => $patient->defaultTreatmentPlanContextKey(),
             'canAdminUploadFullPlan' => $patient->canAdminUploadFullTreatmentPlan(),
+            'canSendCaseUpdate' => filled($patient->email),
         ]);
+    }
+
+    public function sendLastUpdate(Patient $patient, PatientCaseUpdateMailer $mailer): RedirectResponse
+    {
+        $this->authorize('view', $patient);
+
+        if (! filled($patient->email)) {
+            return redirect()
+                ->route('patients.show', $patient)
+                ->with('error', 'This patient has no email address on file.');
+        }
+
+        try {
+            $mailer->send($patient, auth()->user());
+        } catch (\RuntimeException $e) {
+            return redirect()
+                ->route('patients.show', $patient)
+                ->with('error', $e->getMessage());
+        }
+
+        $latestTitle = $mailer->latestEvent($patient)['title'] ?? 'latest update';
+
+        return redirect()
+            ->route('patients.show', $patient)
+            ->with('success', 'Emailed the patient about: '.$latestTitle.'.');
     }
 
     public function downloadScan(Request $request, Patient $patient, string $scan): BinaryFileResponse

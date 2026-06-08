@@ -203,18 +203,6 @@
         initCycleVersionPicker(document);
         initStepRangeFields($root);
 
-        $root.find('[data-mfg-review-form]').each(function () {
-            var $form = $(this);
-            var $comment = $form.find('textarea[name="comment"]');
-
-            $form.on('click', '[data-requires-comment]', function (event) {
-                if (!$comment.val().trim()) {
-                    event.preventDefault();
-                    $comment.focus();
-                    window.alert('Please add a comment explaining what LineUp should fix before rejecting.');
-                }
-            });
-        });
     }
 
     $(function () {

@@ -291,26 +291,6 @@
         gap: 8px;
     }
 
-    .mfg-plan__card-head--with-switcher {
-        align-items: stretch;
-    }
-
-    .mfg-plan__context-switcher--in-card {
-        margin-left: 0;
-        width: 100%;
-        max-width: none;
-    }
-
-    .mfg-plan__context-switcher--in-card .case-scan-set-switcher__control {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .mfg-plan__context-switcher--in-card .case-scan-set-switcher__select {
-        width: 100%;
-        max-width: none;
-    }
-
     .case-cycle-records__nav .mfg-plan__stage-nav-buttons {
         width: 100%;
     }

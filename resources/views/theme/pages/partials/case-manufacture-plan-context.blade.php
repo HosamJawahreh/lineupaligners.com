@@ -44,16 +44,11 @@
         @endphp
         @if(filled($planUrl))
         <article class="mfg-plan__card {{ $statusClass }}">
-            <header class="mfg-plan__card-head mfg-plan__card-head--with-switcher">
-                <div class="mfg-plan__card-head-text">
+            <header class="mfg-plan__card-head">
+                <div>
                     <h4 class="mfg-plan__card-title">{{ $ctx['label'] ?? 'Modification plan' }}</h4>
                     <span class="mfg-plan__status mfg-plan__status--{{ $reviewStatus }}">{{ ucfirst($reviewStatus) }}</span>
                 </div>
-                @include('theme.pages.partials.case-treatment-plan-context-switcher', [
-                    'contexts' => $treatmentPlanContexts ?? [],
-                    'defaultContextKey' => $defaultTreatmentPlanContextKey ?? 'original',
-                    'selectId' => 'mfg-plan-context-select-'.$ctxKey,
-                ])
             </header>
             @if($linkedPlan && $isActiveCtx && ($canReviewTreatmentPlan ?? false) && $linkedPlan->isPending() && $linkedPlan->is_current)
             @include('theme.pages.partials.case-manufacture-plan-doctor-actions', [
@@ -73,19 +68,6 @@
             </div>
         </article>
         @elseif($isActiveCtx)
-        <article class="mfg-plan__card">
-            <header class="mfg-plan__card-head mfg-plan__card-head--with-switcher">
-                <div class="mfg-plan__card-head-text">
-                    <h4 class="mfg-plan__card-title">{{ $ctx['label'] ?? 'Modification plan' }}</h4>
-                    <span class="mfg-plan__status mfg-plan__status--pending">Awaiting plan</span>
-                </div>
-                @include('theme.pages.partials.case-treatment-plan-context-switcher', [
-                    'contexts' => $treatmentPlanContexts ?? [],
-                    'defaultContextKey' => $defaultTreatmentPlanContextKey ?? 'original',
-                    'selectId' => 'mfg-plan-context-select-'.$ctxKey,
-                ])
-            </header>
-        </article>
         <div class="mfg-plan__empty">
             <i class="zmdi zmdi-time" aria-hidden="true"></i>
             <p>Awaiting revised plan upload for {{ $ctx['label'] ?? 'this modification' }}.</p>
@@ -168,19 +150,6 @@
         @endphp
 
         @if($stageNumbers->isEmpty())
-        <article class="mfg-plan__card">
-            <header class="mfg-plan__card-head mfg-plan__card-head--with-switcher">
-                <div class="mfg-plan__card-head-text">
-                    <h4 class="mfg-plan__card-title">{{ $ctx['label'] ?? 'Treatment plan' }}</h4>
-                    <span class="mfg-plan__status mfg-plan__status--pending">No stages yet</span>
-                </div>
-                @include('theme.pages.partials.case-treatment-plan-context-switcher', [
-                    'contexts' => $treatmentPlanContexts ?? [],
-                    'defaultContextKey' => $defaultTreatmentPlanContextKey ?? 'original',
-                    'selectId' => 'mfg-plan-context-select-'.$ctxKey,
-                ])
-            </header>
-        </article>
         <div class="mfg-plan__empty">
             <i class="zmdi zmdi-assignment-o" aria-hidden="true"></i>
             <p>No stage plans uploaded yet for {{ $ctx['label'] ?? 'this cycle' }}.</p>
@@ -206,18 +175,6 @@
                 $activeStage = (int) $stageNumbers->first();
             }
         @endphp
-        <article class="mfg-plan__card mfg-plan__card--context-bar">
-            <header class="mfg-plan__card-head mfg-plan__card-head--with-switcher">
-                <div class="mfg-plan__card-head-text">
-                    <h4 class="mfg-plan__card-title">{{ $ctx['label'] ?? 'Treatment plan' }}</h4>
-                </div>
-                @include('theme.pages.partials.case-treatment-plan-context-switcher', [
-                    'contexts' => $treatmentPlanContexts ?? [],
-                    'defaultContextKey' => $defaultTreatmentPlanContextKey ?? 'original',
-                    'selectId' => 'mfg-plan-context-select-'.$ctxKey,
-                ])
-            </header>
-        </article>
         <nav class="mfg-plan__stage-nav" aria-label="Treatment plan stages" data-mfg-stage-nav="{{ $ctxKey }}">
             <span class="mfg-plan__stage-nav-label">View stage</span>
             <div class="mfg-plan__stage-nav-buttons" role="tablist">
@@ -266,7 +223,6 @@
                     'canUpload' => $canUploadTreatmentPlan ?? false,
                     'canMarkManufactured' => $isActiveCtx && ($canMarkManufactured ?? false),
                     'inStagePicker' => true,
-                    'enablePlanSetSwitcher' => false,
                 ])
 
                 @if($isActiveCtx && $canUploadThisStage && $currentStagePlan?->isRejected())
@@ -351,19 +307,6 @@
             $canUploadFull = $isActiveCtx && ($canAdminUploadFullPlan ?? false) && ($canUploadTreatmentPlan ?? false);
         @endphp
         @if($visibleFullPlans->isEmpty())
-        <article class="mfg-plan__card">
-            <header class="mfg-plan__card-head mfg-plan__card-head--with-switcher">
-                <div class="mfg-plan__card-head-text">
-                    <h4 class="mfg-plan__card-title">{{ $ctx['label'] ?? 'Treatment case plan' }}</h4>
-                    <span class="mfg-plan__status mfg-plan__status--pending">No plan yet</span>
-                </div>
-                @include('theme.pages.partials.case-treatment-plan-context-switcher', [
-                    'contexts' => $treatmentPlanContexts ?? [],
-                    'defaultContextKey' => $defaultTreatmentPlanContextKey ?? 'original',
-                    'selectId' => 'mfg-plan-context-select-'.$ctxKey,
-                ])
-            </header>
-        </article>
         <div class="mfg-plan__empty">
             <i class="zmdi zmdi-assignment" aria-hidden="true"></i>
             <p>No treatment plan has been uploaded for {{ $ctx['label'] ?? 'this cycle' }}.</p>
@@ -385,9 +328,6 @@
             'canReview' => $isActiveCtx && ($canReviewTreatmentPlan ?? false),
             'canUpload' => $canUploadTreatmentPlan ?? false,
             'canMarkManufactured' => $isActiveCtx && ($canMarkManufactured ?? false),
-            'enablePlanSetSwitcher' => true,
-            'treatmentPlanContexts' => $treatmentPlanContexts ?? [],
-            'defaultTreatmentPlanContextKey' => $defaultTreatmentPlanContextKey ?? 'original',
         ])
         @endif
 

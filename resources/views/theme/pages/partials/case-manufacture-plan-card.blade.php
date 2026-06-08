@@ -12,8 +12,8 @@
     @if($isHistorical)
     <p class="mfg-plan__history-label">Previous submission · Version {{ $plan->version }}</p>
     @endif
-    <header class="mfg-plan__card-head @if(!empty($showPlanSetSwitcher)) mfg-plan__card-head--with-switcher @endif">
-        <div class="mfg-plan__card-head-text">
+    <header class="mfg-plan__card-head">
+        <div>
             <h4 class="mfg-plan__card-title">{{ $title }}</h4>
             @if($plan->stage_number)
             <p class="mfg-plan__card-cycle">Full approve / reject cycle for this stage</p>
@@ -23,13 +23,6 @@
             <span class="mfg-plan__version">Version {{ $plan->version }}</span>
             @endif
         </div>
-        @if(!empty($showPlanSetSwitcher))
-        @include('theme.pages.partials.case-treatment-plan-context-switcher', [
-            'contexts' => $treatmentPlanContexts ?? [],
-            'defaultContextKey' => $defaultTreatmentPlanContextKey ?? 'original',
-            'selectId' => 'mfg-plan-context-select-'.($planSetSwitcherId ?? 'card'),
-        ])
-        @endif
     </header>
 
     @include('theme.pages.partials.case-manufacture-plan-doctor-actions', [

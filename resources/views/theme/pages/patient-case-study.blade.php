@@ -5,7 +5,7 @@
 @section('body-class', 'patient-case-study-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=50">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=52">
 @endpush
 
 @section('content')
@@ -80,11 +80,19 @@
                         </span>
                     </div>
                     <div class="case-summary-card__actions">
-                        @if($patient->email)
-                        <a href="mailto:{{ $patient->email }}" class="case-summary-card__btn case-summary-card__btn--mail" title="Email patient">
-                            <i class="zmdi zmdi-email"></i>
-                            <span class="sr-only">Email patient</span>
-                        </a>
+                        @if($canSendCaseUpdate ?? filled($patient->email))
+                        <form method="post"
+                              action="{{ route('patients.send-last-update', $patient) }}"
+                              class="case-summary-card__action-form"
+                              data-confirm-text="Send the latest case action to {{ $patient->fullName() }}@if(filled($patient->email)) at {{ $patient->email }}@endif?">
+                            @csrf
+                            <button type="submit"
+                                    class="case-summary-card__btn case-summary-card__btn--edit case-summary-card__btn--send-update"
+                                    title="Email the patient about the latest case action">
+                                <i class="zmdi zmdi-email" aria-hidden="true"></i>
+                                <span>Send the last action to patient</span>
+                            </button>
+                        </form>
                         @endif
                         <a href="{{ route('patients.edit', $patient) }}" class="case-summary-card__btn case-summary-card__btn--edit">
                             <i class="zmdi zmdi-edit"></i>
@@ -257,7 +265,8 @@
 <script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=14"></script>
 @endif
 <script src="{{ asset('assets/js/patient-case-study.js') }}?v=2"></script>
-<script src="{{ asset('assets/js/case-manufacture-plan.js') }}?v=6"></script>
+<script src="{{ asset('assets/js/case-action-confirm.js') }}?v=2"></script>
+<script src="{{ asset('assets/js/case-manufacture-plan.js') }}?v=7"></script>
 <script src="{{ asset('assets/js/case-photos-upload.js') }}?v=1"></script>
 @if(!empty($caseScanSets))
 <script>window.caseScanSetsMeta = @json($caseScanSets);</script>

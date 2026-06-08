@@ -65,4 +65,40 @@
             return Toast.fire({ icon: 'info', title: message });
         },
     };
+
+    window.AppConfirm = {
+        ask: function (options) {
+            options = options || {};
+
+            if (typeof Swal === 'undefined') {
+                var fallback = options.text || options.title || 'Are you sure?';
+                return Promise.resolve(window.confirm(fallback));
+            }
+
+            cleanupSelectpickerFromSwal();
+
+            return Swal.fire({
+                title: options.title || 'Confirm action',
+                text: options.text || 'Are you sure you want to continue?',
+                icon: options.icon || 'question',
+                showCancelButton: true,
+                confirmButtonText: options.confirmButtonText || 'Yes, continue',
+                cancelButtonText: options.cancelButtonText || 'Cancel',
+                reverseButtons: true,
+                focusCancel: true,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'lineup-confirm-popup',
+                    title: 'lineup-confirm-title',
+                    htmlContainer: 'lineup-confirm-text',
+                    actions: 'lineup-confirm-actions',
+                    confirmButton: 'lineup-confirm-btn lineup-confirm-btn--primary',
+                    cancelButton: 'lineup-confirm-btn lineup-confirm-btn--muted',
+                    icon: 'lineup-confirm-icon',
+                },
+            }).then(function (result) {
+                return !!result.isConfirmed;
+            });
+        },
+    };
 })();

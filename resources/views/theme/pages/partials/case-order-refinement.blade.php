@@ -55,24 +55,21 @@
     </div>
     @elseif($canRequest)
         @if(! $uploadLimitsOk)
-        <div class="case-refinement__notice case-refinement__notice--error" role="alert">
-            <i class="zmdi zmdi-alert-circle" aria-hidden="true"></i>
+        <div class="case-refinement__notice case-refinement__notice--info" role="status">
+            <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
             <div>
                 <p>
-                    <strong>Server upload limit is too low</strong> ({{ $uploadLimitsLabel }}).
-                    This case is ready for refinement, but large 3D files cannot upload until you restart the dev server.
+                    <strong>Large file uploads need a higher server limit</strong> ({{ $uploadLimitsLabel }}).
+                    You can still start refinement without attachments; add scans or photos later if needed.
                 </p>
                 <p class="case-refinement__hint-inline">
-                    Stop the current server (Ctrl+C), then run:
-                    <code>php artisan serve</code>
-                    or <code>bash serve.sh</code>
-                    — both now use 128M upload limits automatically.
+                    For local dev, restart with <code>php artisan serve</code> or <code>bash serve.sh</code> (128M limits).
                 </p>
             </div>
         </div>
         @endif
 
-        <section class="case-modification-card case-modification-card--refinement @if(! $uploadLimitsOk) is-disabled @endif"
+        <section class="case-modification-card case-modification-card--refinement"
                  aria-labelledby="case-refinement-form-title">
             <div class="case-modification-card__accent" aria-hidden="true"></div>
 
@@ -93,7 +90,7 @@
                   enctype="multipart/form-data"
                   data-scan-upload
                   id="case-refinement-form"
-                  @if(! $uploadLimitsOk) data-upload-blocked="1" @endif>
+                  @if(! $uploadLimitsOk) data-upload-limits-low="1" @endif>
                 @csrf
 
                 <div class="case-modification-card__section">
@@ -109,7 +106,7 @@
                             <label for="refinement-upper">Upper jaw 3D file <span class="case-modification-card__optional">optional</span></label>
                             <div class="case-modification-card__file-wrap">
                                 <span class="case-modification-card__file-icon" aria-hidden="true"><i class="zmdi zmdi-file"></i></span>
-                                <input type="file" id="refinement-upper" name="upper_jaw_scan" accept=".stl,.obj,.ply" @disabled(! $uploadLimitsOk)>
+                                <input type="file" id="refinement-upper" name="upper_jaw_scan" accept=".stl,.obj,.ply">
                             </div>
                             <span class="case-modification-card__hint">STL, OBJ, or PLY — upload when you have a new upper scan.</span>
                         </div>
@@ -117,7 +114,7 @@
                             <label for="refinement-lower">Lower jaw 3D file <span class="case-modification-card__optional">optional</span></label>
                             <div class="case-modification-card__file-wrap">
                                 <span class="case-modification-card__file-icon" aria-hidden="true"><i class="zmdi zmdi-file"></i></span>
-                                <input type="file" id="refinement-lower" name="lower_jaw_scan" accept=".stl,.obj,.ply" @disabled(! $uploadLimitsOk)>
+                                <input type="file" id="refinement-lower" name="lower_jaw_scan" accept=".stl,.obj,.ply">
                             </div>
                             <span class="case-modification-card__hint">STL, OBJ, or PLY — upload when you have a new lower scan.</span>
                         </div>
@@ -135,14 +132,13 @@
                                   name="notes"
                                   rows="5"
                                   maxlength="10000"
-                                  placeholder="Why the patient is returning, what changed clinically, and what LineUp should plan for this refinement…"
-                                  @disabled(! $uploadLimitsOk)>{{ old('notes') }}</textarea>
+                                  placeholder="Why the patient is returning, what changed clinically, and what LineUp should plan for this refinement…">{{ old('notes') }}</textarea>
                         <span class="case-modification-card__hint">Optional — add context if it helps LineUp plan this refinement.</span>
                     </div>
                 </div>
 
                 <footer class="case-modification-card__foot">
-                    <button type="submit" class="case-modification-card__submit" id="case-refinement-submit" @disabled(! $uploadLimitsOk)>
+                    <button type="submit" class="case-modification-card__submit" id="case-refinement-submit">
                         <i class="zmdi zmdi-upload" aria-hidden="true"></i>
                         Start refinement case
                     </button>

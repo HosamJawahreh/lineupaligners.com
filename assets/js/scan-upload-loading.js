@@ -98,12 +98,19 @@
                 return;
             }
 
-            if (form.dataset.uploadBlocked === '1') {
+            var files = selectedFiles(form);
+            if (!files.length) {
                 return;
             }
 
-            var files = selectedFiles(form);
-            if (!files.length) {
+            if (form.dataset.uploadLimitsLow === '1' || form.dataset.uploadBlocked === '1') {
+                e.preventDefault();
+                var msg = 'Server upload limit is too low for large 3D files. Start refinement without attachments, or restart the dev server with higher limits.';
+                if (window.AppAlert && typeof window.AppAlert.warning === 'function') {
+                    window.AppAlert.warning(msg);
+                } else {
+                    window.alert(msg);
+                }
                 return;
             }
 

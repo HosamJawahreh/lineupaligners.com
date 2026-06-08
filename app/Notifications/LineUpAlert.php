@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Support\LineUpMailBranding;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -31,7 +32,7 @@ class LineUpAlert extends Notification
             : ($notifiable->name ?? 'there');
 
         return (new MailMessage)
-            ->subject($this->payload['title'])
+            ->subject(LineUpMailBranding::subjectPrefix($this->payload['title']))
             ->markdown('mail.lineup-alert', [
                 'title' => $this->payload['title'],
                 'body' => $this->payload['body'],

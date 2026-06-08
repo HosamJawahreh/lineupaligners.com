@@ -6,7 +6,7 @@
 @endphp
 
 @if(count($contexts) > 0)
-<div class="case-scan-set-switcher case-plan-context-switcher mfg-plan__context-switcher mfg-plan__context-switcher--in-card"
+<div class="case-scan-set-switcher case-plan-context-switcher"
      role="group"
      aria-labelledby="{{ $selectId }}-label">
     <label id="{{ $selectId }}-label" for="{{ $selectId }}" class="case-scan-set-switcher__label">

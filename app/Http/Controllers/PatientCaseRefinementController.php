@@ -8,6 +8,7 @@ use App\Rules\Scan3dFile;
 use App\Services\CasePhotoStorage;
 use App\Services\CaseWorkflowService;
 use App\Services\LineUpNotifier;
+use App\Support\PhpUploadLimits;
 use App\Support\ScanFileStorage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,10 +37,10 @@ class PatientCaseRefinementController extends Controller
             );
         }
 
-        if ($this->postPayloadTooLarge($request)) {
+        if (PhpUploadLimits::requestPayloadUnparsed($request)) {
             return $this->redirectToTab(
                 $patient,
-                'Upload too large for PHP limits. Restart with: php -c php.ini artisan serve (128M), or upload one smaller file at a time.',
+                PhpUploadLimits::uploadTooLargeMessage(),
                 'error'
             );
         }
@@ -186,21 +187,6 @@ class PatientCaseRefinementController extends Controller
             $field => $path,
             $nameField => $file->getClientOriginalName(),
         ]);
-    }
-
-    protected function postPayloadTooLarge(Request $request): bool
-    {
-        $contentLength = (int) $request->server('CONTENT_LENGTH', 0);
-
-        if ($contentLength < 1) {
-            return false;
-        }
-
-        if ($request->hasFile('upper_jaw_scan') || $request->hasFile('lower_jaw_scan')) {
-            return false;
-        }
-
-        return $request->input('notes') === null && empty($request->allFiles());
     }
 
     protected function redirectToTab(Patient $patient, string $message, string $type = 'success'): RedirectResponse

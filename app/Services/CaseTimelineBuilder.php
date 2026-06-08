@@ -84,6 +84,16 @@ class CaseTimelineBuilder
     }
 
     /**
+     * @return array<string, mixed>|null
+     */
+    public function latestEvent(Patient $patient): ?array
+    {
+        $events = $this->build($patient)['events'];
+
+        return $events[0] ?? null;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     protected function caseCreatedEvent(Patient $patient): array

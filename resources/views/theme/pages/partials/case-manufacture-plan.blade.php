@@ -7,17 +7,24 @@
 
 <div class="mfg-plan" id="case-manufacture-plan">
     <header class="mfg-plan__head">
-        <div class="mfg-plan__head-text">
-            <h3 class="mfg-plan__title @if(!$isDivided) mfg-plan__title--solo @endif">Treatment Plan</h3>
-            @if($isDivided)
-            <p class="mfg-plan__subtitle">
-                Each stage covers a step range (from–to) with its own viewer link. Every stage follows a full approve / reject cycle, like a full case.
-            </p>
-            @else
-            <p class="mfg-plan__subtitle">Use the plan set switcher on the plan card to move between original, modification, and refinement cycles.</p>
+        <div class="mfg-plan__head-inline" aria-label="Treatment plan controls">
+            <div class="mfg-plan__head-start">
+                <h3 class="mfg-plan__title @if(!$isDivided) mfg-plan__title--solo @endif">Treatment Plan</h3>
+            </div>
+            @if(count($contexts) > 0)
+            @include('theme.pages.partials.case-treatment-plan-context-switcher', [
+                'contexts' => $contexts,
+                'defaultContextKey' => $defaultContextKey,
+                'selectId' => 'mfg-plan-context-select',
+            ])
             @endif
+            <span class="mfg-plan__type-badge">{{ $patient->caseTypeLabel() }}</span>
         </div>
-        <span class="mfg-plan__type-badge">{{ $patient->caseTypeLabel() }}</span>
+        @if($isDivided)
+        <p class="mfg-plan__subtitle">
+            Each stage covers a step range (from–to) with its own viewer link. Every stage follows a full approve / reject cycle, like a full case.
+        </p>
+        @endif
     </header>
 
     @if($contexts === [])

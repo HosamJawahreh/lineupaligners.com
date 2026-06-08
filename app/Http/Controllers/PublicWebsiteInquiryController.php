@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 
 
 
+use App\Mail\WebsiteInquiryMail;
+
 use App\Models\Setting;
 
 use App\Services\WebsiteContent;
@@ -102,32 +104,6 @@ class PublicWebsiteInquiryController extends Controller
 
 
 
-        $body = implode("\n", array_filter([
-
-            'Name: '.$data['name'],
-
-            'Email: '.$data['email'],
-
-            filled($data['phone'] ?? null) ? 'Phone: '.$data['phone'] : null,
-
-            filled($data['subject'] ?? null) ? 'Subject: '.$data['subject'] : null,
-
-            '',
-
-            $data['message'],
-
-            '',
-
-            'Form: '.($data['form_type'] ?? 'contact'),
-
-            'Locale: '.app()->getLocale(),
-
-            'IP: '.$request->ip(),
-
-        ]));
-
-
-
         Log::info('Website inquiry received', [
 
             'email' => $data['email'],
@@ -142,15 +118,15 @@ class PublicWebsiteInquiryController extends Controller
 
             try {
 
-                Mail::raw($body, function ($mail) use ($recipient, $data) {
+                Mail::to($recipient)->send(new WebsiteInquiryMail(
 
-                    $mail->to($recipient)
+                    inquiry: $data,
 
-                        ->replyTo($data['email'], $data['name'])
+                    ipAddress: (string) $request->ip(),
 
-                        ->subject('[LineUp Website] '.($data['subject'] ?: 'New inquiry'));
+                    locale: app()->getLocale(),
 
-                });
+                ));
 
             } catch (\Throwable $e) {
 

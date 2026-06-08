@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Patient;
 use App\Models\PatientCaseModification;
+use App\Rules\Scan3dFile;
 use App\Services\CasePhotoStorage;
+use App\Support\PhpUploadLimits;
 use App\Services\CaseWorkflowService;
 use App\Services\LineUpNotifier;
 use Illuminate\Http\RedirectResponse;
@@ -12,13 +14,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PatientCaseModificationController extends Controller
 {
-    private const SCAN_EXTENSIONS = ['stl', 'obj', 'ply'];
-
     private const SCAN_MAX_KB = 102400;
 
     public function __construct(
@@ -33,13 +32,23 @@ class PatientCaseModificationController extends Controller
             ? (int) $request->input('stage_number')
             : null;
 
+        if (PhpUploadLimits::requestPayloadUnparsed($request)) {
+            return $this->redirectToTab(
+                $patient,
+                PhpUploadLimits::uploadTooLargeMessage(),
+                'error',
+                $stageNumber
+            );
+        }
+
         if (! $patient->canRequestModification($stageNumber)) {
             return $this->redirectToTab(
                 $patient,
                 $patient->isDividedStages()
                     ? 'You can request a modification on the current pending stage before approval, or on an approved stage when no modification is already in progress.'
                     : 'You can request a modification on the current pending plan before approval, or on an approved plan when no modification is already in progress.',
-                'error'
+                'error',
+                $stageNumber
             );
         }
 
@@ -48,8 +57,8 @@ class PatientCaseModificationController extends Controller
                 ? ['required', 'integer', 'min:1', 'max:99']
                 : ['nullable'],
             'notes' => ['nullable', 'string', 'max:10000'],
-            'upper_jaw_scan' => ['nullable', 'file', Rule::file()->extensions(self::SCAN_EXTENSIONS)->max(self::SCAN_MAX_KB)],
-            'lower_jaw_scan' => ['nullable', 'file', Rule::file()->extensions(self::SCAN_EXTENSIONS)->max(self::SCAN_MAX_KB)],
+            'upper_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
+            'lower_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
             'photos' => ['nullable', 'array'],
             'photos.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:'.CasePhotoStorage::MAX_KB],
         ]);
@@ -150,7 +159,7 @@ class PatientCaseModificationController extends Controller
     protected function storeModificationScan(PatientCaseModification $modification, string $field, UploadedFile $file): void
     {
         $ext = strtolower($file->getClientOriginalExtension() ?: 'stl');
-        if (! in_array($ext, self::SCAN_EXTENSIONS, true)) {
+        if (! in_array($ext, ['stl', 'obj', 'ply'], true)) {
             $ext = 'stl';
         }
 
