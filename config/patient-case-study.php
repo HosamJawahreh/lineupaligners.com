@@ -29,13 +29,13 @@ return [
         [
             'id' => 'messages',
             'label' => 'Live Chat & Files',
-            'icon' => 'zmdi-comments',
+            'icon' => 'zmdi-comment-text',
             'tone' => 'blue',
         ],
         [
             'id' => 'modification-history',
             'label' => 'Case History',
-            'icon' => 'zmdi-time-interval',
+            'icon' => 'zmdi-time-restore',
             'tone' => 'indigo',
         ],
     ],

@@ -50,8 +50,7 @@ class Patient extends Model
     protected static function booted(): void
     {
         static::deleting(function (Patient $patient) {
-            $patient->deleteScanFiles();
-            $patient->deleteAllPhotos();
+            $patient->deleteStorageFiles();
         });
     }
 
@@ -1634,21 +1633,54 @@ class Patient extends Model
         return null;
     }
 
-    public function deleteScanFiles(): void
+    public function deleteStorageFiles(): void
     {
-        foreach ([$this->upper_jaw_scan, $this->lower_jaw_scan] as $path) {
-            if ($path && Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
+        $disk = Storage::disk('public');
+        $paths = [];
+
+        foreach ([$this->upper_jaw_scan, $this->lower_jaw_scan, $this->photo] as $path) {
+            if (filled($path)) {
+                $paths[] = $path;
             }
         }
-    }
 
-    public function deleteAllPhotos(): void
-    {
-        foreach ($this->photos as $photo) {
-            if (Storage::disk('public')->exists($photo->path)) {
-                Storage::disk('public')->delete($photo->path);
+        foreach ($this->photos()->get() as $photo) {
+            if (filled($photo->path)) {
+                $paths[] = $photo->path;
             }
+        }
+
+        foreach ($this->caseModifications()->get() as $modification) {
+            foreach ([$modification->upper_jaw_scan, $modification->lower_jaw_scan] as $path) {
+                if (filled($path)) {
+                    $paths[] = $path;
+                }
+            }
+        }
+
+        foreach ($this->caseRefinements()->get() as $refinement) {
+            foreach ([$refinement->upper_jaw_scan, $refinement->lower_jaw_scan] as $path) {
+                if (filled($path)) {
+                    $paths[] = $path;
+                }
+            }
+        }
+
+        foreach ($this->caseMessages()->get() as $message) {
+            if (filled($message->attachment_path)) {
+                $paths[] = $message->attachment_path;
+            }
+        }
+
+        foreach (array_unique($paths) as $path) {
+            if ($disk->exists($path)) {
+                $disk->delete($path);
+            }
+        }
+
+        $patientDir = "patients/{$this->id}";
+        if ($disk->exists($patientDir)) {
+            $disk->deleteDirectory($patientDir);
         }
     }
 

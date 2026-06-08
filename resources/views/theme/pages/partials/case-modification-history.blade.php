@@ -24,7 +24,7 @@
     @if($totalCount === 0)
     <div class="case-timeline__empty">
         <div class="case-timeline__empty-icon" aria-hidden="true">
-            <i class="zmdi zmdi-time-restore-setting"></i>
+            <i class="zmdi zmdi-time-restore"></i>
         </div>
         <h4>No activity yet</h4>
         <p>Case events will appear here as plans are uploaded, reviewed, and modifications are requested.</p>
