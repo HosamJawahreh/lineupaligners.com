@@ -56,7 +56,7 @@ class PatientCaseRefinementController extends Controller
         }
 
         $validated = $request->validate([
-            'notes' => ['nullable', 'string', 'max:10000'],
+            'notes' => ['required', 'string', 'max:10000'],
             'upper_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
             'lower_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
             'photos' => ['nullable', 'array'],

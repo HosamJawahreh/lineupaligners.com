@@ -123,11 +123,13 @@ class LineUpNotifier
 
         $this->notifyAdmins([
             'type' => $approved ? 'plan_approved' : 'plan_rejected',
-            'title' => $approved ? 'Plan approved for manufacture' : 'Plan rejected',
-            'body' => "Dr. {$doctor->displayName()} {$decision} the plan{$stageText} for {$patient->display_patient_id}.",
-            'url' => $this->caseUrl($patient, 'manufacture-plan', $stageNumber),
-            'icon' => $approved ? 'zmdi-check-circle' : 'zmdi-close-circle',
-            'open_tab' => 'manufacture-plan',
+            'title' => $approved ? 'Plan approved for manufacture' : 'Modification ordered',
+            'body' => $approved
+                ? "Dr. {$doctor->displayName()} approved the plan{$stageText} for {$patient->display_patient_id}."
+                : "Dr. {$doctor->displayName()} ordered a modification{$stageText} for {$patient->display_patient_id}.",
+            'url' => $this->caseUrl($patient, $approved ? 'manufacture-plan' : 'modification', $stageNumber),
+            'icon' => $approved ? 'zmdi-check-circle' : 'zmdi-refresh-sync',
+            'open_tab' => $approved ? 'manufacture-plan' : 'modification',
             'mfg_stage' => $stageNumber,
             'patient_id' => $patient->id,
         ], excludeUserId: $doctor->id);

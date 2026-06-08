@@ -131,7 +131,13 @@ class PatientTreatmentPlanController extends Controller
         ]);
 
         if ($validated['decision'] === 'rejected' && trim($validated['comment'] ?? '') === '') {
-            return $this->redirectToTab($patient, 'Please add a comment when rejecting the plan so LineUp can revise it.', 'error');
+            return $this->redirectToTab(
+                $patient,
+                'Please add notes when ordering a modification so LineUp can revise the plan.',
+                'error',
+                null,
+                'manufacture-plan'
+            );
         }
 
         $plan = PatientTreatmentPlan::query()
@@ -179,15 +185,19 @@ class PatientTreatmentPlanController extends Controller
             $notifier->caseReadyForManufacture($patient);
         }
 
-        $message = $validated['decision'] === 'approved'
-            ? ($plan->refinement_id
-                ? 'Refinement plan approved. This refinement cycle is complete. The patient may order a new refinement when they return.'
-                : 'Treatment plan approved. You may request another modification before manufacture, or wait for LineUp to mark the case as manufactured.')
-            : 'Treatment plan rejected. LineUp admin will upload a revised plan.';
-
         $activeStage = $plan->stage_number;
 
-        return $this->redirectToTab($patient, $message, 'success', $activeStage);
+        if ($validated['decision'] === 'approved') {
+            $message = $plan->refinement_id
+                ? 'Refinement plan approved. This refinement cycle is complete. The patient may order a new refinement when they return.'
+                : 'Treatment plan approved. You may request another modification before manufacture, or wait for LineUp to mark the case as manufactured.';
+            $tab = 'manufacture-plan';
+        } else {
+            $message = 'Modification ordered. LineUp will prepare a revised plan from your notes. Add scans on the Modification tab if needed.';
+            $tab = 'modification';
+        }
+
+        return $this->redirectToTab($patient, $message, 'success', $activeStage, $tab);
     }
 
     protected function applyModificationPlanRevision(
@@ -335,12 +345,13 @@ class PatientTreatmentPlanController extends Controller
         Patient $patient,
         string $message,
         string $type = 'success',
-        ?int $activeStage = null
+        ?int $activeStage = null,
+        string $tab = 'manufacture-plan'
     ): RedirectResponse {
         $redirect = redirect()
             ->route('patients.show', $patient)
             ->with($type, $message)
-            ->with('open_tab', 'manufacture-plan');
+            ->with('open_tab', $tab);
 
         if ($activeStage !== null) {
             $redirect->with('mfg_active_stage', $activeStage);

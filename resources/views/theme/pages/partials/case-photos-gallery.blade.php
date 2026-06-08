@@ -87,7 +87,7 @@
                         <img src="" alt="" id="case-photos-gallery-image" class="case-photos-gallery-modal__image">
                         <p class="case-photos-gallery-modal__empty is-hidden" id="case-photos-gallery-empty">
                             <i class="zmdi zmdi-image-alt"></i>
-                            No photos in this scan set
+                            No photos in this scan version
                         </p>
                     </div>
                     <figcaption class="case-photos-gallery-modal__caption" id="case-photos-gallery-filename"></figcaption>

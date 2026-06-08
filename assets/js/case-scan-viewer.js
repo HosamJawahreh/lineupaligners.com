@@ -37,7 +37,7 @@ if (root && canvas) {
     const errorText = document.getElementById('case-scan-error-text');
     const loadingText = document.getElementById('case-scan-loading-text');
 
-    const EMPTY_SCAN_SET_MESSAGE = 'No 3D scan files in this scan set. Switch scan set or upload scans when editing the case.';
+    const EMPTY_SCAN_SET_MESSAGE = 'No 3D scan files in this scan version. Switch scan version or upload scans when editing the case.';
 
     const SCAN_STYLES = {
         upper: { color: 0xf8fafc, label: 'Upper' },

@@ -967,6 +967,18 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     transform: translateY(-1px);
 }
 
+.case-study-tab.is-active::after {
+    content: '';
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    bottom: 0;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.45);
+}
+
 .case-study-tab--slate {
     background: linear-gradient(135deg, #94a3b8 0%, #64748b 50%, #334155 100%);
 }
@@ -4107,6 +4119,50 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     padding: 24px;
 }
 
+.case-modification__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.case-modification__aside {
+    min-width: 0;
+}
+
+.case-modification__history-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 28px 20px;
+    border: 1px dashed rgba(148, 163, 184, 0.45);
+    border-radius: 12px;
+    background: rgba(248, 250, 252, 0.65);
+    text-align: center;
+    color: #64748b;
+}
+
+.case-modification__history-empty i {
+    font-size: 28px;
+    color: #94a3b8;
+}
+
+.case-modification__history-empty p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    max-width: 28ch;
+}
+
+.case-modification-card__required {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #b45309;
+}
+
 .case-modification__head {
     width: 100%;
     max-width: 860px;
@@ -5701,6 +5757,10 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 
     .case-summary-cell--notes {
         grid-column: auto;
+    }
+
+    .case-modification__layout {
+        grid-template-columns: 1fr;
     }
 
     .case-refinement__uploads,

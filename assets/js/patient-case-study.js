@@ -1,25 +1,62 @@
 (function ($) {
     'use strict';
 
-    function initTabs() {
-        var $tabs = $('.case-study-tab');
-        var $panels = $('.case-study-panel');
+    function tabStorageKey() {
+        return 'case_study_tab_' + window.location.pathname;
+    }
 
-        $tabs.on('click', function () {
+    function persistActiveTab(tabId) {
+        if (!tabId) {
+            return;
+        }
+
+        try {
+            sessionStorage.setItem(tabStorageKey(), tabId);
+        } catch (err) {
+            /* ignore quota / private mode */
+        }
+
+        var url = new URL(window.location.href);
+
+        if (url.searchParams.get('tab') === tabId) {
+            return;
+        }
+
+        url.searchParams.set('tab', tabId);
+        window.history.replaceState({ caseStudyTab: tabId }, '', url);
+    }
+
+    function activateTab(tabId) {
+        var $tab = $('.case-study-tab[data-tab="' + tabId + '"]');
+        var $panel = $('#case-panel-' + tabId);
+
+        if (!$tab.length || !$panel.length) {
+            return false;
+        }
+
+        $('.case-study-tab').removeClass('is-active').attr('aria-selected', 'false');
+        $tab.addClass('is-active').attr('aria-selected', 'true');
+
+        $('.case-study-panel').removeClass('is-active').attr('hidden', true);
+        $panel.addClass('is-active').removeAttr('hidden');
+
+        if (tabId === 'view-data' && window.caseScanViewer) {
+            window.caseScanViewer.resize();
+        }
+
+        if (tabId === 'messages' && window.caseChatOnTabShow) {
+            window.caseChatOnTabShow();
+        }
+
+        return true;
+    }
+
+    function initTabs() {
+        $('.case-study-tab').on('click', function () {
             var tabId = $(this).data('tab');
 
-            $tabs.removeClass('is-active').attr('aria-selected', 'false');
-            $(this).addClass('is-active').attr('aria-selected', 'true');
-
-            $panels.removeClass('is-active').attr('hidden', true);
-            $('#case-panel-' + tabId).addClass('is-active').removeAttr('hidden');
-
-            if (tabId === 'view-data' && window.caseScanViewer) {
-                window.caseScanViewer.resize();
-            }
-
-            if (tabId === 'messages' && window.caseChatOnTabShow) {
-                window.caseChatOnTabShow();
+            if (activateTab(tabId)) {
+                persistActiveTab(tabId);
             }
         });
     }
@@ -442,12 +479,19 @@
         var mfgStage = params.get('stage') || window.CASE_STUDY_MFG_STAGE;
 
         if (!tabId) {
+            try {
+                tabId = sessionStorage.getItem(tabStorageKey());
+            } catch (err) {
+                tabId = null;
+            }
+        }
+
+        if (!tabId) {
             return;
         }
 
-        var $tab = $('.case-study-tab[data-tab="' + tabId + '"]');
-        if ($tab.length) {
-            $tab.trigger('click');
+        if (activateTab(tabId)) {
+            persistActiveTab(tabId);
         }
 
         if (tabId === 'manufacture-plan' && mfgStage) {

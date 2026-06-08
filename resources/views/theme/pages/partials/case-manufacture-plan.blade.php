@@ -22,7 +22,7 @@
         </div>
         @if($isDivided)
         <p class="mfg-plan__subtitle">
-            Each stage covers a step range (from–to) with its own viewer link. Every stage follows a full approve / reject cycle, like a full case.
+            Each stage covers a step range (from–to) with its own viewer link. Every stage follows a full approve / modification cycle, like a full case.
         </p>
         @endif
     </header>
@@ -55,9 +55,9 @@
     @if(($canReviewTreatmentPlan ?? false) && !($canUploadTreatmentPlan ?? false))
     <p class="mfg-plan__role-note"><i class="zmdi zmdi-info-outline"></i>
         @if($isDivided)
-            Stages are reviewed in order. Approve or reject the current stage only. Rejection requires a comment for LineUp admin.
+            Stages are reviewed in order. Approve or order a modification on the current stage only. Modification notes are required.
         @else
-            Review the plan below. Rejection requires a comment for LineUp admin.
+            Review the plan below. Ordering a modification requires notes for LineUp admin.
         @endif
     </p>
     @endif

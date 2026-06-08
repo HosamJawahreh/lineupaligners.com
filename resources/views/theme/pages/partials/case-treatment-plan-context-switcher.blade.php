@@ -11,7 +11,7 @@
      aria-labelledby="{{ $selectId }}-label">
     <label id="{{ $selectId }}-label" for="{{ $selectId }}" class="case-scan-set-switcher__label">
         <i class="zmdi zmdi-layers" aria-hidden="true"></i>
-        <span>Plan set</span>
+        <span>Plan version</span>
     </label>
     <div class="case-scan-set-switcher__control">
         <select id="{{ $selectId }}"

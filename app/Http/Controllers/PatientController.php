@@ -49,7 +49,6 @@ class PatientController extends Controller
             'filters' => $filters,
             'statusTabs' => config('patient-statuses.tabs', []),
             'caseTypes' => config('patient-case-types', []),
-            'caseSources' => config('patient-case-sources', []),
             'clinicName' => $this->clinicNameForList(),
             'isAdmin' => auth()->user()->isAdmin(),
         ]);
@@ -585,7 +584,6 @@ class PatientController extends Controller
             'doctor' => $this->filterString($request, 'doctor'),
             'creator' => $this->filterString($request, 'creator'),
             'case_type' => $this->filterString($request, 'case_type'),
-            'case_source' => $this->filterString($request, 'case_source'),
             'date_from' => $this->filterString($request, 'date_from'),
             'date_to' => $this->filterString($request, 'date_to'),
             'sort' => $request->input('sort', 'created_at'),

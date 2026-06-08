@@ -40,13 +40,13 @@
         },
         '.case-modification-card__form': {
             title: 'Submit modification request?',
-            text: 'Scans, photos, and notes are optional. LineUp will prepare an updated treatment plan for your review.',
+            text: 'Notes are required. Scans and photos are optional. LineUp will prepare an updated treatment plan for your review.',
             icon: 'question',
             confirmButtonText: 'Submit request',
         },
         '#case-refinement-form': {
             title: 'Start refinement case?',
-            text: 'Scans, photos, and notes are optional. LineUp will prepare a new treatment plan for this refinement cycle.',
+            text: 'Notes are required. Scans and photos are optional. LineUp will prepare a new treatment plan for this refinement cycle.',
             icon: 'question',
             confirmButtonText: 'Start refinement',
         },
@@ -100,11 +100,11 @@
                 options.confirmButtonText = $trigger.data('confirmBtn') || 'Approve for manufacture';
                 options.confirmButtonClass = 'lineup-confirm-btn--success';
             } else if ($trigger.val() === 'rejected') {
-                options.title = $trigger.data('confirmTitle') || 'Reject treatment plan?';
+                options.title = $trigger.data('confirmTitle') || 'Order modification?';
                 options.text = $trigger.data('confirmText')
-                    || 'Send this plan back to LineUp with your feedback for a revised plan?';
+                    || 'Send this plan back to LineUp with your notes for a revised plan? You will be taken to the Modification tab.';
                 options.icon = 'warning';
-                options.confirmButtonText = $trigger.data('confirmBtn') || 'Reject plan';
+                options.confirmButtonText = $trigger.data('confirmBtn') || 'Order modification';
                 options.confirmButtonClass = 'lineup-confirm-btn--warning';
             }
         }

@@ -169,8 +169,8 @@ class CaseTimelineBuilder
             title: $plan->refinement_id
                 ? ($isRevision ? 'Refinement plan revised' : 'Refinement plan uploaded')
                 : ($isRevision ? 'Revised treatment plan submitted' : 'Treatment plan uploaded'),
-            summary: $plan->stageLabel(),
-            body: $this->truncateUrl($plan->plan_url),
+            summary: $plan->stageLabel().' · View on Treatment Plan tab',
+            body: null,
             actorName: $plan->uploader?->displayName(),
             actorRole: 'LineUp Admin',
             tone: 'blue',
@@ -191,7 +191,7 @@ class CaseTimelineBuilder
             id: 'plan-review-'.$plan->id,
             type: $approved ? 'plan_approved' : 'plan_rejected',
             at: $plan->reviewed_at,
-            title: $approved ? 'Treatment plan approved' : 'Treatment plan rejected',
+            title: $approved ? 'Treatment plan approved' : 'Modification ordered',
             summary: $plan->stageLabel().' · Version '.$plan->version,
             body: $plan->review_comment,
             actorName: $plan->reviewer?->displayName(),

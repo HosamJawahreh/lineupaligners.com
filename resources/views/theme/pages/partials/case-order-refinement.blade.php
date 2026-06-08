@@ -80,7 +80,7 @@
                 <div class="case-modification-card__head-text">
                     <p class="case-modification-card__kicker">Returning patient</p>
                     <h4 class="case-modification-card__title" id="case-refinement-form-title">Start refinement case</h4>
-                    <p class="case-modification-card__lead">Upload updated 3D scans, photos, and/or notes — all optional. LineUp will prepare a new treatment plan for this refinement cycle.</p>
+                    <p class="case-modification-card__lead">Notes are required. Upload updated 3D scans and photos if needed — LineUp will prepare a new treatment plan for this refinement cycle.</p>
                 </div>
             </header>
 
@@ -124,7 +124,7 @@
                 <div class="case-modification-card__section">
                     <h5 class="case-modification-card__section-title">
                         <i class="zmdi zmdi-edit" aria-hidden="true"></i>
-                        Refinement notes <span class="case-modification-card__optional">optional</span>
+                        Refinement notes <span class="case-modification-card__required">required</span>
                     </h5>
                     <div class="case-modification-card__field">
                         <label for="refinement-notes">Clinical context for LineUp</label>
@@ -132,8 +132,9 @@
                                   name="notes"
                                   rows="5"
                                   maxlength="10000"
+                                  required
                                   placeholder="Why the patient is returning, what changed clinically, and what LineUp should plan for this refinement…">{{ old('notes') }}</textarea>
-                        <span class="case-modification-card__hint">Optional — add context if it helps LineUp plan this refinement.</span>
+                        <span class="case-modification-card__hint">Required — explain why the patient is returning and what LineUp should plan.</span>
                     </div>
                 </div>
 

@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\Patient;
 use App\Models\User;
 use App\Support\LineUpMailBranding;
 use Illuminate\Bus\Queueable;
@@ -31,8 +32,18 @@ class LineUpAlert extends Notification
             ? $notifiable->displayName()
             : ($notifiable->name ?? 'there');
 
+        $subject = $this->payload['title'];
+        $patientId = $this->payload['patient_id'] ?? null;
+
+        if ($patientId) {
+            $patient = Patient::query()->select(['id', 'first_name', 'last_name'])->find($patientId);
+            if ($patient) {
+                $subject .= ' — '.$patient->fullName();
+            }
+        }
+
         return (new MailMessage)
-            ->subject(LineUpMailBranding::subjectPrefix($this->payload['title']))
+            ->subject(LineUpMailBranding::subjectPrefix($subject))
             ->markdown('mail.lineup-alert', [
                 'title' => $this->payload['title'],
                 'body' => $this->payload['body'],

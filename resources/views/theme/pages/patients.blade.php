@@ -75,16 +75,6 @@
                         </select>
                     </div>
 
-                    @if($isAdmin)
-                    <div class="cases-field">
-                        <select name="case_source" class="form-control" title="Case Source">
-                            @foreach($caseSources ?? [] as $value => $label)
-                                <option value="{{ $value }}" @selected(($filters['case_source'] ?? '') === (string) $value)>{{ $value === '' ? 'Case Source' : $label }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @endif
-
                     <div class="cases-field cases-field-daterange">
                         <i class="zmdi zmdi-calendar" aria-hidden="true"></i>
                         <input type="date" name="date_from" class="form-control cases-date-from" value="{{ $filters['date_from'] }}" aria-label="From date">

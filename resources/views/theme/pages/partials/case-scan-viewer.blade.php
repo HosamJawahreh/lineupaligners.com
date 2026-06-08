@@ -39,7 +39,7 @@
                 <div class="case-scan-set-switcher" role="group" aria-labelledby="case-scan-set-label">
                     <label id="case-scan-set-label" for="case-scan-set-select" class="case-scan-set-switcher__label">
                         <i class="zmdi zmdi-layers" aria-hidden="true"></i>
-                        <span>Scan set</span>
+                        <span>Scan version</span>
                     </label>
                     <div class="case-scan-set-switcher__control">
                         <select id="case-scan-set-select"
@@ -264,7 +264,7 @@
                 </div>
                 <div class="case-scan-canvas-overlay case-scan-canvas-overlay--empty is-hidden" id="case-scan-empty">
                     <i class="zmdi zmdi-rotate-3d"></i>
-                    <span id="case-scan-empty-text">No 3D scan files in this scan set.</span>
+                    <span id="case-scan-empty-text">No 3D scan files in this scan version.</span>
                 </div>
                 <div class="case-scan-canvas-overlay is-hidden" id="case-scan-error">
                     <i class="zmdi zmdi-alert-circle"></i>
@@ -281,8 +281,8 @@
         </div>
         <div class="case-scan-empty-state case-scan-empty-state--photos-only">
             <i class="zmdi zmdi-camera-alt"></i>
-            <p>No 3D scan files in this scan set.</p>
-            <span class="case-scan-empty-state__hint">Switch scan set or open Case Photos Gallery for clinical images.</span>
+            <p>No 3D scan files in this scan version.</p>
+            <span class="case-scan-empty-state__hint">Switch scan version or open Case Photos Gallery for clinical images.</span>
         </div>
         @endif
     @else

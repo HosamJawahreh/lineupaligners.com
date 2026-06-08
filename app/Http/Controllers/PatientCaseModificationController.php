@@ -28,9 +28,7 @@ class PatientCaseModificationController extends Controller
     {
         $this->authorize('requestModification', $patient);
 
-        $stageNumber = $patient->isDividedStages()
-            ? (int) $request->input('stage_number')
-            : null;
+        $stageNumber = $this->resolveModificationStageNumber($patient);
 
         if (PhpUploadLimits::requestPayloadUnparsed($request)) {
             return $this->redirectToTab(
@@ -174,6 +172,22 @@ class PatientCaseModificationController extends Controller
             $field => $path,
             $nameField => $file->getClientOriginalName(),
         ]);
+    }
+
+    protected function resolveModificationStageNumber(Patient $patient): ?int
+    {
+        if (! $patient->isDividedStages()) {
+            return null;
+        }
+
+        $eligible = $patient->modificationEligibleStageNumbers();
+        $reviewStage = $patient->doctorReviewStageNumber();
+
+        if ($reviewStage !== null && $eligible->contains($reviewStage)) {
+            return $reviewStage;
+        }
+
+        return $eligible->first();
     }
 
     protected function redirectToTab(
