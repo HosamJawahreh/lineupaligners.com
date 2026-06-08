@@ -35,7 +35,6 @@
                     {{-- Desktop / tablet: scroll-driven interactive tour --}}
                     <div class="lineup-process-showcase__tour">
                         <nav class="lineup-process-showcase__nav" aria-label="{{ $content['process']['subtitle'] ?? __('website.process_step_label', ['num' => '01']) }}">
-                            <p class="lineup-process-showcase__nav-hint">{{ __('website.process_select_step') }}</p>
                             <div class="lineup-process-showcase__rail" aria-hidden="true">
                                 <span class="lineup-process-showcase__rail-track"></span>
                                 <span class="lineup-process-showcase__rail-fill"></span>
@@ -111,7 +110,7 @@
 
 @once
 @push('scripts')
-<script src="{{ asset('assets/js/lineup-process-section.js') }}?v=16" defer></script>
+<script src="{{ asset('assets/js/lineup-process-section.js') }}?v=17" defer></script>
 @endpush
 @endonce
 
