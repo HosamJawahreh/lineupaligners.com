@@ -656,26 +656,17 @@ body.lineup-app .lineup-topbar .lineup-topbar-btn-signout i {
         padding: 10px 12px 24px;
     }
 
-    /* Sticky tab bar */
+    /* Sticky tab bar — 2-column wrap grid (no horizontal scroll) */
     .case-study-tabs {
         position: sticky;
         top: calc(var(--lineup-topbar-height) + 4px);
         z-index: 20;
-        margin: 0 -12px 16px;
+        margin: 0 -12px 14px;
         padding: 10px 12px 12px;
         background: linear-gradient(180deg, #f0f2f5 75%, rgba(240, 242, 245, 0));
-        scroll-snap-type: x mandatory;
-        scrollbar-width: none;
-    }
-
-    .case-study-tabs::-webkit-scrollbar {
-        display: none;
     }
 
     .case-study-tab {
-        scroll-snap-align: start;
-        min-height: 48px;
-        padding: 10px 14px;
         border-radius: 12px;
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
     }
@@ -684,38 +675,13 @@ body.lineup-app .lineup-topbar .lineup-topbar-btn-signout i {
         box-shadow: 0 4px 14px color-mix(in srgb, var(--lineup-skin) 28%, transparent);
     }
 
-    /* Workflow — compact stepper */
-    .case-workflow--premium {
-        margin-bottom: 14px;
-    }
-
+    /* Workflow — icons only; full status label in .case-workflow__status-text */
     .case-workflow__shell {
-        padding: 12px 12px 10px;
         border-radius: 12px;
     }
 
-    .case-workflow-track {
-        min-width: 0;
-    }
-
-    .case-workflow-step:not(.case-workflow-step--current) .case-workflow-label {
-        font-size: 0;
-        width: 0;
-        overflow: hidden;
-        padding: 0;
-        margin: 0;
-    }
-
-    .case-workflow-step--current .case-workflow-label {
-        font-size: 11px;
-        font-weight: 700;
-        max-height: none;
-        -webkit-line-clamp: unset;
-        color: #0f172a;
-    }
-
-    .case-workflow-step--current .case-workflow-node {
-        transform: scale(1.08);
+    body.lineup-app.lineup-color-dark .case-study-tabs {
+        background: linear-gradient(180deg, var(--lineup-surface) 75%, rgba(12, 17, 23, 0)) !important;
     }
 
     /* Summary dossier card */

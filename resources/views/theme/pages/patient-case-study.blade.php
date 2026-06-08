@@ -5,7 +5,7 @@
 @section('body-class', 'patient-case-study-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=53">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=54">
 @endpush
 
 @section('content')
@@ -58,6 +58,12 @@
                     </li>
                     @endforeach
                 </ol>
+                @php
+                    $currentWorkflowStep = collect($workflowSteps)->firstWhere('state', 'current');
+                @endphp
+                @if($currentWorkflowStep)
+                <p class="case-workflow__status-text case-workflow__status-text--tone-{{ $currentWorkflowStep['tone'] }}" aria-live="polite">{{ $currentWorkflowStep['label'] }}</p>
+                @endif
             </div>
         </nav>
 

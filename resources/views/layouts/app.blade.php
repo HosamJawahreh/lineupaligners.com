@@ -44,8 +44,8 @@
 @stack('styles')
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-form-pages.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=3">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=6">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=3">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=7">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=5">
 </head>
 <body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"
       data-default-color-mode="{{ $dashboardColorMode }}"

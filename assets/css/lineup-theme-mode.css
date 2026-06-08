@@ -470,6 +470,19 @@ body.lineup-app.lineup-color-dark .case-workflow-step--current .case-workflow-la
     color: var(--lineup-text);
 }
 
+body.lineup-app.lineup-color-dark .case-workflow__status-text {
+    background: var(--lineup-surface-muted) !important;
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-workflow__status-text--tone-created { color: #a5b4fc !important; background: rgba(99, 102, 241, 0.15) !important; }
+body.lineup-app.lineup-color-dark .case-workflow__status-text--tone-plan { color: #93c5fd !important; background: rgba(59, 130, 246, 0.15) !important; }
+body.lineup-app.lineup-color-dark .case-workflow__status-text--tone-modification { color: #fdba74 !important; background: rgba(249, 115, 22, 0.15) !important; }
+body.lineup-app.lineup-color-dark .case-workflow__status-text--tone-review { color: #67e8f9 !important; background: rgba(6, 182, 212, 0.15) !important; }
+body.lineup-app.lineup-color-dark .case-workflow__status-text--tone-approved { color: #6ee7b7 !important; background: rgba(16, 185, 129, 0.15) !important; }
+body.lineup-app.lineup-color-dark .case-workflow__status-text--tone-refinement { color: #fca5a5 !important; background: rgba(239, 68, 68, 0.15) !important; }
+body.lineup-app.lineup-color-dark .case-workflow__status-text--tone-rejected { color: #f87171 !important; background: rgba(220, 38, 38, 0.15) !important; }
+
 /* ═══════════════════════════════════════════════════════════════════════════
    Professional dark mode — comprehensive dashboard coverage (loads last)
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -1065,6 +1078,564 @@ body.lineup-app.lineup-color-dark.patient-case-study-page .case-study-tabs .nav-
 body.lineup-app.lineup-color-dark.patient-case-study-page .ig-compose-input,
 body.lineup-app.lineup-color-dark.patient-case-study-page .ig-compose-preview__name {
     color: var(--lineup-text) !important;
+}
+
+/* ── Patient case study — professional dark surfaces ── */
+
+/* Dossier summary card */
+body.lineup-app.lineup-color-dark .case-summary-card__header {
+    background: linear-gradient(180deg, var(--lineup-surface-muted) 0%, var(--lineup-surface-elevated) 100%) !important;
+    border-bottom-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card__case-id {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-cell {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-cell:hover {
+    border-color: var(--lineup-border-soft) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-cell__label {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-cell__value {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-cell__link {
+    color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-cell__link:hover {
+    color: var(--lineup-link-hover) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-cell__empty {
+    color: var(--lineup-text-subtle) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-notes__content {
+    background: var(--lineup-input-bg) !important;
+    border-color: var(--lineup-input-border) !important;
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-notes__toggle {
+    color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card__btn {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card__btn:hover {
+    background: var(--lineup-surface-hover) !important;
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card__btn--send-update {
+    background: color-mix(in srgb, var(--lineup-skin) 18%, var(--lineup-surface-muted)) !important;
+    border-color: color-mix(in srgb, var(--lineup-skin) 40%, var(--lineup-border)) !important;
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card__btn--edit {
+    background: var(--lineup-surface-muted) !important;
+    color: var(--lineup-text-secondary) !important;
+}
+
+/* Workflow shell */
+body.lineup-app.lineup-color-dark .case-workflow__shell {
+    background: linear-gradient(145deg, var(--lineup-surface-elevated) 0%, var(--lineup-surface-muted) 55%, var(--lineup-surface) 100%) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-workflow-step--completed .case-workflow-label {
+    color: var(--lineup-text-muted) !important;
+}
+
+/* Panels container */
+body.lineup-app.lineup-color-dark .case-study-panels {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* 3D scan viewer */
+body.lineup-app.lineup-color-dark .case-scan-section {
+    border-top-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-section__divider {
+    border-top-color: var(--lineup-border) !important;
+    box-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-section__head h3,
+body.lineup-app.lineup-color-dark .case-scan-section__head-start > h3 {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-layout {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-toolbar-wrap {
+    background: linear-gradient(180deg, var(--lineup-surface-muted) 0%, var(--lineup-surface) 100%) !important;
+    border-bottom-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-toolbar__brand {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-toolbar__brand i {
+    color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-toolbar__label {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-toolbar__tool:has(.case-scan-toolbar__btn.is-active) .case-scan-toolbar__label {
+    color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-toolbar__sep {
+    background: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-toolbar__btn {
+    background: var(--lineup-surface-elevated) !important;
+    border: 1px solid var(--lineup-border) !important;
+    color: var(--lineup-text-secondary) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-toolbar__btn:hover {
+    background: var(--lineup-surface-hover) !important;
+    color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-toolbar__btn.is-active {
+    background: color-mix(in srgb, var(--lineup-link) 15%, var(--lineup-surface-elevated)) !important;
+    color: var(--lineup-link) !important;
+    box-shadow: inset 0 0 0 2px var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-legend__item {
+    background: rgba(12, 17, 23, 0.82) !important;
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-mod-notes,
+body.lineup-app.lineup-color-dark .mfg-plan__mod-banner {
+    background: rgba(245, 158, 11, 0.12) !important;
+    border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-mod-notes__label {
+    color: #fbbf24 !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-mod-notes__text,
+body.lineup-app.lineup-color-dark .mfg-plan__mod-banner {
+    color: #fde68a !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-files__panel {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-files__head {
+    border-bottom-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-files__title {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-file-card {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-file-card:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-file__name {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-file__size {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-file__action--view {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-file__action--download {
+    background: color-mix(in srgb, var(--lineup-link) 15%, var(--lineup-surface-elevated)) !important;
+    color: var(--lineup-link) !important;
+}
+
+/* Case history timeline */
+body.lineup-app.lineup-color-dark .case-timeline {
+    background: var(--lineup-surface-elevated) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__header {
+    border-bottom-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__title {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__subtitle {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__stat {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__stat-value {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__stat-label {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__empty {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__empty-icon {
+    background: var(--lineup-surface-hover) !important;
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__empty h4 {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__empty p {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__day:not(:last-child) {
+    border-bottom-color: var(--lineup-border-soft) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__day-date {
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__day-today {
+    background: rgba(56, 189, 248, 0.15) !important;
+    color: #7dd3fc !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__event:not(:last-child) .case-timeline__rail::after {
+    background: linear-gradient(180deg, var(--lineup-border) 0%, var(--lineup-border-soft) 100%) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__node {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__event--slate .case-timeline__node { border-color: #64748b !important; color: #cbd5e1 !important; background: #1e293b !important; }
+body.lineup-app.lineup-color-dark .case-timeline__event--blue .case-timeline__node { border-color: #3b82f6 !important; color: #93c5fd !important; background: rgba(59, 130, 246, 0.15) !important; }
+body.lineup-app.lineup-color-dark .case-timeline__event--green .case-timeline__node { border-color: #22c55e !important; color: #86efac !important; background: rgba(34, 197, 94, 0.12) !important; }
+body.lineup-app.lineup-color-dark .case-timeline__event--amber .case-timeline__node { border-color: #f59e0b !important; color: #fcd34d !important; background: rgba(245, 158, 11, 0.12) !important; }
+body.lineup-app.lineup-color-dark .case-timeline__event--rose .case-timeline__node { border-color: #f43f5e !important; color: #fda4af !important; background: rgba(244, 63, 94, 0.12) !important; }
+body.lineup-app.lineup-color-dark .case-timeline__event--violet .case-timeline__node { border-color: #8b5cf6 !important; color: #c4b5fd !important; background: rgba(139, 92, 246, 0.12) !important; }
+body.lineup-app.lineup-color-dark .case-timeline__event--emerald .case-timeline__node { border-color: #10b981 !important; color: #6ee7b7 !important; background: rgba(16, 185, 129, 0.12) !important; }
+
+body.lineup-app.lineup-color-dark .case-timeline__card {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__event:hover .case-timeline__card {
+    border-color: var(--lineup-border-soft) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__event.is-latest .case-timeline__card {
+    background: linear-gradient(135deg, var(--lineup-surface-muted) 0%, rgba(56, 189, 248, 0.08) 100%) !important;
+    border-color: rgba(56, 189, 248, 0.35) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__event.is-active .case-timeline__card {
+    background: linear-gradient(135deg, var(--lineup-surface-muted) 0%, rgba(245, 158, 11, 0.08) 100%) !important;
+    border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__event-title {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__event-time {
+    color: var(--lineup-text-subtle) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__summary {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__body {
+    background: var(--lineup-surface) !important;
+    border-left-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__event--rose .case-timeline__body { background: rgba(244, 63, 94, 0.1) !important; border-left-color: #f43f5e !important; }
+body.lineup-app.lineup-color-dark .case-timeline__event--amber .case-timeline__body { background: rgba(245, 158, 11, 0.1) !important; border-left-color: #f59e0b !important; }
+body.lineup-app.lineup-color-dark .case-timeline__event--blue .case-timeline__body { background: rgba(56, 189, 248, 0.1) !important; border-left-color: #38bdf8 !important; }
+
+body.lineup-app.lineup-color-dark .case-timeline__body-label {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__body p {
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__actor {
+    border-top-color: var(--lineup-border-soft) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__actor-text {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__actor-text strong {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__badge--neutral { background: var(--lineup-surface-hover) !important; color: var(--lineup-text-secondary) !important; }
+body.lineup-app.lineup-color-dark .case-timeline__badge--pending { background: rgba(245, 158, 11, 0.18) !important; color: #fcd34d !important; }
+body.lineup-app.lineup-color-dark .case-timeline__badge--success { background: rgba(34, 197, 94, 0.18) !important; color: #86efac !important; }
+body.lineup-app.lineup-color-dark .case-timeline__badge--danger { background: rgba(244, 63, 94, 0.18) !important; color: #fda4af !important; }
+body.lineup-app.lineup-color-dark .case-timeline__badge--stage { background: rgba(139, 92, 246, 0.18) !important; color: #c4b5fd !important; }
+body.lineup-app.lineup-color-dark .case-timeline__badge--emerald { background: rgba(16, 185, 129, 0.18) !important; color: #6ee7b7 !important; }
+body.lineup-app.lineup-color-dark .case-timeline__badge--violet { background: rgba(139, 92, 246, 0.18) !important; color: #c4b5fd !important; }
+
+body.lineup-app.lineup-color-dark .case-timeline__latest-tag {
+    background: rgba(56, 189, 248, 0.15) !important;
+    color: #7dd3fc !important;
+    border-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+/* Live chat panel */
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat {
+    --ig-bg: var(--lineup-surface);
+    --ig-surface: var(--lineup-surface-elevated);
+    --ig-border: var(--lineup-border);
+    background: var(--lineup-surface-elevated) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-toolbar {
+    background: var(--lineup-surface-muted) !important;
+    background-image: none !important;
+    border-bottom-color: var(--lineup-border) !important;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-toolbar::before,
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-toolbar::after {
+    display: none !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-title {
+    color: var(--lineup-text) !important;
+    text-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-toolbar-left:has(.ig-participants) .ig-chat-title {
+    border-right-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-participant-pill {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-participant-avatar {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-participant-name {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-participant-role {
+    color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-live {
+    background: rgba(34, 197, 94, 0.12) !important;
+    border-color: rgba(34, 197, 94, 0.35) !important;
+    color: #86efac !important;
+    box-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-live--pulse {
+    background: rgba(34, 197, 94, 0.18) !important;
+    border-color: #4ade80 !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-thread {
+    background-color: var(--lineup-surface) !important;
+    background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.04) 0.65px, transparent 0.65px) !important;
+    background-size: 22px 22px !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-thread::before,
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-thread::after {
+    display: none !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-thread::-webkit-scrollbar-thumb {
+    background: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-msg--theirs .ig-bubble--text,
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-msg--theirs .ig-bubble--attach {
+    background: var(--lineup-surface-muted) !important;
+    color: var(--lineup-text) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-msg--mine .ig-bubble--text,
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-msg--mine .ig-bubble--attach {
+    background: color-mix(in srgb, var(--lineup-link) 22%, var(--lineup-surface-muted)) !important;
+    color: var(--lineup-text) !important;
+    border-color: color-mix(in srgb, var(--lineup-link) 35%, var(--lineup-border)) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-msg--mine .ig-attach-card__meta,
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-msg--mine .ig-attach-card__dl {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-msg--mine .ig-attach-card__action-label {
+    color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-empty__icon {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+    color: var(--lineup-link) !important;
+    box-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-empty p {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-empty__hint {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-compose-preview {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-compose-preview__thumb {
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-compose-preview__meta {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-compose-preview__remove {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-compose-preview__remove:hover {
+    background: rgba(220, 38, 38, 0.15) !important;
+    border-color: rgba(220, 38, 38, 0.35) !important;
+    color: #fca5a5 !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-compose {
+    background: var(--lineup-surface-muted) !important;
+    border-top-color: var(--lineup-border) !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-attach {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-attach:hover {
+    background: var(--lineup-surface-hover) !important;
+    color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-input {
+    background: var(--lineup-input-bg) !important;
+    border-color: var(--lineup-input-border) !important;
+    color: var(--lineup-input-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-input::placeholder {
+    color: var(--lineup-text-subtle) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-input:hover {
+    background: var(--lineup-surface-hover) !important;
+    border-color: var(--lineup-border-soft) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-input:focus {
+    background: var(--lineup-input-bg) !important;
+    border-color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-study-panel--messages .ig-chat-unavailable {
+    color: var(--lineup-text-muted) !important;
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
 }
 
 /* ── Scan upload overlay ── */
