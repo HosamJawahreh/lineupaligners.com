@@ -49,6 +49,8 @@ if (root && canvas) {
 
     const BG_COLORS_LIGHT = [0xb8c5d4, 0xe2e8f0, 0xf8fafc, 0x1e293b];
     const BG_COLORS_DARK = [0x0c1117, 0x161b22, 0x1c2330, 0x0f1623];
+    const GRID_COLORS_LIGHT = { center: 0x64748b, grid: 0x94a3b8 };
+    const GRID_COLORS_DARK = { center: 0x3d4f63, grid: 0x243044 };
     const LIGHT_LEVELS = [0.55, 0.9, 1.3];
 
     function isDarkMode() {
@@ -57,6 +59,10 @@ if (root && canvas) {
 
     function getBgColors() {
         return isDarkMode() ? BG_COLORS_DARK : BG_COLORS_LIGHT;
+    }
+
+    function getGridColors() {
+        return isDarkMode() ? GRID_COLORS_DARK : GRID_COLORS_LIGHT;
     }
 
     function getDefaultBgIndex() {
@@ -1130,7 +1136,8 @@ if (root && canvas) {
     function setGrid(on) {
         viewerState.showGrid = on;
         if (on && !gridHelper) {
-            gridHelper = new THREE.GridHelper(240, 24, 0x64748b, 0x94a3b8);
+            const gridColors = getGridColors();
+            gridHelper = new THREE.GridHelper(240, 24, gridColors.center, gridColors.grid);
             scene.add(gridHelper);
             updateGridPosition();
         } else if (!on && gridHelper) {
@@ -1203,9 +1210,19 @@ if (root && canvas) {
         syncBackground();
     }
 
+    function syncGridTheme() {
+        if (!viewerState.showGrid) {
+            return;
+        }
+
+        setGrid(false);
+        setGrid(true);
+    }
+
     function applyThemeDefaultBackground() {
         viewerState.bgIndex = getDefaultBgIndex();
         syncBackground();
+        syncGridTheme();
     }
 
     function cycleLight() {

@@ -1,7 +1,6 @@
 @php
     $groups = config('doctor-permissions.groups', []);
     $permissions = config('doctor-permissions.permissions', []);
-    $permissionsByGroup = collect($permissions)->groupBy('group');
     $roleErrors = $errors->getBag('default');
     $hasRoleFormErrors = $roleErrors->isNotEmpty() && (
         $roleErrors->has('name')
@@ -128,7 +127,7 @@
                                 'roleId' => $role->id,
                                 'selected' => $normalizedPermissions,
                                 'groups' => $groups,
-                                'permissionsByGroup' => $permissionsByGroup,
+                                'permissions' => $permissions,
                             ])
 
                             <div class="doctor-role-active">

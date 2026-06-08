@@ -55,17 +55,29 @@ body.lineup-app.lineup-color-dark {
 }
 
 body.lineup-app.lineup-color-dark .lineup-nav > li > a {
-    color: var(--lineup-icon-muted, #94a3b8);
+    color: rgba(255, 255, 255, 0.88);
+}
+
+body.lineup-app.lineup-color-dark .lineup-nav > li > a i {
+    color: #ffffff !important;
 }
 
 body.lineup-app.lineup-color-dark .lineup-nav > li > a:hover {
-    color: #e2e8f0;
+    color: #ffffff;
     background: rgba(255, 255, 255, 0.04);
 }
 
+body.lineup-app.lineup-color-dark .lineup-nav > li > a:hover i {
+    color: #ffffff !important;
+}
+
 body.lineup-app.lineup-color-dark .lineup-nav > li.active > a {
-    color: #fff;
+    color: #ffffff;
     background: rgba(255, 255, 255, 0.06);
+}
+
+body.lineup-app.lineup-color-dark .lineup-nav > li.active > a i {
+    color: #ffffff !important;
 }
 
 /* ── Headers & breadcrumbs ── */
@@ -81,8 +93,6 @@ body.lineup-app.lineup-color-dark .cases-panel-head h1 {
 
 body.lineup-app.lineup-color-dark .block-header h2 small,
 body.lineup-app.lineup-color-dark .block-header h2 .text-muted,
-body.lineup-app.lineup-color-dark .block-header .breadcrumb-item,
-body.lineup-app.lineup-color-dark .block-header .breadcrumb-item a,
 body.lineup-app.lineup-color-dark .settings-page .block-header h2 small,
 body.lineup-app.lineup-color-dark .patient-form-page .block-header h2 small,
 body.lineup-app.lineup-color-dark .doctor-form-page .block-header h2 small,
@@ -90,8 +100,67 @@ body.lineup-app.lineup-color-dark .lineup-notify-page .block-header h2 small {
     color: var(--lineup-text-muted) !important;
 }
 
+/* Breadcrumb pill — beat legacy main.css rgba(255,255,255,0.3) on dark canvas */
+body.lineup-app.lineup-color-dark .block-header .breadcrumb {
+    background: var(--lineup-surface-muted) !important;
+    border: 1px solid var(--lineup-border) !important;
+    border-radius: 999px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 8px 16px 8px 14px !important;
+}
+
+body.lineup-app.lineup-color-dark .block-header .breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.72) !important;
+}
+
+body.lineup-app.lineup-color-dark .block-header .breadcrumb-item + .breadcrumb-item {
+    padding-left: 0;
+}
+
+body.lineup-app.lineup-color-dark .block-header .breadcrumb-item + .breadcrumb-item::before {
+    color: rgba(255, 255, 255, 0.42) !important;
+    padding: 0 10px;
+    font-weight: 400;
+}
+
+body.lineup-app.lineup-color-dark .block-header .breadcrumb-item a {
+    color: #ffffff !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    min-height: 26px;
+    padding: 2px 6px;
+    margin-left: -4px;
+    border-radius: 8px;
+    text-decoration: none !important;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+body.lineup-app.lineup-color-dark .block-header .breadcrumb-item a i {
+    color: #ffffff !important;
+    font-size: 16px;
+    line-height: 1;
+}
+
+body.lineup-app.lineup-color-dark .block-header .breadcrumb-item a:hover,
+body.lineup-app.lineup-color-dark .block-header .breadcrumb-item a:focus {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+}
+
 body.lineup-app.lineup-color-dark .block-header .breadcrumb-item.active {
-    color: var(--lineup-text) !important;
+    color: #ffffff !important;
+    font-weight: 600;
 }
 
 /* ── Cards & panels ── */
@@ -589,17 +658,11 @@ body.lineup-app.lineup-color-dark .lineup-notify-page .block-header h2 {
 
 body.lineup-app.lineup-color-dark .block-header h2 small,
 body.lineup-app.lineup-color-dark .block-header h2 .text-muted,
-body.lineup-app.lineup-color-dark .block-header .breadcrumb-item,
-body.lineup-app.lineup-color-dark .block-header .breadcrumb-item a,
 body.lineup-app.lineup-color-dark .settings-page .block-header h2 small,
 body.lineup-app.lineup-color-dark .patient-form-page .block-header h2 small,
 body.lineup-app.lineup-color-dark .doctor-form-page .block-header h2 small,
 body.lineup-app.lineup-color-dark .lineup-notify-page .block-header h2 small {
     color: var(--lineup-text-muted) !important;
-}
-
-body.lineup-app.lineup-color-dark .block-header .breadcrumb-item.active {
-    color: var(--lineup-text) !important;
 }
 
 body.lineup-app.lineup-color-dark .cases-panel-head h1 {
@@ -1369,6 +1432,39 @@ body.lineup-app.lineup-color-dark .cases-mobile-card__foot {
     border-top-color: var(--lineup-border) !important;
 }
 
+body.lineup-app.lineup-color-dark .cases-mobile-card__cta {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: var(--lineup-border) !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-mobile-card__cta i {
+    color: rgba(255, 255, 255, 0.82) !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-mobile-card__cta:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-mobile-card__cta:hover i {
+    color: #ffffff !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-mobile-card__actions .cases-action-btn {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid var(--lineup-border) !important;
+    color: rgba(255, 255, 255, 0.78) !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-mobile-card__actions .cases-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
 body.lineup-app.lineup-color-dark .cases-mobile-card__workflow {
     background: transparent !important;
     color: inherit !important;
@@ -1587,7 +1683,39 @@ body.lineup-app.lineup-color-dark .case-scan-layout {
 
 body.lineup-app.lineup-color-dark .case-scan-viewer-pane,
 body.lineup-app.lineup-color-dark .case-scan-canvas-wrap {
-    background: var(--lineup-surface) !important;
+    background: #0c1117 !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-canvas-overlay {
+    background: rgba(12, 17, 23, 0.94) !important;
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-canvas-overlay i {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-spinner {
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    border-top-color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-empty-state {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-empty-state i {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-empty-state p {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-scan-empty-state__hint {
+    color: var(--lineup-text-muted) !important;
 }
 
 body.lineup-app.lineup-color-dark .case-scan-toolbar-wrap {
@@ -2668,9 +2796,8 @@ body.lineup-app.lineup-color-dark .website-manage-page .block-header h2 small {
     color: var(--lineup-text) !important;
 }
 
-body.lineup-app.lineup-color-dark .website-manage-page .block-header .breadcrumb-item,
-body.lineup-app.lineup-color-dark .website-manage-page .block-header .breadcrumb-item a {
-    color: var(--lineup-text-muted) !important;
+body.lineup-app.lineup-color-dark .website-manage-page .block-header .breadcrumb-item a i {
+    color: #ffffff !important;
 }
 
 body.lineup-app.lineup-color-dark .website-manage-page .wm-toolbar,

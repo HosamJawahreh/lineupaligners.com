@@ -584,10 +584,20 @@ body.lineup-app .lineup-topbar .lineup-topbar-btn-signout i {
 }
 
 .cases-mobile-card__actions .cases-action-btn {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    min-height: 40px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #64748b;
+}
+
+.cases-mobile-card__actions .cases-action-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #334155;
 }
 
 .cases-mobile-card__cta {
@@ -595,15 +605,35 @@ body.lineup-app .lineup-topbar .lineup-topbar-btn-signout i {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    min-height: 40px;
-    padding: 0 16px;
-    border-radius: 10px;
-    background: var(--lineup-skin);
-    color: #fff !important;
-    font-size: 13px;
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #0f172a !important;
+    font-size: 12px;
     font-weight: 600;
+    letter-spacing: 0.02em;
     text-decoration: none !important;
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--lineup-skin) 35%, transparent);
+    box-shadow: none;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.cases-mobile-card__cta i {
+    font-size: 16px;
+    color: #64748b;
+    line-height: 1;
+    transition: color 0.15s ease;
+}
+
+.cases-mobile-card__cta:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a !important;
+}
+
+.cases-mobile-card__cta:hover i {
+    color: #334155;
 }
 
 .cases-mobile-empty {
@@ -747,12 +777,22 @@ body.lineup-app.lineup-color-dark.overlay-open #leftsidebar.lineup-sidebar .line
 }
 
 body.lineup-app.lineup-color-dark.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li > a i {
-    background: color-mix(in srgb, var(--lineup-skin) 22%, #1e293b);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff !important;
+}
+
+body.lineup-app.lineup-color-dark.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li > a:hover i {
+    color: #ffffff !important;
 }
 
 body.lineup-app.lineup-color-dark.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li.active > a {
     background: color-mix(in srgb, var(--lineup-skin) 14%, #1e293b);
     border-color: color-mix(in srgb, var(--lineup-skin) 40%, #334155);
+}
+
+body.lineup-app.lineup-color-dark.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li.active > a i {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff !important;
 }
 
 body.lineup-app.lineup-color-dark .lineup-sidebar-mobile-head {
@@ -767,7 +807,11 @@ body.lineup-app.lineup-color-dark .lineup-sidebar-mobile-head__text strong {
 body.lineup-app.lineup-color-dark .lineup-sidebar-close {
     background: #1e293b;
     border-color: #334155;
-    color: #94a3b8;
+    color: #ffffff;
+}
+
+body.lineup-app.lineup-color-dark .lineup-sidebar-close:hover {
+    color: #ffffff;
 }
 
 body.lineup-app.lineup-color-dark .lineup-topbar-overflow-menu {
@@ -801,6 +845,39 @@ body.lineup-app.lineup-color-dark .cases-mobile-card__value {
 
 body.lineup-app.lineup-color-dark .cases-mobile-card__foot {
     border-top-color: #334155;
+}
+
+/* Dark breadcrumb — mobile layout & touch targets */
+@media (max-width: 991px) {
+    body.lineup-app.lineup-color-dark .block-header .breadcrumb.float-md-right {
+        float: none !important;
+        width: 100%;
+        max-width: 100%;
+        margin: 12px 0 0 !important;
+        padding: 10px 18px 10px 16px !important;
+        min-height: 44px;
+        border-radius: 12px !important;
+        box-sizing: border-box;
+    }
+
+    body.lineup-app.lineup-color-dark .block-header .breadcrumb-item {
+        font-size: 14px;
+    }
+
+    body.lineup-app.lineup-color-dark .block-header .breadcrumb-item + .breadcrumb-item::before {
+        padding: 0 12px;
+    }
+
+    body.lineup-app.lineup-color-dark .block-header .breadcrumb-item a {
+        min-width: 34px;
+        min-height: 34px;
+        margin-left: 0;
+        padding: 4px 8px;
+    }
+
+    body.lineup-app.lineup-color-dark .block-header .breadcrumb-item a i {
+        font-size: 18px;
+    }
 }
 
 /* ── Home dashboard mobile polish ── */

@@ -552,6 +552,8 @@ body.lineup-app .settings-page .settings-tabs-nav .nav-link.active i {
 .settings-page .doctor-role-card--create {
     position: sticky;
     top: 88px;
+    z-index: 4;
+    isolation: isolate;
 }
 
 .settings-page .doctor-role-card--inactive {
@@ -677,15 +679,20 @@ body.lineup-app .settings-page .settings-tabs-nav .nav-link.active i {
 }
 
 .settings-page .doctor-role-perm {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    column-gap: 10px;
+    row-gap: 2px;
+    align-items: start;
     margin: 0;
     padding: 12px 12px;
     border: 1px solid #e2e8f0;
     border-radius: 10px;
     background: #fafbfc;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    user-select: none;
     transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -696,8 +703,13 @@ body.lineup-app .settings-page .settings-tabs-nav .nav-link.active i {
 
 .settings-page .doctor-role-perm__input {
     position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
     opacity: 0;
-    pointer-events: none;
+    cursor: pointer;
+    z-index: 1;
 }
 
 .settings-page .doctor-role-perm__box {
@@ -711,6 +723,9 @@ body.lineup-app .settings-page .settings-tabs-nav .nav-link.active i {
     justify-content: center;
     flex-shrink: 0;
     margin-top: 1px;
+    position: relative;
+    z-index: 0;
+    pointer-events: none;
     transition: border-color 0.15s ease, background 0.15s ease;
 }
 
@@ -748,10 +763,13 @@ body.lineup-app .settings-page .settings-tabs-nav .nav-link.active i {
 }
 
 .settings-page .doctor-role-perm__text {
+    grid-column: 2;
+    grid-row: 1;
     display: flex;
     flex-direction: column;
     gap: 2px;
     min-width: 0;
+    pointer-events: none;
 }
 
 .settings-page .doctor-role-perm__label {

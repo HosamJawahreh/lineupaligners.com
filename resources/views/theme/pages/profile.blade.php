@@ -11,8 +11,8 @@
     <div class="block-header">
         <div class="row">
             <div class="col-lg-7 col-md-5 col-sm-12">
-                <h2>Profile
-                <small>Welcome to Oreo</small>
+                <h2>{{ isset($doctor) ? 'Doctor Profile' : 'Profile' }}
+                <small>{{ isset($doctor) ? 'Dr. ' . $doctor->fullName() : 'Account overview' }}</small>
                 </h2>
             </div>
             <div class="col-lg-5 col-md-7 col-sm-12">                
@@ -20,8 +20,13 @@
                     <i class="zmdi zmdi-edit"></i>
                 </button>
                 <ul class="breadcrumb float-md-right">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}"><i class="zmdi zmdi-home"></i> Oreo</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}"><i class="zmdi zmdi-home"></i> Home</a></li>
+                    @if(isset($doctor))
+                    <li class="breadcrumb-item"><a href="{{ route('doctors.index') }}">Doctors</a></li>
+                    <li class="breadcrumb-item active">Dr. {{ $doctor->fullName() }}</li>
+                    @else
                     <li class="breadcrumb-item active">Profile</li>
+                    @endif
                 </ul>                
             </div>
         </div>
