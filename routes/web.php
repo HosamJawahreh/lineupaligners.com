@@ -7,6 +7,7 @@ use App\Http\Controllers\PublicWebsiteController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientCaseMessageController;
@@ -88,7 +89,12 @@ Route::middleware('guest')->group(function () {
     Route::post('login', [LoginController::class, 'login']);
 
     Route::get('forgot-password', [ForgotPasswordController::class, 'show'])->name('pages.forgot-password');
-    Route::post('forgot-password', [ForgotPasswordController::class, 'send']);
+    Route::post('forgot-password', [ForgotPasswordController::class, 'send'])
+        ->middleware('throttle:6,1');
+
+    Route::get('reset-password/{token}', [ResetPasswordController::class, 'show'])->name('password.reset');
+    Route::post('reset-password', [ResetPasswordController::class, 'update'])->name('password.update')
+        ->middleware('throttle:6,1');
 });
 
 Route::post('logout', [LoginController::class, 'logout'])

@@ -110,13 +110,7 @@
             var text = options.text || 'Are you sure you want to continue?';
             var confirmLabel = options.confirmButtonText || 'Confirm';
             var cancelLabel = options.cancelButtonText || 'Cancel';
-            var confirmClass = options.confirmButtonClass || 'lineup-confirm-btn--primary';
-
-            if (icon === 'warning') {
-                confirmClass = options.confirmButtonClass || 'lineup-confirm-btn--warning';
-            } else if (icon === 'success') {
-                confirmClass = options.confirmButtonClass || 'lineup-confirm-btn--success';
-            }
+            var confirmClass = options.confirmButtonClass || 'lineup-confirm-btn--success';
 
             return Swal.fire({
                 title: '',
@@ -133,8 +127,14 @@
                     '<p class="lineup-confirm__text">' + escapeHtml(text) + '</p>' +
                     '</div>' +
                     '<div class="lineup-confirm__foot">' +
-                    '<button type="button" class="lineup-confirm-btn lineup-confirm-btn--cancel" data-lineup-confirm-cancel>' + escapeHtml(cancelLabel) + '</button>' +
-                    '<button type="button" class="lineup-confirm-btn ' + confirmClass + '" data-lineup-confirm-ok>' + escapeHtml(confirmLabel) + '</button>' +
+                    '<button type="button" class="lineup-confirm-btn lineup-confirm-btn--cancel" data-lineup-confirm-cancel>' +
+                    '<i class="zmdi zmdi-close lineup-confirm-btn__icon" aria-hidden="true"></i>' +
+                    '<span>' + escapeHtml(cancelLabel) + '</span>' +
+                    '</button>' +
+                    '<button type="button" class="lineup-confirm-btn ' + confirmClass + '" data-lineup-confirm-ok>' +
+                    '<i class="zmdi zmdi-check lineup-confirm-btn__icon" aria-hidden="true"></i>' +
+                    '<span>' + escapeHtml(confirmLabel) + '</span>' +
+                    '</button>' +
                     '</div>' +
                     '</div>',
                 showConfirmButton: true,

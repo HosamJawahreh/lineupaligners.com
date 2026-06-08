@@ -265,7 +265,7 @@
 <script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=14"></script>
 @endif
 <script src="{{ asset('assets/js/patient-case-study.js') }}?v=2"></script>
-<script src="{{ asset('assets/js/case-action-confirm.js') }}?v=4"></script>
+<script src="{{ asset('assets/js/case-action-confirm.js') }}?v=5"></script>
 <script src="{{ asset('assets/js/case-manufacture-plan.js') }}?v=7"></script>
 <script src="{{ asset('assets/js/case-photos-upload.js') }}?v=1"></script>
 @if(!empty($caseScanSets))

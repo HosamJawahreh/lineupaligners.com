@@ -164,90 +164,104 @@
 
 .lineup-confirm__title {
     color: #0f172a;
-    font-size: 1.125rem;
-    font-weight: 600;
-    line-height: 1.4;
-    margin: 0 0 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 0 0 0.65rem;
 }
 
 .lineup-confirm__text {
-    color: #64748b;
-    font-size: 0.9rem;
-    line-height: 1.6;
+    color: #334155;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.65;
     margin: 0 auto;
-    max-width: 36ch;
+    max-width: 40ch;
 }
 
 .lineup-confirm__foot {
     border-top: 1px solid #e2e8f0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.65rem;
-    justify-content: flex-end;
+    gap: 0.75rem;
+    justify-content: center;
     margin-top: 1.25rem;
     padding: 1rem 1.25rem 1.15rem;
 }
 
 .lineup-confirm-btn {
+    align-items: center;
     border-radius: 0 !important;
     cursor: pointer;
+    display: inline-flex;
     font-family: inherit;
     font-size: 0.8125rem;
     font-weight: 600;
+    gap: 0.4rem;
+    justify-content: center;
     letter-spacing: 0.02em;
-    min-width: 7.5rem;
-    padding: 0.62rem 1.15rem;
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    min-width: 8.5rem;
+    padding: 0.65rem 1.2rem;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lineup-confirm-btn__icon {
+    font-size: 1rem;
+    line-height: 1;
 }
 
 .lineup-confirm-btn--cancel {
-    background: #fff !important;
-    border: 1px solid #cbd5e1 !important;
-    color: #334155 !important;
+    background: #dc2626 !important;
+    border: 1px solid #dc2626 !important;
+    color: #fff !important;
 }
 
 .lineup-confirm-btn--cancel:hover {
-    background: #f8fafc !important;
-    border-color: #94a3b8 !important;
-    color: #0f172a !important;
+    background: #b91c1c !important;
+    border-color: #b91c1c !important;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.28);
+    color: #fff !important;
 }
 
 .lineup-confirm-btn--primary {
-    background: #0f172a !important;
-    border: 1px solid #0f172a !important;
+    background: #16a34a !important;
+    border: 1px solid #16a34a !important;
     color: #fff !important;
 }
 
 .lineup-confirm-btn--primary:hover {
-    background: #1e293b !important;
-    border-color: #1e293b !important;
+    background: #15803d !important;
+    border-color: #15803d !important;
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.28);
 }
 
 .lineup-confirm-btn--success {
-    background: #15803d !important;
-    border: 1px solid #15803d !important;
+    background: #16a34a !important;
+    border: 1px solid #16a34a !important;
     color: #fff !important;
 }
 
 .lineup-confirm-btn--success:hover {
-    background: #166534 !important;
-    border-color: #166534 !important;
+    background: #15803d !important;
+    border-color: #15803d !important;
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.28);
 }
 
 .lineup-confirm-btn--warning {
-    background: #fff !important;
-    border: 1px solid #f59e0b !important;
-    color: #b45309 !important;
+    background: #16a34a !important;
+    border: 1px solid #16a34a !important;
+    color: #fff !important;
 }
 
 .lineup-confirm-btn--warning:hover {
-    background: #fffbeb !important;
-    border-color: #d97706 !important;
-    color: #92400e !important;
+    background: #15803d !important;
+    border-color: #15803d !important;
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.28);
 }
 
 @media (max-width: 480px) {
     .lineup-confirm__foot {
+        align-items: stretch;
         flex-direction: column-reverse;
     }
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Patient;
+use App\Notifications\ResetPasswordNotification;
 use App\Support\PublicStorageUrl;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -101,5 +102,10 @@ class User extends Authenticatable
         }
 
         return $fallback;
+    }
+
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }
