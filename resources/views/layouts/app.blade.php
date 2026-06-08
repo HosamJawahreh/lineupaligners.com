@@ -36,7 +36,6 @@
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-datatables.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-loader.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-typography.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=2">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-notifications.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-call-support.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/scan-upload-overlay.css') }}">
@@ -46,6 +45,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-form-pages.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=6">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=3">
 </head>
 <body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"
       data-default-color-mode="{{ $dashboardColorMode }}"
