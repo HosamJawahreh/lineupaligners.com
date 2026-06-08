@@ -2200,6 +2200,27 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     border-bottom: 1px solid #e2e8f0;
 }
 
+.mfg-plan__head--with-switcher {
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.mfg-plan__head--with-switcher .mfg-plan__head-text {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+.mfg-plan__context-switcher {
+    position: static;
+    transform: none;
+    flex: 0 1 auto;
+    max-width: 100%;
+}
+
+.mfg-plan__context-panels {
+    min-width: 0;
+}
+
 .mfg-plan__title {
     margin: 0 0 6px;
     font-size: 18px;

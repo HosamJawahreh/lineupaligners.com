@@ -5,7 +5,7 @@
 @section('body-class', 'patient-case-study-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=47">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=48">
 @endpush
 
 @section('content')
@@ -187,7 +187,7 @@
                         'scanFiles' => $caseScanFiles ?? [],
                         'caseScanSets' => $caseScanSets ?? [],
                         'defaultScanSetKey' => $defaultScanSetKey ?? 'original',
-                        'casePhotosBySet' => ['original' => $casePhotosOriginal ?? []],
+                        'casePhotosBySet' => $casePhotosBySet ?? [],
                     ])
                 @elseif($tab['id'] === 'manufacture-plan')
                     @include('theme.pages.partials.case-manufacture-plan', [
@@ -195,11 +195,9 @@
                         'patient' => $patient,
                         'canUploadTreatmentPlan' => $canUploadTreatmentPlan ?? false,
                         'canReviewTreatmentPlan' => $canReviewTreatmentPlan ?? false,
-                        'fullTreatmentPlan' => $fullTreatmentPlan ?? null,
-                        'visibleFullTreatmentPlans' => $visibleFullTreatmentPlans ?? collect(),
                         'canAdminUploadFullPlan' => $canAdminUploadFullPlan ?? false,
-                        'stageTreatmentPlans' => $stageTreatmentPlans ?? collect(),
-                        'treatmentPlanStageNumbers' => $treatmentPlanStageNumbers ?? collect(),
+                        'treatmentPlanContexts' => $treatmentPlanContexts ?? [],
+                        'defaultTreatmentPlanContextKey' => $defaultTreatmentPlanContextKey ?? 'original',
                     ])
                 @elseif($tab['id'] === 'modification')
                     @include('theme.pages.partials.case-modification-request', [
@@ -259,7 +257,7 @@
 <script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=14"></script>
 @endif
 <script src="{{ asset('assets/js/patient-case-study.js') }}?v=2"></script>
-<script src="{{ asset('assets/js/case-manufacture-plan.js') }}?v=4"></script>
+<script src="{{ asset('assets/js/case-manufacture-plan.js') }}?v=5"></script>
 <script src="{{ asset('assets/js/case-photos-upload.js') }}?v=1"></script>
 @if(!empty($caseScanSets))
 <script>window.caseScanSetsMeta = @json($caseScanSets);</script>

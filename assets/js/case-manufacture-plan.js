@@ -87,25 +87,69 @@
         });
     }
 
-    function initStagePicker($root) {
-        var $nav = $root.find('[data-mfg-stage-nav]');
-        if (!$nav.length) {
+    function initStagePicker($scope) {
+        $scope.find('[data-mfg-stage-nav]').each(function () {
+            var $nav = $(this);
+            var ctxKey = String($nav.data('mfg-stage-nav') || '');
+            var $contextPanel = $nav.closest('[data-mfg-context-panel]');
+
+            function showStage(stage) {
+                var stageKey = String(stage);
+
+                $nav.find('[data-mfg-stage-btn]').each(function () {
+                    var $btn = $(this);
+                    var isActive = String($btn.data('stage')) === stageKey;
+                    $btn.toggleClass('is-active', isActive);
+                    $btn.attr('aria-selected', isActive ? 'true' : 'false');
+                });
+
+                var $panels = $contextPanel.length
+                    ? $contextPanel.find('[data-mfg-stage-panel]')
+                    : $scope.find('[data-mfg-stage-panel]');
+
+                $panels.each(function () {
+                    var $panel = $(this);
+                    if (ctxKey && String($panel.data('mfg-context') || '') !== ctxKey) {
+                        return;
+                    }
+                    var isActive = String($panel.data('mfg-stage-panel')) === stageKey;
+                    $panel.toggleClass('is-active', isActive);
+                    if (isActive) {
+                        $panel.removeAttr('hidden');
+                    } else {
+                        $panel.attr('hidden', true);
+                    }
+                });
+            }
+
+            $nav.on('click', '[data-mfg-stage-btn]', function () {
+                showStage($(this).data('stage'));
+            });
+
+            var $active = $nav.find('[data-mfg-stage-btn].is-active').first();
+            if ($active.length) {
+                showStage($active.data('stage'));
+            } else {
+                var $last = $nav.find('[data-mfg-stage-btn]').last();
+                if ($last.length) {
+                    showStage($last.data('stage'));
+                }
+            }
+        });
+    }
+
+    function initContextSwitcher($root) {
+        var $select = $root.find('[data-mfg-context-select]');
+        if (!$select.length) {
             return;
         }
 
-        function showStage(stage) {
-            var stageKey = String(stage);
+        function showContext(contextKey) {
+            var key = String(contextKey);
 
-            $nav.find('[data-mfg-stage-btn]').each(function () {
-                var $btn = $(this);
-                var isActive = String($btn.data('stage')) === stageKey;
-                $btn.toggleClass('is-active', isActive);
-                $btn.attr('aria-selected', isActive ? 'true' : 'false');
-            });
-
-            $root.find('[data-mfg-stage-panel]').each(function () {
+            $root.find('[data-mfg-context-panel]').each(function () {
                 var $panel = $(this);
-                var isActive = String($panel.data('mfg-stage-panel')) === stageKey;
+                var isActive = String($panel.data('mfg-context-panel')) === key;
                 $panel.toggleClass('is-active', isActive);
                 if (isActive) {
                     $panel.removeAttr('hidden');
@@ -115,19 +159,11 @@
             });
         }
 
-        $nav.on('click', '[data-mfg-stage-btn]', function () {
-            showStage($(this).data('stage'));
+        $select.on('change', function () {
+            showContext($(this).val());
         });
 
-        var $active = $nav.find('[data-mfg-stage-btn].is-active').first();
-        if ($active.length) {
-            showStage($active.data('stage'));
-        } else {
-            var $last = $nav.find('[data-mfg-stage-btn]').last();
-            if ($last.length) {
-                showStage($last.data('stage'));
-            }
-        }
+        showContext($select.val());
     }
 
     function initStepRangeFields($root) {
@@ -159,6 +195,7 @@
             return;
         }
 
+        initContextSwitcher($root);
         initStagePicker($root);
         initVersionPicker($root);
         initCycleVersionPicker(document);

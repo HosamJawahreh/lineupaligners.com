@@ -680,7 +680,276 @@ class Patient extends Model
             ];
         }
 
+        if (Schema::hasTable('patient_case_modifications')) {
+            foreach ($this->caseModifications()->orderBy('version')->get() as $mod) {
+                $files = $mod->caseScanFiles();
+                $photoCount = $mod->photos()->count();
+
+                if (count($files) === 0 && $photoCount === 0) {
+                    continue;
+                }
+
+                $candidates[] = [
+                    'key' => 'mod-'.$mod->id,
+                    'label' => $mod->scopeLabel(),
+                    'notes' => $mod->notes,
+                    'files' => $files,
+                    'at' => $mod->created_at ?? now(),
+                ];
+            }
+        }
+
+        if (Schema::hasTable('patient_case_refinements')) {
+            foreach ($this->caseRefinements()->orderBy('version')->get() as $ref) {
+                $files = $ref->caseScanFiles();
+                $photoCount = $ref->photos()->count();
+
+                if (count($files) === 0 && $photoCount === 0) {
+                    continue;
+                }
+
+                $candidates[] = [
+                    'key' => 'ref-'.$ref->id,
+                    'label' => $ref->scopeLabel(),
+                    'notes' => $ref->notes,
+                    'files' => $files,
+                    'at' => $ref->created_at ?? now(),
+                ];
+            }
+        }
+
+        usort($candidates, fn (array $a, array $b) => $b['at'] <=> $a['at']);
+
         return $candidates;
+    }
+
+    public function defaultTreatmentPlanContextKey(): string
+    {
+        $contexts = $this->treatmentPlanContextsForViewer();
+
+        return $contexts[0]['key'] ?? 'original';
+    }
+
+    /**
+     * Treatment plan contexts for the version switcher (original, modifications, refinements).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function treatmentPlanContextsForViewer(): array
+    {
+        $contexts = [];
+
+        $originalFullPlans = $this->visibleFullTreatmentPlansForOriginalCycle();
+        $originalStagePlans = $this->originalCycleStageTreatmentPlans();
+        $originalStageNumbers = $this->originalCycleTreatmentPlanStageNumbers();
+
+        $latestOriginalAt = $this->originalCycleTreatmentPlansQuery()->max('updated_at');
+
+        $contexts[] = $this->buildTreatmentPlanContext(
+            'original',
+            'Original case plan',
+            'original',
+            $latestOriginalAt ? \Carbon\Carbon::parse($latestOriginalAt) : ($this->created_at ?? now()),
+            ! $this->hasActiveRefinement() && ! $this->hasActiveModificationForAny(),
+            [
+                'visible_full_plans' => $originalFullPlans,
+                'full_plan' => $this->originalCycleFullTreatmentPlan(),
+                'stage_plans' => $originalStagePlans,
+                'stage_numbers' => $originalStageNumbers,
+            ]
+        );
+
+        if (Schema::hasTable('patient_case_modifications')) {
+            foreach ($this->caseModifications()->with('treatmentPlan')->orderBy('version')->get() as $mod) {
+                if (! $mod->is_current && ! $mod->hasRevisedPlan()) {
+                    continue;
+                }
+
+                $linkedPlan = $mod->treatmentPlan;
+                $planUrl = $mod->hasRevisedPlan()
+                    ? $mod->revised_plan_url
+                    : ($linkedPlan?->plan_url);
+                $reviewStatus = $mod->is_current && $linkedPlan?->is_current
+                    ? $linkedPlan->review_status
+                    : ($mod->hasRevisedPlan() ? 'approved' : 'pending');
+
+                $contexts[] = $this->buildTreatmentPlanContext(
+                    'mod-'.$mod->id,
+                    $mod->scopeLabel(),
+                    'modification',
+                    $mod->hasRevisedPlan()
+                        ? ($mod->updated_at ?? $mod->created_at ?? now())
+                        : ($mod->created_at ?? now()),
+                    $mod->is_current,
+                    [
+                        'modification_id' => $mod->id,
+                        'modification' => $mod,
+                        'plan_url' => $planUrl,
+                        'review_status' => $reviewStatus,
+                        'treatment_plan' => $mod->is_current ? $linkedPlan : null,
+                        'stage_number' => $mod->stage_number,
+                    ]
+                );
+            }
+        }
+
+        if (Schema::hasTable('patient_case_refinements')) {
+            foreach ($this->caseRefinements()->orderBy('version')->get() as $ref) {
+                $refStageNumbers = $this->treatmentPlanStageNumbersForRefinement($ref->id);
+                $refFullPlans = $this->visibleFullTreatmentPlansForRefinement($ref->id);
+                $refStagePlans = $this->currentStageTreatmentPlansForRefinement($ref->id);
+
+                if ($refFullPlans->isEmpty()
+                    && $refStagePlans->isEmpty()
+                    && ! $ref->is_current) {
+                    continue;
+                }
+
+                $latestRefAt = $this->treatmentPlans()
+                    ->where('refinement_id', $ref->id)
+                    ->max('updated_at');
+
+                $contexts[] = $this->buildTreatmentPlanContext(
+                    'ref-'.$ref->id,
+                    $ref->scopeLabel(),
+                    'refinement',
+                    $latestRefAt
+                        ? \Carbon\Carbon::parse($latestRefAt)
+                        : ($ref->created_at ?? now()),
+                    $ref->is_current,
+                    [
+                        'refinement_id' => $ref->id,
+                        'refinement' => $ref,
+                        'visible_full_plans' => $refFullPlans,
+                        'full_plan' => $refFullPlans->firstWhere('is_current', true)
+                            ?? $refFullPlans->sortByDesc('version')->first(),
+                        'stage_plans' => $refStagePlans,
+                        'stage_numbers' => $refStageNumbers,
+                    ]
+                );
+            }
+        }
+
+        usort($contexts, fn (array $a, array $b) => $b['at'] <=> $a['at']);
+
+        return $contexts;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    protected function buildTreatmentPlanContext(
+        string $key,
+        string $label,
+        string $type,
+        $at,
+        bool $isActive,
+        array $payload
+    ): array {
+        return array_merge([
+            'key' => $key,
+            'label' => $label,
+            'type' => $type,
+            'at' => $at,
+            'is_active' => $isActive,
+        ], $payload);
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, PatientTreatmentPlan>
+     */
+    public function visibleFullTreatmentPlansForOriginalCycle()
+    {
+        $plans = $this->originalCycleTreatmentPlansQuery()
+            ->whereNull('stage_number')
+            ->orderBy('version')
+            ->get();
+
+        return $this->visibleTreatmentPlanVersions($plans);
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, PatientTreatmentPlan>
+     */
+    public function visibleFullTreatmentPlansForRefinement(int $refinementId)
+    {
+        $plans = $this->treatmentPlans()
+            ->where('refinement_id', $refinementId)
+            ->whereNull('stage_number')
+            ->orderBy('version')
+            ->get();
+
+        return $this->visibleTreatmentPlanVersions($plans);
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, int>
+     */
+    public function originalCycleTreatmentPlanStageNumbers()
+    {
+        return $this->originalCycleTreatmentPlansQuery()
+            ->whereNotNull('stage_number')
+            ->distinct()
+            ->orderBy('stage_number')
+            ->pluck('stage_number')
+            ->map(fn ($n) => (int) $n)
+            ->values();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, int>
+     */
+    public function treatmentPlanStageNumbersForRefinement(int $refinementId)
+    {
+        return $this->treatmentPlans()
+            ->where('refinement_id', $refinementId)
+            ->whereNotNull('stage_number')
+            ->distinct()
+            ->orderBy('stage_number')
+            ->pluck('stage_number')
+            ->map(fn ($n) => (int) $n)
+            ->values();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, PatientTreatmentPlan>
+     */
+    public function currentStageTreatmentPlansForRefinement(int $refinementId)
+    {
+        return $this->treatmentPlans()
+            ->where('refinement_id', $refinementId)
+            ->whereNotNull('stage_number')
+            ->where('is_current', true)
+            ->orderBy('stage_number')
+            ->get();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, PatientTreatmentPlan>
+     */
+    public function visibleTreatmentPlansForStageInOriginalCycle(int $stageNumber)
+    {
+        $plans = $this->originalCycleTreatmentPlansQuery()
+            ->where('stage_number', $stageNumber)
+            ->orderBy('version')
+            ->get();
+
+        return $this->visibleTreatmentPlanVersions($plans);
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, PatientTreatmentPlan>
+     */
+    public function visibleTreatmentPlansForStageInRefinement(int $refinementId, int $stageNumber)
+    {
+        $plans = $this->treatmentPlans()
+            ->where('refinement_id', $refinementId)
+            ->where('stage_number', $stageNumber)
+            ->orderBy('version')
+            ->get();
+
+        return $this->visibleTreatmentPlanVersions($plans);
     }
 
     /**

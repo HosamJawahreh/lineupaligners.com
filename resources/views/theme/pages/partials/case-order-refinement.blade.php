@@ -12,7 +12,7 @@
     <header class="case-refinement__head">
         <h3 class="case-refinement__title">Order refinement</h3>
         <p class="case-refinement__subtitle">
-            For patients returning after manufacture. Each refinement cycle keeps its own scans, photos, notes, and plan here. Original case data stays on the 3D Scans &amp; Photos tab.
+            For patients returning after manufacture. Upload scans, photos, and notes here — view them under <strong>3D Scans &amp; Photos</strong> and the refinement plan under <strong>Treatment Plan</strong>.
         </p>
     </header>
 
@@ -36,11 +36,6 @@
         <p>{{ $errors->first() }}</p>
     </div>
     @endif
-
-    @include('theme.pages.partials.case-refinement-records', [
-        'patient' => $patient,
-        'refinementRecords' => $refinementRecords ?? collect(),
-    ])
 
     @if(! $refinementsEnabled)
     <div class="case-refinement__notice case-refinement__notice--error" role="alert">

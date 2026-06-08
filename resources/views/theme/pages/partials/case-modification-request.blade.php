@@ -14,14 +14,9 @@
     <header class="case-modification__head">
         <h3 class="case-modification__title">Request Modification</h3>
         <p class="case-modification__subtitle">
-            Request plan changes before the case is manufactured. Each modification keeps its own scans, photos, notes, and revised plan here. Treatment Plan versions are only for doctor rejections — not modifications.
+            Request plan changes before the case is manufactured. Upload scans, photos, and notes here — view them under <strong>3D Scans &amp; Photos</strong> and the revised plan under <strong>Treatment Plan</strong>.
         </p>
     </header>
-
-    @include('theme.pages.partials.case-modification-records', [
-        'patient' => $patient,
-        'modificationRecords' => $modificationRecords ?? collect(),
-    ])
 
     @if($canRequest)
         @if($isDivided && $awaitingPlan && $eligibleStages->isNotEmpty())
