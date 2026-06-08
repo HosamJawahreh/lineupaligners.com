@@ -25,7 +25,7 @@
             @method('PUT')
 
             <div class="wm-main-menu-preview">
-                <span class="wm-main-menu-preview__home"><i class="zmdi zmdi-home"></i> Home</span>
+                <span class="wm-main-menu-preview__home"><i class="{{ app(\App\Services\SmilizPageRegistry::class)->homeNavIcon() }}"></i> Home</span>
                 @forelse($previewItems as $label)
                 <span class="wm-main-menu-preview__item">{{ $label }}</span>
                 @empty
@@ -90,6 +90,7 @@
                             </button>
 
                             <div class="wm-main-menu-page__info">
+                                <span class="wm-main-menu-page__icon" aria-hidden="true"><i class="{{ app(\App\Services\SmilizPageRegistry::class)->pageNavIcon($page['key']) }}"></i></span>
                                 <strong>{{ $page['label'] }}</strong>
                                 <code>/{{ $page['path'] }}</code>
                             </div>

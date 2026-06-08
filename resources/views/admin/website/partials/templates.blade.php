@@ -1,33 +1,8 @@
 <template id="website-feature-row-template">
-    <div class="wm-feature-card website-repeatable__row">
-        <input type="hidden" name="features[__INDEX__][image]" value="">
-        <div class="wm-section-media wm-section-media--compact">
-            <div class="wm-section-media__preview" id="feature-preview-__INDEX__">
-                <span class="wm-section-media__empty"><i class="zmdi zmdi-image"></i></span>
-            </div>
-            <div class="wm-section-media__controls">
-                <input type="file" name="features[__INDEX__][image_file]" class="form-control wm-input wm-image-input" accept="image/jpeg,image/png,image/webp" data-preview="feature-preview-__INDEX__">
-            </div>
-        </div>
-        <div class="wm-feature-card__fields">
-            @include('admin.website.partials.icon-select', [
-                'name' => 'features[__INDEX__][icon]',
-                'iconOptions' => $iconOptions,
-                'smilizIconOptions' => $smilizIconOptions ?? [],
-            ])
-            <input type="text" name="features[__INDEX__][title]" class="form-control wm-input" placeholder="Service title">
-            <input type="text" name="features[__INDEX__][description]" class="form-control wm-input" placeholder="Short description">
-            <div class="row">
-                <div class="col-md-5">
-                    <input type="text" name="features[__INDEX__][button_label]" class="form-control wm-input" placeholder="Button text (optional)">
-                </div>
-                <div class="col-md-7">
-                    <input type="text" name="features[__INDEX__][link_url]" class="form-control wm-input" placeholder="Link URL (optional)">
-                </div>
-            </div>
-        </div>
-        <button type="button" class="btn btn-sm btn-simple btn-danger website-remove-row"><i class="zmdi zmdi-close"></i></button>
-    </div>
+    @include('admin.website.partials.feature-card-row', [
+        'i' => '__INDEX__',
+        'feature' => [],
+    ])
 </template>
 
 <template id="website-slide-row-template">

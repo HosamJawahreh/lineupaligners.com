@@ -10,7 +10,8 @@
     var sectionAliases = {
         'process': 'how-it-works',
         'cases': 'portfolio',
-        'portfolio-gallery': 'case-studies'
+        'portfolio-gallery': 'case-studies',
+        'services': 'why-lineup'
     };
     var dirtyForms = new Set();
 

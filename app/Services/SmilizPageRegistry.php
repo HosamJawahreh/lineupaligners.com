@@ -195,6 +195,7 @@ class SmilizPageRegistry
                     'key' => $page['key'],
                     'label' => $this->localizedNavLabel($page, $locale),
                     'url' => $this->pageUrl($page['key'], $locale),
+                    'icon' => $this->pageNavIcon($page['key']),
                 ])
                 ->values()
                 ->all();
@@ -223,6 +224,7 @@ class SmilizPageRegistry
             $menu[] = [
                 'group' => $groupKey,
                 'label' => $groupLabel,
+                'icon' => $this->groupNavIcon($groupKey),
                 'children' => $children,
                 'url' => count($children) === 1 ? $children[0]['url'] : null,
             ];
@@ -315,6 +317,32 @@ class SmilizPageRegistry
     public function isEnabled(string $key): bool
     {
         return (bool) ($this->resolvedSettings()[$key]['enabled'] ?? false);
+    }
+
+    public function homeNavIcon(): string
+    {
+        return (string) config('smiliz-pages.nav_icons.home', 'ti-home');
+    }
+
+    public function groupNavIcon(string $groupKey): string
+    {
+        $icons = config('smiliz-pages.nav_icons.groups', []);
+
+        return (string) ($icons[$groupKey] ?? 'pbmit-base-icon-right-arrow');
+    }
+
+    public function pageNavIcon(string $key): string
+    {
+        $icons = config('smiliz-pages.nav_icons.pages', []);
+
+        if (filled($icons[$key] ?? null)) {
+            return (string) $icons[$key];
+        }
+
+        $page = $this->find($key);
+        $group = is_array($page) ? ($page['group'] ?? $this->guessGroup($key)) : $this->guessGroup($key);
+
+        return $this->groupNavIcon($group);
     }
 
     public function saveSettings(array $input): void

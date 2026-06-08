@@ -3,7 +3,10 @@
 @push('styles')
 <link rel="stylesheet" href="{{ asset('assets/css/settings-layout.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-lang-switcher.css') }}?v=3">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-website-admin.css') }}?v=26">
+<link rel="stylesheet" href="{{ asset('assets/smiliz/fonts/pbmit-smiliz-icon/pbmit_smiliz.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/smiliz/css/pbminfotech-base-icons.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/smiliz/css/themify-icons.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-website-admin.css') }}?v=28">
 @endpush
 
 @section('content')
@@ -27,6 +30,6 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('assets/js/lineup-website-admin.js') }}?v=28"></script>
+<script src="{{ asset('assets/js/lineup-website-admin.js') }}?v=29"></script>
 @stack('website-scripts')
 @endpush

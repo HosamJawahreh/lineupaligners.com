@@ -2,7 +2,7 @@
     <header class="wm-panel__head">
         <div>
             <h3 class="wm-panel__title">Why LINEUP</h3>
-            <p class="wm-panel__desc">Homepage platform section — heading, intro, and feature cards shown in the services carousel.</p>
+            <p class="wm-panel__desc">Homepage cards, section heading, and full detail page for each item.</p>
         </div>
         @include('admin.website.partials.section-visibility-toggle', ['sectionKey' => 'services', 'sectionLabel' => 'Why LINEUP section'])
     </header>
@@ -37,46 +37,20 @@
         </div>
 
         <div class="wm-block">
-            <h4 class="wm-block__title">Feature cards</h4>
-            <p class="wm-hint">These cards appear on the homepage carousel and on the public Services listing page.</p>
+            <h4 class="wm-block__title">Cards &amp; detail pages</h4>
+            <p class="wm-hint">Each card appears on the homepage. Expand <strong>Full service page</strong> to edit the public detail page for that item.</p>
             @if($editLocale !== 'en')
             <p class="wm-hint wm-hint--info m-b-12"><i class="zmdi zmdi-info-outline"></i> Photos, slugs, and custom links are shared across languages.</p>
             @endif
             <div id="website-features-list">
                 @foreach(old('features', $content['features']) as $i => $feature)
-                <div class="wm-feature-card website-repeatable__row">
-                    <input type="hidden" name="features[{{ $i }}][image]" value="{{ $feature['image'] ?? '' }}">
-                    @include('admin.website.partials.section-image-field', [
-                        'inputName' => "features[{$i}][image_file]",
-                        'currentUrl' => $websiteContent->featureImageUrl($feature, $i),
-                        'removeName' => !empty($feature['image']) ? "features[{$i}][remove_image]" : null,
-                        'previewId' => 'feature-preview-'.$i,
-                        'compact' => true,
-                    ])
-                    <div class="wm-feature-card__fields">
-                        @include('admin.website.partials.icon-select', [
-                            'name' => "features[{$i}][icon]",
-                            'selected' => $feature['icon'] ?? '',
-                            'iconOptions' => $iconOptions,
-                            'smilizIconOptions' => $smilizIconOptions ?? [],
-                        ])
-                        <input type="text" name="features[{{ $i }}][title]" class="form-control wm-input" value="{{ $feature['title'] ?? '' }}" placeholder="Card title">
-                        <input type="text" name="features[{{ $i }}][description]" class="form-control wm-input" value="{{ $feature['description'] ?? '' }}" placeholder="Short description">
-                        <div class="row">
-                            <div class="col-md-5">
-                                <input type="text" name="features[{{ $i }}][button_label]" class="form-control wm-input" value="{{ $feature['button_label'] ?? '' }}" placeholder="Button text (optional)">
-                            </div>
-                            <div class="col-md-7">
-                                <input type="text" name="features[{{ $i }}][link_url]" class="form-control wm-input" value="{{ $feature['link_url'] ?? '' }}" placeholder="Custom link (optional)">
-                            </div>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-simple btn-danger website-remove-row" title="Remove"><i class="zmdi zmdi-close"></i></button>
-                </div>
+                @include('admin.website.partials.feature-card-row', [
+                    'i' => $i,
+                    'feature' => $feature,
+                ])
                 @endforeach
             </div>
             <button type="button" class="btn btn-sm btn-default btn-round m-t-10" id="website-add-feature"><i class="zmdi zmdi-plus"></i> Add card</button>
-            <p class="wm-hint m-b-0 m-t-10">To edit each card’s full service detail page, open <strong>Services</strong> in the sidebar.</p>
         </div>
     </div>
 </section>

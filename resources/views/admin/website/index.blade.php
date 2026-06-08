@@ -22,7 +22,6 @@
             @include('admin.website.partials.panel-why-lineup')
             @include('admin.website.partials.panel-how-it-works')
             @include('admin.website.partials.panel-about')
-            @include('admin.website.partials.panel-services')
             @include('admin.website.partials.panel-stats')
             @include('admin.website.partials.panel-portfolio')
             @include('admin.website.partials.panel-faq')

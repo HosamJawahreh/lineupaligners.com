@@ -1,12 +1,10 @@
 @if($content['sections']['services'] ?? true)
 
-@if(($content['template'] ?? '') !== 'smiliz-homepage-2')
-
-<section class="section-xl bottom-radius pbmit-bg-color-light position-relative" id="services" style="z-index: 1;">
+<section class="section-xl bottom-radius pbmit-bg-color-light position-relative lineup-why-lineup-section" id="services">
 
     <div class="container" data-aos="fade-up" data-aos-duration="800">
 
-        <div class="pbmit-heading-subheading style-2 animation-style2">
+        <div class="pbmit-heading-subheading style-2 animation-style2 lineup-why-lineup-section__head">
 
             <div>
 
@@ -24,69 +22,55 @@
 
         </div>
 
-        <div class="swiper-slider pb-4" data-autoplay="true" data-loop="true" data-dots="false" data-arrows-class="service-arrow" data-allow-touch="true" data-arrows="true" data-columns="4" data-margin="30" data-effect="slide">
+        <div class="lineup-why-lineup-grid">
 
-            <div class="swiper-wrapper">
+            @foreach($content['features'] as $feature)
 
-                @foreach($content['features'] as $feature)
+            @php
+                $cardUrl = $websiteContent->serviceLinkUrl($feature, $loginUrl);
+                $buttonLabel = $websiteContent->serviceButtonLabel($feature, __('website.learn_more'));
+                $iconValue = trim($feature['smiliz_icon'] ?? $feature['icon'] ?? '');
+                $smilizIcon = str_starts_with($iconValue, 'pbmit-smiliz-icon') ? $iconValue : '';
+            @endphp
 
-                <article class="pbmit-service-style-1 swiper-slide">
+            <article class="lineup-why-lineup-card">
 
-                    <div class="pbminfotech-post-item">
+                <div class="lineup-why-lineup-card__media">
 
-                        <div class="pbmit-box-content-wrap">
+                    <a href="{{ $cardUrl }}" tabindex="-1" aria-hidden="true">
 
-                            <div class="pbmit-content-box">
+                        <img src="{{ $websiteContent->featureImageUrl($feature, $loop->index) }}" class="img-fluid" alt="" loading="lazy" decoding="async">
 
-                                <h3 class="pbmit-service-title">
+                    </a>
 
-                                    <a href="{{ $websiteContent->serviceLinkUrl($feature, $loginUrl) }}">{{ $feature['title'] }}</a>
+                    @if($smilizIcon !== '')
+                    <span class="lineup-why-lineup-card__icon" aria-hidden="true">
+                        <i class="pbmit-smiliz-icon {{ $smilizIcon }}"></i>
+                    </span>
+                    @endif
 
-                                </h3>
+                </div>
 
-                                <div class="pbmit-service-description">
+                <div class="lineup-why-lineup-card__body">
 
-                                    <p>{{ $feature['description'] }}</p>
+                    <h3 class="lineup-why-lineup-card__title">
+                        <a href="{{ $cardUrl }}">{{ $feature['title'] }}</a>
+                    </h3>
 
-                                </div>
+                    <p class="lineup-why-lineup-card__desc">{{ $feature['description'] }}</p>
 
-                            </div>
+                    <a href="{{ $cardUrl }}" class="lineup-why-lineup-card__link">
+                        <span>{{ $buttonLabel }}</span>
+                        <i class="pbmit-base-icon-right-arrow" aria-hidden="true"></i>
+                    </a>
 
-                            <div class="pbmit-service-image-wrapper">
+                </div>
 
-                                <div class="pbmit-service-image-inner">
+            </article>
 
-                                    <div class="pbmit-featured-img-wrapper">
-
-                                        <div class="pbmit-featured-wrapper">
-
-                                            <a href="{{ $websiteContent->serviceLinkUrl($feature, $loginUrl) }}">
-
-                                                <img src="{{ $websiteContent->featureImageUrl($feature, $loop->index) }}" class="img-fluid" alt="{{ $feature['title'] }}" loading="lazy" decoding="async">
-
-                                            </a>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-                @endforeach
-
-            </div>
+            @endforeach
 
         </div>
-
-        <div class="d-inline-flex service-arrow"></div>
 
         @if(filled($content['platform']['cta_label']))
 
@@ -113,6 +97,3 @@
 </section>
 
 @endif
-
-@endif
-

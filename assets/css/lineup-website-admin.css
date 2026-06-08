@@ -1887,7 +1887,6 @@
 .wm-blog-card,
 .wm-practice-care-card,
 .wm-process-card,
-.wm-service-detail-card,
 .wm-partner-card {
     display: flex;
     gap: 12px;
@@ -1897,6 +1896,32 @@
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     background: #fff;
+}
+
+.wm-feature-card--with-detail {
+    flex-direction: column;
+    gap: 0;
+    padding: 16px;
+}
+
+.wm-feature-card__top {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.wm-feature-card__detail {
+    width: 100%;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.wm-feature-card__preview {
+    display: inline-block;
+    margin-bottom: 8px;
+    font-size: 12px;
 }
 
 .wm-item-detail {
@@ -2279,6 +2304,26 @@
 .wm-main-menu-page__info {
     flex: 1;
     min-width: 180px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.wm-main-menu-page__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--lineup-brand) 10%, #fff);
+    color: var(--lineup-brand-secondary);
+    flex-shrink: 0;
+    font-size: 14px;
+}
+
+.wm-main-menu-page__icon .pbmit-smiliz-icon {
+    font-size: 16px;
 }
 
 .wm-main-menu-page__info strong {

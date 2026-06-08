@@ -177,9 +177,8 @@ class WebsiteContent
         return [
             ['section' => 'hero', 'label' => 'Homepage', 'done' => filled($content['hero']['title'] ?? '') && filled($content['hero']['subtitle'] ?? ''), 'hint' => 'Headline & background'],
             ['section' => 'about', 'label' => 'About us', 'done' => filled($content['about']['body'] ?? ''), 'hint' => 'Story & photo'],
-            ['section' => 'why-lineup', 'label' => 'Why LINEUP', 'done' => filled($content['platform']['title'] ?? '') && count($content['features'] ?? []) >= 3, 'hint' => 'Section heading & cards'],
+            ['section' => 'why-lineup', 'label' => 'Why LINEUP', 'done' => filled($content['platform']['title'] ?? '') && count($content['features'] ?? []) >= 3, 'hint' => 'Cards, heading & detail pages'],
             ['section' => 'how-it-works', 'label' => 'How it works', 'done' => count($content['process']['steps'] ?? []) >= 2, 'hint' => 'Workflow steps'],
-            ['section' => 'services', 'label' => 'Services', 'done' => count($content['features'] ?? []) >= 1, 'hint' => 'Detail pages'],
             ['section' => 'stats', 'label' => 'Stats', 'done' => count($content['stats'] ?? []) >= 2, 'hint' => 'Trust numbers'],
             ['section' => 'portfolio', 'label' => 'Case results', 'done' => filled($content['treatments']['title'] ?? '') && ! $this->portfolioUsesDemoImages(), 'hint' => 'Carousel headings & cases'],
             ['section' => 'case-studies', 'label' => 'Case studies', 'done' => ! $this->portfolioUsesDemoImages(), 'hint' => 'Listing & detail pages'],
@@ -1611,6 +1610,7 @@ class WebsiteContent
     private function normalizeFeatures(array $rows): array
     {
         $existing = $this->decodeJson(Setting::get('website_features'), config('website.default_features', []));
+        $defaults = config('website.default_features', []);
         $out = [];
         $usedSlugs = [];
 
@@ -1623,8 +1623,20 @@ class WebsiteContent
             $slug = $this->resolveItemSlug($row, $existing[$i] ?? [], $title, $usedSlugs);
             $usedSlugs[] = $slug;
 
+            $icon = trim($row['icon'] ?? 'zmdi-star');
+            $smilizIcon = str_starts_with($icon, 'pbmit-smiliz-icon')
+                ? $icon
+                : trim($row['smiliz_icon'] ?? ($existing[$i]['smiliz_icon'] ?? ''));
+
+            if (! str_starts_with($icon, 'pbmit-smiliz-icon')) {
+                $iconValue = $icon;
+            } else {
+                $iconValue = trim($existing[$i]['icon'] ?? 'zmdi-star');
+            }
+
             $out[] = [
-                'icon' => trim($row['icon'] ?? 'zmdi-star'),
+                'icon' => $iconValue,
+                'smiliz_icon' => $smilizIcon !== '' ? $smilizIcon : trim($existing[$i]['smiliz_icon'] ?? ($defaults[$i]['smiliz_icon'] ?? '')),
                 'title' => $title,
                 'description' => trim($row['description'] ?? ''),
                 'image' => trim($row['image'] ?? ($existing[$i]['image'] ?? '')),

@@ -97,20 +97,39 @@
                                     <div>
                                         <ul id="pbmit-top-menu" class="navigation clearfix">
                                             <li @class(['active' => empty($currentPageKey)])>
-                                                <a href="{{ $websiteHomeUrl ?? route('website.home') }}">{{ __('website.home') }}</a>
+                                                @include('website.smiliz.partials.nav-link', [
+                                                    'url' => $websiteHomeUrl ?? route('website.home'),
+                                                    'label' => __('website.home'),
+                                                    'icon' => app(\App\Services\SmilizPageRegistry::class)->homeNavIcon(),
+                                                ])
                                             </li>
                                             @foreach($navMenu ?? [] as $item)
                                                 @if(count($item['children']) === 1)
-                                                <li @class(['active' => ($currentPageKey ?? '') === $item['children'][0]['key']])>
-                                                    <a href="{{ $item['children'][0]['url'] }}">{{ $item['children'][0]['label'] }}</a>
+                                                @php $child = $item['children'][0]; @endphp
+                                                <li @class(['active' => ($currentPageKey ?? '') === $child['key']])>
+                                                    @include('website.smiliz.partials.nav-link', [
+                                                        'url' => $child['url'],
+                                                        'label' => $child['label'],
+                                                        'icon' => $child['icon'] ?? $item['icon'] ?? '',
+                                                    ])
                                                 </li>
                                                 @else
                                                 <li class="dropdown">
-                                                    <a href="{{ $item['children'][0]['url'] ?? '#' }}" aria-haspopup="true">{{ $item['label'] }}</a>
+                                                    @include('website.smiliz.partials.nav-link', [
+                                                        'url' => $item['children'][0]['url'] ?? '#',
+                                                        'label' => $item['label'],
+                                                        'icon' => $item['icon'] ?? '',
+                                                        'attributes' => ['aria-haspopup' => 'true'],
+                                                    ])
                                                     <ul>
                                                         @foreach($item['children'] as $child)
                                                         <li @class(['active' => ($currentPageKey ?? '') === $child['key']])>
-                                                            <a href="{{ $child['url'] }}">{{ $child['label'] }}</a>
+                                                            @include('website.smiliz.partials.nav-link', [
+                                                                'url' => $child['url'],
+                                                                'label' => $child['label'],
+                                                                'icon' => $child['icon'] ?? '',
+                                                                'class' => 'lineup-nav-link lineup-nav-link--sub',
+                                                            ])
                                                         </li>
                                                         @endforeach
                                                     </ul>

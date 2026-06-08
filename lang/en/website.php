@@ -28,6 +28,7 @@ return [
     'before' => 'Before',
     'after' => 'After',
     'more_details' => 'More Details',
+    'learn_more' => 'Learn more',
     'view_all_faqs' => 'View all FAQs',
     'read_more' => 'Read More',
     'view_details_more' => 'View Details More',

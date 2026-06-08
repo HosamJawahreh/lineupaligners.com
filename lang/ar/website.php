@@ -28,6 +28,7 @@ return [
     'before' => 'قبل',
     'after' => 'بعد',
     'more_details' => 'المزيد من التفاصيل',
+    'learn_more' => 'اعرف المزيد',
     'view_all_faqs' => 'عرض جميع الأسئلة الشائعة',
     'read_more' => 'اقرأ المزيد',
     'view_details_more' => 'عرض المزيد من التفاصيل',

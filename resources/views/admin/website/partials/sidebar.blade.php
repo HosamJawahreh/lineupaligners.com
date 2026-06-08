@@ -15,7 +15,7 @@
 
     <p class="wm-sidebar__heading wm-sidebar__heading--spaced">Website content</p>
     <ul class="wm-sidebar__list">
-        <li class="wm-sidebar__group" data-wm-group-sections="hero,why-lineup,how-it-works,portfolio">
+        <li class="wm-sidebar__group" data-wm-group-sections="hero,how-it-works,portfolio">
             <button type="button" class="wm-sidebar__group-toggle" aria-expanded="false">
                 <i class="zmdi zmdi-view-module"></i>
                 <span>Homepage sections</span>
@@ -25,11 +25,6 @@
                 <li>
                     <a href="#wm-panel-hero" class="wm-sidebar__link wm-sidebar__sublink wm-goto-section" data-wm-section="hero">
                         Hero banner
-                    </a>
-                </li>
-                <li>
-                    <a href="#wm-panel-why-lineup" class="wm-sidebar__link wm-sidebar__sublink wm-goto-section" data-wm-section="why-lineup">
-                        Why LINEUP
                     </a>
                 </li>
                 <li>
@@ -50,8 +45,8 @@
             </a>
         </li>
         <li>
-            <a href="#wm-panel-services" class="wm-sidebar__link wm-goto-section" data-wm-section="services">
-                <i class="zmdi zmdi-hospital"></i> Services
+            <a href="#wm-panel-why-lineup" class="wm-sidebar__link wm-goto-section" data-wm-section="why-lineup">
+                <i class="zmdi zmdi-star-circle"></i> Why LINEUP
             </a>
         </li>
         <li>

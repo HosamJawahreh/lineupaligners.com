@@ -177,4 +177,32 @@ return [
         'contact-us-02' => 'Get in touch with LineUp Aligner — phone, email, and clinic location details.',
         'appointment' => 'Book an appointment or request a consultation with a LineUp Aligner partner clinic.',
     ],
+
+    /** Icons for public header navigation (pbmit-base, pbmit-smiliz, or themify ti-*). */
+    'nav_icons' => [
+        'home' => 'ti-home',
+        'groups' => [
+            'about' => 'ti-user',
+            'services' => 'pbmit-smiliz-icon-dental-care',
+            'case_study' => 'pbmit-base-icon-gallery',
+            'blog' => 'pbmit-base-icon-label',
+            'faq' => 'pbmit-base-icon-speech-bubble',
+            'contact' => 'pbmit-base-icon-mail-1',
+        ],
+        'pages' => [
+            'about-us' => 'ti-user',
+            'our-history' => 'pbmit-base-icon-calendar-silhouette',
+            'our-dentist' => 'pbmit-base-icon-user-1',
+            'dentist-profile' => 'pbmit-base-icon-user-circle',
+            'faq' => 'pbmit-base-icon-speech-bubble',
+            'service-details' => 'pbmit-smiliz-icon-dental-care',
+            'portfolio-grid-col-4' => 'pbmit-base-icon-gallery',
+            'case-study-style-1' => 'pbmit-base-icon-gallery',
+            'blog-classic' => 'pbmit-base-icon-label',
+            'blog-single-details' => 'pbmit-base-icon-label',
+            'contact-us-01' => 'pbmit-base-icon-mail-1',
+            'contact-us-02' => 'pbmit-base-icon-phone-1',
+            'appointment' => 'pbmit-base-icon-phone-1',
+        ],
+    ],
 ];
