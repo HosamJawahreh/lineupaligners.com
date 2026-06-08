@@ -84,19 +84,19 @@
                             <tbody>
                                 @foreach($recentCases as $case)
                                 <tr>
-                                    <td>
+                                    <td data-label="Case">
                                         <a href="{{ route('patients.show', $case) }}" class="lineup-dashboard__case-link">{{ $case->display_patient_id }}</a>
                                     </td>
-                                    <td>{{ $case->fullName() }}</td>
+                                    <td data-label="Patient">{{ $case->fullName() }}</td>
                                     @if($isAdmin)
-                                    <td>{{ $case->doctor?->fullName() ?? '—' }}</td>
+                                    <td data-label="Doctor">{{ $case->doctor?->fullName() ?? '—' }}</td>
                                     @endif
-                                    <td>
+                                    <td data-label="Workflow">
                                         <span class="lineup-dashboard__badge lineup-dashboard__badge--{{ $case->workflowBadgeClass() }}">
                                             {{ $case->workflowStageLabel() }}
                                         </span>
                                     </td>
-                                    <td>{{ $case->created_at?->diffForHumans() }}</td>
+                                    <td data-label="Opened">{{ $case->created_at?->diffForHumans() }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>

@@ -107,6 +107,18 @@
                 </div>
             </form>
 
+            <div class="cases-mobile-list" aria-label="Cases list">
+                @forelse($patients as $patient)
+                    @include('theme.pages.partials.cases-mobile-card', ['patient' => $patient, 'isAdmin' => $isAdmin])
+                @empty
+                    <div class="cases-mobile-empty">
+                        <i class="zmdi zmdi-folder-outline" style="font-size: 40px; opacity: 0.4;"></i>
+                        <p class="m-t-15 m-b-5"><strong>No cases found</strong></p>
+                        <p class="m-b-0">Try adjusting your filters or create a new case.</p>
+                    </div>
+                @endforelse
+            </div>
+
             <div class="cases-table-scroll">
             <div class="cases-table-wrap">
                 <table class="cases-table lineup-datatable table table-hover w-100" id="cases-table"

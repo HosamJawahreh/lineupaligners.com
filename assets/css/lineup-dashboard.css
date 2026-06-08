@@ -139,6 +139,10 @@ body.lineup-app #leftsidebar.lineup-sidebar .list {
     font-weight: 600;
 }
 
+.lineup-sidebar-mobile-head {
+    display: none;
+}
+
 /* Legacy sidebar tabs hidden */
 .lineup-sidebar .nav-tabs,
 .lineup-sidebar .tab-content > .tab-pane:not(#lineup-nav-pane) {

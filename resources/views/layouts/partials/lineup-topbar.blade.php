@@ -6,7 +6,15 @@
 @endphp
 <nav class="navbar lineup-topbar" role="banner" aria-label="Application header">
     <div class="lineup-topbar-start">
-        <a href="javascript:void(0);" class="bars lineup-topbar-btn lineup-topbar-btn-menu d-lg-none" aria-label="Open menu"></a>
+        <button type="button"
+                class="bars lineup-topbar-btn lineup-topbar-btn-menu lineup-topbar-btn-menu--drawer"
+                aria-label="Open menu"
+                aria-expanded="false"
+                aria-controls="leftsidebar">
+            <span class="lineup-topbar-menu-icon" aria-hidden="true">
+                <i class="zmdi zmdi-menu"></i>
+            </span>
+        </button>
         <a href="{{ route('dashboard') }}" class="lineup-topbar-brand" title="{{ $projectName ?? config('app.name') }}">
             <span class="lineup-topbar-logo-wrap">
                 <img src="{{ $logoUrl ?? asset('assets/images/logo.svg') }}" alt="{{ $projectName ?? config('app.name') }} logo">
@@ -33,16 +41,39 @@
                 </span>
             </button>
             <a href="{{ route('website.home') }}"
-               class="lineup-topbar-btn"
+               class="lineup-topbar-btn lineup-topbar-btn--overflow-hidden"
                title="Visit website"
                aria-label="Visit website"
                target="_blank"
                rel="noopener noreferrer">
                 <i class="zmdi zmdi-globe"></i>
             </a>
-            <a href="{{ $settingsUrl }}" class="lineup-topbar-btn d-none d-md-inline-flex" title="Settings" aria-label="Settings">
+            <a href="{{ $settingsUrl }}"
+               class="lineup-topbar-btn lineup-topbar-btn--overflow-hidden d-none d-md-inline-flex"
+               title="Settings"
+               aria-label="Settings">
                 <i class="zmdi zmdi-settings"></i>
             </a>
+            <div class="lineup-topbar-tools-overflow">
+                <button type="button"
+                        class="lineup-topbar-btn lineup-topbar-btn-more"
+                        title="More options"
+                        aria-label="More options"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                    <i class="zmdi zmdi-more-vert"></i>
+                </button>
+                <div class="lineup-topbar-overflow-menu" role="menu">
+                    <a href="{{ $settingsUrl }}" role="menuitem">
+                        <i class="zmdi zmdi-settings"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="{{ route('website.home') }}" target="_blank" rel="noopener noreferrer" role="menuitem">
+                        <i class="zmdi zmdi-globe"></i>
+                        <span>Visit website</span>
+                    </a>
+                </div>
+            </div>
         </div>
 
         <span class="lineup-topbar-divider d-none d-md-inline-block" aria-hidden="true"></span>

@@ -10,7 +10,7 @@
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport">
 @include('layouts.partials.document-head-meta')
 @include('layouts.partials.favicon')
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,7 +44,8 @@
 @include('layouts.partials.brand-css-vars')
 @stack('styles')
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-form-pages.css') }}?v=3">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=1">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=2">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=1">
 </head>
 <body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"
       data-default-color-mode="{{ $dashboardColorMode }}"
@@ -84,6 +85,7 @@
     window.LINEUP_USER_ID = @json(auth()->id());
 </script>
 <script src="{{ asset('assets/js/lineup-theme-mode.js') }}"></script>
+<script src="{{ asset('assets/js/lineup-mobile-nav.js') }}?v=1"></script>
 <script src="{{ asset('assets/js/lineup-notifications.js') }}"></script>
 <script src="{{ asset('assets/js/scan-upload-loading.js') }}"></script>
 @stack('scripts')

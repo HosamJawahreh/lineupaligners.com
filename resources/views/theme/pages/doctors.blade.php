@@ -15,6 +15,17 @@
                 </div>
             </div>
 
+            <div class="cases-mobile-list" aria-label="Doctors list">
+                @forelse($doctors as $doctor)
+                    @include('theme.pages.partials.cases-mobile-card', ['doctor' => $doctor])
+                @empty
+                    <div class="cases-mobile-empty">
+                        <p class="m-b-0">No doctors found.</p>
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="cases-table-scroll">
             <div class="cases-table-wrap p-3">
                 <table class="lineup-datatable table table-hover w-100" id="doctors-table"
                        data-order-col="0" data-order-dir="asc" data-no-sort-columns="6" data-page-length="20">
@@ -62,6 +73,7 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
             </div>
         </div>
     </div>
