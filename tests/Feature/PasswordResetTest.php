@@ -42,9 +42,15 @@ class PasswordResetTest extends TestCase
             ResetPasswordNotification::class,
             function (ResetPasswordNotification $notification) use ($user): bool {
                 $mail = $notification->toMail($user);
+                $rendered = $mail->render();
 
                 return str_contains($mail->subject, 'Reset your password')
-                    && str_contains($mail->markdown, 'mail.reset-password');
+                    && str_contains($mail->markdown, 'mail.reset-password')
+                    && str_contains($rendered, route('password.reset', [
+                        'token' => $notification->token,
+                        'email' => $user->email,
+                    ], false))
+                    && str_contains($rendered, 'email='.$user->email);
             }
         );
     }

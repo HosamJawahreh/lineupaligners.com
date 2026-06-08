@@ -19,6 +19,7 @@ class LineUpMailBranding
      *     clinicEmail: string,
      *     clinicPhone: string,
      *     clinicAddress: string,
+     *     mailBrandLabel: string,
      *     primaryColor: string,
      *     secondaryColor: string
      * }
@@ -28,6 +29,7 @@ class LineUpMailBranding
         $defaults = [
             'projectName' => (string) config('app.name', 'LineUp Aligners'),
             'clinicName' => (string) config('settings.defaults.clinic_name', 'LineUp Aligners'),
+            'mailBrandLabel' => 'Lineupaligners',
             'logoUrl' => self::absoluteUrl(Setting::defaultLogoAsset()),
             'websiteUrl' => (string) config('app.url', url('/')),
             'clinicEmail' => (string) config('settings.defaults.clinic_email', ''),
@@ -47,6 +49,7 @@ class LineUpMailBranding
             return [
                 'projectName' => Setting::projectName(),
                 'clinicName' => (string) Setting::get('clinic_name', Setting::projectName()),
+                'mailBrandLabel' => (string) Setting::get('mail_brand_label', 'Lineupaligners'),
                 'logoUrl' => self::absoluteUrl(Setting::logoUrl()),
                 'websiteUrl' => (string) config('app.url', url('/')),
                 'clinicEmail' => (string) Setting::get('clinic_email', ''),
@@ -149,5 +152,13 @@ class LineUpMailBranding
         }
 
         return URL::to($url);
+    }
+
+    public static function routeUrl(string $routeName, array $parameters = []): string
+    {
+        $path = route($routeName, $parameters, false);
+        $base = rtrim((string) (self::data()['websiteUrl'] ?? config('app.url', url('/'))), '/');
+
+        return $base.$path;
     }
 }
