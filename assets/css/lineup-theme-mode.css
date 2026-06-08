@@ -2396,6 +2396,92 @@ body.lineup-app.lineup-color-dark .alert-light {
     border-color: var(--lineup-border) !important;
 }
 
+/* Toast notifications */
+body.lineup-app.lineup-color-dark .swal2-popup.swal2-toast {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.lineup-app.lineup-color-dark .swal2-popup.swal2-toast .swal2-title {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .swal2-popup.swal2-toast.swal2-icon-success {
+    background: var(--lineup-surface-elevated) !important;
+}
+
+body.lineup-app.lineup-color-dark .swal2-popup.swal2-toast.swal2-icon-error {
+    background: color-mix(in srgb, #ef4444 12%, var(--lineup-surface-elevated)) !important;
+    border-color: rgba(248, 113, 113, 0.35) !important;
+}
+
+body.lineup-app.lineup-color-dark .swal2-popup.swal2-toast .swal2-close {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .swal2-popup.swal2-toast .swal2-close:hover {
+    color: var(--lineup-text) !important;
+}
+
+/* Formal confirmation modal */
+body.lineup-app.lineup-color-dark .lineup-confirm-container .lineup-confirm-close {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-confirm-container .lineup-confirm-close:hover {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-confirm {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: 0 24px 56px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-confirm__head {
+    background: var(--lineup-surface-muted) !important;
+    border-bottom-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-confirm__kicker {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-confirm__icon {
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-confirm__icon--neutral {
+    background: var(--lineup-surface-muted) !important;
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-confirm__icon--success {
+    background: rgba(16, 185, 129, 0.12) !important;
+    border-color: rgba(52, 211, 153, 0.35) !important;
+    color: #6ee7b7 !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-confirm__icon--warning {
+    background: rgba(245, 158, 11, 0.12) !important;
+    border-color: rgba(245, 158, 11, 0.35) !important;
+    color: #fcd34d !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-confirm__title {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-confirm__text {
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-confirm__foot {
+    background: var(--lineup-surface-elevated) !important;
+    border-top-color: var(--lineup-border) !important;
+}
+
 /* ── Bootstrap select dropdown ── */
 body.lineup-app.lineup-color-dark .bootstrap-select .dropdown-menu {
     background: var(--lineup-surface-elevated) !important;
