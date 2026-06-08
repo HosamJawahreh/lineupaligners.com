@@ -242,10 +242,12 @@ body.lineup-app.lineup-color-dark .lineup-theme-icon--moon {
 
 body.lineup-app .lineup-topbar .lineup-topbar-btn.lineup-topbar-btn-signout,
 body.lineup-app .lineup-topbar a.lineup-topbar-btn-signout {
+    width: 34px;
+    height: 34px;
     background: #dc2626 !important;
     border-color: #dc2626 !important;
     color: #fff !important;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.28);
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.24);
 }
 
 body.lineup-app .lineup-topbar .lineup-topbar-btn.lineup-topbar-btn-signout:hover,

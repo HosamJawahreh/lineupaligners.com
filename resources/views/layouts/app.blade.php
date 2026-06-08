@@ -29,7 +29,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/sweetalert-toast.css') }}?v=5">
 <link rel="stylesheet" href="{{ asset('assets/css/forms-fix.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-datatable/dataTables.bootstrap4.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-dashboard.css') }}?v=3">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-dashboard.css') }}?v=4">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-topbar.css') }}?v=4">
 <link rel="stylesheet" href="{{ asset('assets/css/cases-dashboard.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-buttons.css') }}">
@@ -44,7 +44,7 @@
 @include('layouts.partials.brand-css-vars')
 @stack('styles')
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-form-pages.css') }}?v=3">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=2">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=5">
 </head>
 <body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"
