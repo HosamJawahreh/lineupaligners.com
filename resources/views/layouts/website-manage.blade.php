@@ -3,7 +3,7 @@
 @push('styles')
 <link rel="stylesheet" href="{{ asset('assets/css/settings-layout.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-lang-switcher.css') }}?v=3">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-website-admin.css') }}?v=25">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-website-admin.css') }}?v=26">
 @endpush
 
 @section('content')

@@ -2323,3 +2323,205 @@
         width: 100%;
     }
 }
+
+/* ── Mobile layout (phones) ── */
+@media (max-width: 767px) {
+    body.lineup-app section.content.website-manage-page {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    .website-manage-page .block-header {
+        padding: 0 4px 8px;
+    }
+
+    .website-manage-page .block-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .website-manage-page .block-header .breadcrumb {
+        display: none;
+    }
+
+    .website-manage-page .container-fluid {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .wm-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+    }
+
+    .wm-toolbar__left {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .wm-toolbar__center {
+        order: 0;
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 2px;
+    }
+
+    .wm-toolbar__actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .wm-toolbar__actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .wm-workspace {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .wm-sidebar {
+        width: 100%;
+        position: sticky;
+        top: calc(var(--lineup-topbar-height, 60px) + 4px);
+        z-index: 15;
+        max-height: none;
+        padding: 10px;
+        overflow: hidden;
+    }
+
+    .wm-sidebar__heading,
+    .wm-sidebar__note {
+        display: none;
+    }
+
+    .wm-sidebar__list {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 6px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+    }
+
+    .wm-sidebar__list::-webkit-scrollbar {
+        display: none;
+    }
+
+    .wm-sidebar__list > li {
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+    }
+
+    .wm-sidebar__group {
+        display: contents;
+    }
+
+    .wm-sidebar__group-toggle {
+        display: none;
+    }
+
+    .wm-sidebar__sublist {
+        display: contents;
+    }
+
+    .wm-sidebar__link {
+        white-space: nowrap;
+        padding: 8px 12px;
+        margin-bottom: 0;
+        font-size: 12px;
+        border: 1px solid #e8edf3;
+        background: #fff;
+    }
+
+    .wm-sidebar__sublink {
+        padding-left: 12px;
+        font-size: 12px;
+    }
+
+    .wm-sidebar__sublink::before {
+        display: none;
+    }
+
+    .wm-main {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .wm-panel__head {
+        padding: 18px 16px 0;
+    }
+
+    .wm-panel__body {
+        padding: 16px;
+    }
+
+    .wm-block--muted {
+        margin: 0 -16px;
+        padding: 16px;
+    }
+
+    .wm-savebar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px 14px;
+        bottom: 10px;
+    }
+
+    .wm-savebar .btn {
+        width: 100%;
+    }
+
+    .wm-section-toggles {
+        grid-template-columns: 1fr;
+    }
+
+    .wm-pages-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .wm-nav-link-row,
+    .wm-nav-link-row--compact {
+        flex-direction: column;
+    }
+
+    .wm-nav-link-row__main {
+        grid-template-columns: 1fr;
+    }
+
+    .wm-partner-card__media {
+        grid-template-columns: 1fr;
+    }
+
+    .wm-partner-card__fields {
+        width: 100%;
+    }
+
+    .wm-section-media {
+        flex-direction: column;
+    }
+
+    .wm-section-media__preview {
+        width: 100%;
+        height: auto;
+        min-height: 100px;
+    }
+}
+
+/* Dark mobile sidebar chips */
+@media (max-width: 767px) {
+    body.lineup-app.lineup-color-dark .website-manage-page .wm-sidebar__link {
+        background: var(--lineup-surface-muted) !important;
+        border-color: var(--lineup-border) !important;
+    }
+}

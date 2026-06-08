@@ -331,6 +331,43 @@ body.lineup-app.lineup-color-dark .lineup-topbar .lineup-topbar-btn-signout i {
     color: #fff !important;
 }
 
+/* Profile pill in topbar */
+body.lineup-app.lineup-color-dark .lineup-topbar-user {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-topbar-control-border) !important;
+    color: var(--lineup-topbar-text) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-topbar-user:hover {
+    background: var(--lineup-surface-hover) !important;
+    border-color: var(--lineup-border-soft) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-topbar-user img {
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-topbar-user-name {
+    color: var(--lineup-topbar-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-topbar-user-role {
+    color: var(--lineup-topbar-muted) !important;
+}
+
+/* Floating call support button */
+body.lineup-app.lineup-color-dark .lineup-call-support,
+body.lineup-app.lineup-color-dark .lineup-call-support:hover,
+body.lineup-app.lineup-color-dark .lineup-call-support:focus {
+    color: #fff !important;
+    background: var(--lineup-skin, #00cfd1) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-call-support i {
+    color: #fff !important;
+}
+
 body.lineup-app.lineup-color-dark .lineup-notify__badge {
     border-color: #151d2b;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
@@ -508,11 +545,11 @@ body.lineup-app.lineup-color-dark dt {
     color: inherit;
 }
 
-body.lineup-app.lineup-color-dark a:not(.btn):not(.nav-link):not(.dropdown-item):not(.cases-action-btn):not(.lineup-dashboard__action-btn) {
+body.lineup-app.lineup-color-dark a:not(.btn):not(.nav-link):not(.dropdown-item):not(.cases-action-btn):not(.lineup-dashboard__action-btn):not(.lineup-call-support):not(.lineup-topbar-user):not(.lineup-dashboard__case-link):not(.cases-mobile-card__name):not(.cases-mobile-card__cta):not(.wm-sidebar__link):not(.wm-jump-list__link):not(.wm-content-map__item):not(.lineup-lang-switcher__btn) {
     color: var(--lineup-link);
 }
 
-body.lineup-app.lineup-color-dark a:not(.btn):not(.nav-link):not(.dropdown-item):hover {
+body.lineup-app.lineup-color-dark a:not(.btn):not(.nav-link):not(.dropdown-item):not(.lineup-call-support):not(.lineup-topbar-user):not(.wm-sidebar__link):not(.wm-jump-list__link):not(.lineup-lang-switcher__btn):hover {
     color: var(--lineup-link-hover);
 }
 
@@ -746,6 +783,126 @@ body.lineup-app.lineup-color-dark .lineup-dashboard__notify-icon {
 
 body.lineup-app.lineup-color-dark .lineup-dashboard__notify-time {
     color: var(--lineup-text-subtle) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard {
+    background: var(--lineup-surface) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard__case-link {
+    color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard__case-link:hover {
+    color: var(--lineup-link-hover) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard__empty {
+    color: var(--lineup-text-muted) !important;
+}
+
+/* Recent cases — mobile card rows */
+body.lineup-app.lineup-color-dark .lineup-dashboard__table tbody tr {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard__table tbody td::before {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard__table tbody td:last-child {
+    border-top-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard__badge--workflow-created {
+    background: var(--lineup-surface-hover) !important;
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard__badge--workflow-waiting {
+    background: rgba(245, 158, 11, 0.18) !important;
+    color: #fcd34d !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard__badge--workflow-review {
+    background: rgba(56, 189, 248, 0.18) !important;
+    color: #7dd3fc !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard__badge--workflow-approved {
+    background: rgba(34, 197, 94, 0.18) !important;
+    color: #86efac !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard__badge--workflow-manufactured {
+    background: rgba(16, 185, 129, 0.18) !important;
+    color: #6ee7b7 !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard__badge--workflow-modification {
+    background: rgba(249, 115, 22, 0.18) !important;
+    color: #fdba74 !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-dashboard__badge--workflow-refinement {
+    background: rgba(139, 92, 246, 0.18) !important;
+    color: #c4b5fd !important;
+}
+
+/* Patient form — 3D scan upload boxes */
+body.lineup-app.lineup-color-dark .patient-case-form .patient-case-card {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
+body.lineup-app.lineup-color-dark .patient-case-form .patient-case-card > .body {
+    background: var(--lineup-surface-elevated) !important;
+}
+
+body.lineup-app.lineup-color-dark .patient-case-form .scan-upload-box {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .patient-case-form .scan-upload-box:hover {
+    border-color: var(--lineup-skin) !important;
+    background: var(--lineup-surface-hover) !important;
+}
+
+body.lineup-app.lineup-color-dark .patient-case-form .scan-upload-box label {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .patient-case-form .scan-upload-box .text-muted,
+body.lineup-app.lineup-color-dark .patient-case-form .scan-upload-box small.text-muted {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .patient-case-form .scan-current-file {
+    background: var(--lineup-input-bg) !important;
+    border-color: var(--lineup-input-border) !important;
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .patient-case-form .scan-current-file a {
+    color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .patient-case-form .scan-upload-box .checkbox label {
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .patient-case-form .case-photos-dropzone {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .patient-case-form .case-photos-dropzone:hover,
+body.lineup-app.lineup-color-dark .patient-case-form .case-photos-dropzone.dragover {
+    background: var(--lineup-surface-hover) !important;
+    border-color: var(--lineup-skin) !important;
 }
 
 /* ── Profile page ── */
@@ -1780,4 +1937,252 @@ body.lineup-app.lineup-color-dark section.content:not(.doctor-form-page):not(.pa
 body.lineup-app.lineup-color-dark section.content:not(.doctor-form-page):not(.patient-form-page):not(.lineup-notify-page) .card:not(.settings-card) > .header h2 strong,
 body.lineup-app.lineup-color-dark section.content:not(.doctor-form-page):not(.patient-form-page):not(.lineup-notify-page) .card:not(.settings-card) > .header h2 small {
     color: #fff !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Website settings / manage page — professional dark mode
+   ═══════════════════════════════════════════════════════════════════════════ */
+body.lineup-app.lineup-color-dark .website-manage-page {
+    background: var(--lineup-surface) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .block-header h2,
+body.lineup-app.lineup-color-dark .website-manage-page .block-header h2 small {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .block-header .breadcrumb-item,
+body.lineup-app.lineup-color-dark .website-manage-page .block-header .breadcrumb-item a {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-toolbar,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-sidebar,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-panel,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-savebar,
+body.lineup-app.lineup-color-dark .website-manage-page .website-editor-card,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-accordion,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-pages-group,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-main-menu-entry,
+body.lineup-app.lineup-color-dark .website-manage-page .website-showcase-card,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-media-card,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-content-map__item {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-toolbar__readiness-value,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-panel__title,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-block__title,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-label,
+body.lineup-app.lineup-color-dark .website-manage-page .website-status-card__percent,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-content-map__body strong,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-jump-list__link.is-done .wm-jump-list__label,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-main-menu-entry__meta strong,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-main-menu-page__info strong,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-pages-group__title,
+body.lineup-app.lineup-color-dark .website-manage-page .website-showcase-card__head h4 {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-panel__desc,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-hint,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-savebar__hint,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-toolbar__readiness-label,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-sidebar__heading,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-sidebar__note,
+body.lineup-app.lineup-color-dark .website-manage-page .website-manage-page .settings-section-title,
+body.lineup-app.lineup-color-dark .website-manage-page .settings-section-title,
+body.lineup-app.lineup-color-dark .website-manage-page .website-status-card__label,
+body.lineup-app.lineup-color-dark .website-manage-page .website-checklist li,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-jump-list__meta,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-content-map__body small,
+body.lineup-app.lineup-color-dark .website-manage-page .website-showcase-card__meta,
+body.lineup-app.lineup-color-dark .website-manage-page .website-preview-tile p {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-sidebar__link,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-sidebar__group-toggle {
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-sidebar__link:hover,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-sidebar__group-toggle:hover,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-sidebar__group.is-child-active > .wm-sidebar__group-toggle {
+    background: var(--lineup-surface-hover) !important;
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-sidebar__link.is-active {
+    background: color-mix(in srgb, var(--lineup-skin) 14%, var(--lineup-surface-muted)) !important;
+    color: var(--lineup-link) !important;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lineup-skin) 32%, var(--lineup-border)) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-sidebar__sublink::before {
+    background: var(--lineup-border-soft) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-sidebar__sublink.is-active::before {
+    background: var(--lineup-skin) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-toolbar__status.is-live {
+    background: rgba(34, 197, 94, 0.15) !important;
+    color: #86efac !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-toolbar__status.is-draft {
+    background: rgba(245, 158, 11, 0.15) !important;
+    color: #fcd34d !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .lineup-lang-switcher {
+    background: var(--lineup-surface-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .lineup-lang-switcher__btn {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .lineup-lang-switcher__btn.is-active {
+    background: var(--lineup-surface-elevated) !important;
+    color: var(--lineup-link) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-input,
+body.lineup-app.lineup-color-dark .website-manage-page .form-control {
+    background-color: var(--lineup-input-bg) !important;
+    border-color: var(--lineup-input-border) !important;
+    color: var(--lineup-input-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-block,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-jump-list__link,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-main-menu-entry__head,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-pages-group__head {
+    border-color: var(--lineup-border-soft) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-block--muted,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-faq-item,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-slide-card,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-section-toggle,
+body.lineup-app.lineup-color-dark .website-manage-page .website-publish-toggle,
+body.lineup-app.lineup-color-dark .website-manage-page .website-preview-tile,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-nav-link-row,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-section-media,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-main-menu-page,
+body.lineup-app.lineup-color-dark .website-manage-page .website-showcase-form-panel,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-item-detail,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-feature-card,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-treatable-card,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-blog-card,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-practice-care-card,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-process-card,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-service-detail-card,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-partner-card,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-page-card:hover,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-page-row:hover,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-jump-list__link:hover {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-section-toggle:has(input:checked) {
+    background: color-mix(in srgb, var(--lineup-skin) 12%, var(--lineup-surface-muted)) !important;
+    border-color: color-mix(in srgb, var(--lineup-skin) 35%, var(--lineup-border)) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-check,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-inline-check,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-toggle-row,
+body.lineup-app.lineup-color-dark .website-manage-page .website-checklist li.is-done {
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-jump-list__link {
+    color: inherit !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-jump-list__label {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-jump-list__link i {
+    color: var(--lineup-text-subtle) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-alert--info {
+    background: rgba(56, 189, 248, 0.12) !important;
+    border-color: rgba(56, 189, 248, 0.3) !important;
+    color: #7dd3fc !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-alert--warning,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-panel--continued.wm-alert--warning {
+    background: rgba(245, 158, 11, 0.12) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+    color: #fde68a !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-hint--info {
+    background: rgba(56, 189, 248, 0.1) !important;
+    border-color: rgba(56, 189, 248, 0.28) !important;
+    color: #7dd3fc !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .website-locale-bar {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .website-locale-pill {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .website-locale-enable__card,
+body.lineup-app.lineup-color-dark .website-manage-page .website-template-card__body,
+body.lineup-app.lineup-color-dark .website-manage-page .website-branding-card {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-main-menu-entry__handle,
+body.lineup-app.lineup-color-dark .website-manage-page .wm-main-menu-page__handle {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-pages-filter {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-pages-filter.is-active {
+    background: color-mix(in srgb, var(--lineup-link) 15%, var(--lineup-surface-muted)) !important;
+    border-color: color-mix(in srgb, var(--lineup-link) 35%, var(--lineup-border)) !important;
+    color: var(--lineup-link) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .wm-ring-bg {
+    stroke: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .btn-default {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .website-manage-page .btn-default:hover {
+    background: var(--lineup-surface-hover) !important;
+    color: var(--lineup-text) !important;
 }
