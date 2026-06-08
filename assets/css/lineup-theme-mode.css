@@ -300,6 +300,26 @@ body.lineup-app.lineup-color-dark .lineup-topbar-tools .lineup-topbar-btn:focus 
     color: var(--lineup-skin) !important;
 }
 
+body.lineup-app.lineup-color-dark .lineup-topbar .lineup-topbar-btn-signout,
+body.lineup-app.lineup-color-dark .lineup-topbar a.lineup-topbar-btn-signout {
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: #fff !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-topbar .lineup-topbar-btn-signout:hover,
+body.lineup-app.lineup-color-dark .lineup-topbar .lineup-topbar-btn-signout:focus,
+body.lineup-app.lineup-color-dark .lineup-topbar a.lineup-topbar-btn-signout:hover,
+body.lineup-app.lineup-color-dark .lineup-topbar a.lineup-topbar-btn-signout:focus {
+    background: #b91c1c !important;
+    border-color: #b91c1c !important;
+    color: #fff !important;
+}
+
+body.lineup-app.lineup-color-dark .lineup-topbar .lineup-topbar-btn-signout i {
+    color: #fff !important;
+}
+
 body.lineup-app.lineup-color-dark .lineup-notify__badge {
     border-color: #151d2b;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);

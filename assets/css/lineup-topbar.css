@@ -240,22 +240,25 @@ body.lineup-app.lineup-color-dark .lineup-theme-icon--moon {
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
 }
 
-.lineup-topbar-btn-signout {
+body.lineup-app .lineup-topbar .lineup-topbar-btn.lineup-topbar-btn-signout,
+body.lineup-app .lineup-topbar a.lineup-topbar-btn-signout {
     background: #dc2626 !important;
     border-color: #dc2626 !important;
     color: #fff !important;
     box-shadow: 0 2px 8px rgba(220, 38, 38, 0.28);
 }
 
-.lineup-topbar-btn-signout:hover,
-.lineup-topbar-btn-signout:focus {
+body.lineup-app .lineup-topbar .lineup-topbar-btn.lineup-topbar-btn-signout:hover,
+body.lineup-app .lineup-topbar .lineup-topbar-btn.lineup-topbar-btn-signout:focus,
+body.lineup-app .lineup-topbar a.lineup-topbar-btn-signout:hover,
+body.lineup-app .lineup-topbar a.lineup-topbar-btn-signout:focus {
     background: #b91c1c !important;
     border-color: #b91c1c !important;
     color: #fff !important;
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
 }
 
-.lineup-topbar-btn-signout i {
+body.lineup-app .lineup-topbar .lineup-topbar-btn-signout i {
     color: #fff !important;
 }
 

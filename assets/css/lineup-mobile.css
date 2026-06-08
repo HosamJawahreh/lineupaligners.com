@@ -4,7 +4,7 @@
  */
 
 :root {
-    --lineup-mobile-drawer-width: 280px;
+    --lineup-mobile-drawer-width: 300px;
     --lineup-mobile-header-accent: var(--lineup-skin, #00cfd1);
 }
 
@@ -109,9 +109,10 @@ body.lineup-app.overlay-open .lineup-topbar-btn-menu--drawer .lineup-topbar-menu
     /* Full-width mobile drawer */
     body.lineup-app #leftsidebar.lineup-sidebar {
         width: var(--lineup-mobile-drawer-width);
-        max-width: min(var(--lineup-mobile-drawer-width), 86vw);
+        max-width: min(var(--lineup-mobile-drawer-width), 88vw);
+        background: #f8f9fb !important;
         box-shadow: 12px 0 40px rgba(15, 23, 42, 0.18);
-        border-right: 1px solid #e2e8f0;
+        border-right: 1px solid #e8ecf1;
     }
 
     body.lineup-app.overlay-open #leftsidebar.lineup-sidebar {
@@ -189,30 +190,99 @@ body.lineup-app.overlay-open .lineup-topbar-btn-menu--drawer .lineup-topbar-menu
         line-height: 1;
     }
 
-    /* Drawer nav — horizontal row layout */
-    body.lineup-app.overlay-open .lineup-nav > li > a {
+    /* Drawer nav — dashboard-style card items */
+    body.lineup-app.overlay-open #leftsidebar.lineup-sidebar .lineup-nav {
+        margin: 0;
+        padding: 12px 14px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    body.lineup-app.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li {
+        margin: 0;
+    }
+
+    body.lineup-app.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li > a {
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
-        gap: 14px;
-        padding: 14px 20px;
+        gap: 12px;
+        min-height: 52px;
+        padding: 10px 12px;
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
         text-align: left;
+        color: #1a1a2e;
+        background: #fff;
+        border: 1px solid #e2e8f0;
         border-left: 3px solid transparent;
-        border-radius: 0;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.15s;
     }
 
-    body.lineup-app.overlay-open .lineup-nav > li > a i {
+    body.lineup-app.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li > a:hover {
+        color: #1a1a2e;
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+        transform: translateY(-1px);
+    }
+
+    body.lineup-app.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li > a i {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
         margin-bottom: 0;
         font-size: 22px;
-        width: 28px;
-        text-align: center;
+        line-height: 1;
         flex-shrink: 0;
+        border-radius: 10px;
+        background: color-mix(in srgb, var(--lineup-skin) 12%, #fff);
+        color: var(--lineup-skin);
+        transition: background 0.15s, color 0.15s;
     }
 
-    body.lineup-app.overlay-open .lineup-nav > li.active > a {
-        background: color-mix(in srgb, var(--lineup-skin) 12%, #fff);
+    body.lineup-app.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li > a > span:not(.lineup-nav__badge) {
+        flex: 1;
+        min-width: 0;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.3;
+        color: #1a1a2e;
+    }
+
+    body.lineup-app.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li.active > a {
+        color: var(--lineup-skin);
+        background: color-mix(in srgb, var(--lineup-skin) 8%, #fff);
+        border-color: color-mix(in srgb, var(--lineup-skin) 30%, #e2e8f0);
+        border-left-color: var(--lineup-skin);
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    }
+
+    body.lineup-app.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li.active > a > span:not(.lineup-nav__badge) {
+        color: #0f172a;
+    }
+
+    body.lineup-app.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li.active > a i {
+        background: color-mix(in srgb, var(--lineup-skin) 18%, #fff);
+        color: var(--lineup-skin);
+    }
+
+    body.lineup-app.overlay-open #leftsidebar.lineup-sidebar .lineup-nav__badge {
+        position: static;
+        top: auto;
+        right: auto;
+        align-self: center;
+        margin-left: auto;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        font-size: 10px;
+        line-height: 20px;
+        box-shadow: none;
     }
 
     /* Overlay backdrop */
@@ -326,10 +396,31 @@ body.lineup-app.overlay-open .lineup-topbar-btn-menu--drawer .lineup-topbar-menu
         max-width: 36vw;
     }
 
-    .lineup-topbar-btn-signout {
+    body.lineup-app .lineup-topbar .lineup-topbar-btn-signout {
         width: 40px;
         height: 40px;
     }
+}
+
+/* Logout — ensure red styling wins on mobile + web (loaded last) */
+body.lineup-app .lineup-topbar .lineup-topbar-btn.lineup-topbar-btn-signout,
+body.lineup-app .lineup-topbar a.lineup-topbar-btn-signout {
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: #fff !important;
+}
+
+body.lineup-app .lineup-topbar .lineup-topbar-btn.lineup-topbar-btn-signout:hover,
+body.lineup-app .lineup-topbar .lineup-topbar-btn.lineup-topbar-btn-signout:focus,
+body.lineup-app .lineup-topbar a.lineup-topbar-btn-signout:hover,
+body.lineup-app .lineup-topbar a.lineup-topbar-btn-signout:focus {
+    background: #b91c1c !important;
+    border-color: #b91c1c !important;
+    color: #fff !important;
+}
+
+body.lineup-app .lineup-topbar .lineup-topbar-btn-signout i {
+    color: #fff !important;
 }
 
 /* ── Mobile table cards ── */
@@ -645,6 +736,35 @@ body.lineup-app.overlay-open .lineup-topbar-btn-menu--drawer .lineup-topbar-menu
         min-height: 44px;
         min-width: 44px;
     }
+}
+
+body.lineup-app.lineup-color-dark #leftsidebar.lineup-sidebar {
+    background: #0f172a !important;
+    border-right-color: #334155;
+}
+
+body.lineup-app.lineup-color-dark.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li > a {
+    background: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+body.lineup-app.lineup-color-dark.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li > a:hover {
+    border-color: #475569;
+    color: #f1f5f9;
+}
+
+body.lineup-app.lineup-color-dark.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li > a > span:not(.lineup-nav__badge) {
+    color: #f1f5f9;
+}
+
+body.lineup-app.lineup-color-dark.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li > a i {
+    background: color-mix(in srgb, var(--lineup-skin) 22%, #1e293b);
+}
+
+body.lineup-app.lineup-color-dark.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li.active > a {
+    background: color-mix(in srgb, var(--lineup-skin) 14%, #1e293b);
+    border-color: color-mix(in srgb, var(--lineup-skin) 40%, #334155);
 }
 
 body.lineup-app.lineup-color-dark .lineup-sidebar-mobile-head {
