@@ -490,17 +490,327 @@ body.lineup-app .settings-page .settings-tabs-nav .nav-link.active i {
     display: none !important;
 }
 
+/* Doctor roles */
+.settings-page .doctor-roles-intro {
+    margin-bottom: 24px;
+}
+
+.settings-page .doctor-roles-intro__text {
+    max-width: 640px;
+    margin-bottom: 0;
+    line-height: 1.55;
+}
+
+.settings-page .doctor-roles-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+.settings-page .doctor-roles-alert i {
+    font-size: 20px;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+
+.settings-page .doctor-roles-alert--error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.settings-page .doctor-roles-alert--error ul {
+    padding-left: 18px;
+    margin-top: 6px;
+}
+
+.settings-page .doctor-roles-layout {
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.settings-page .doctor-roles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
 .settings-page .doctor-role-card {
-    border: 1px solid #eee;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.settings-page .doctor-role-card--create {
+    position: sticky;
+    top: 88px;
+}
+
+.settings-page .doctor-role-card--inactive {
+    opacity: 0.88;
+}
+
+.settings-page .doctor-role-card--empty {
+    padding: 40px 24px;
+}
+
+.settings-page .doctor-role-card__empty-icon {
+    font-size: 42px;
+    color: #94a3b8;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.settings-page .doctor-role-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.settings-page .doctor-role-card--create .doctor-role-card__head {
+    padding: 20px;
+}
+
+.settings-page .doctor-role-card__identity {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.settings-page .doctor-role-card__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    color: #0ea5e9;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.settings-page .doctor-role-card__icon--role {
+    color: #6366f1;
 }
 
 .settings-page .doctor-role-card h6 {
+    font-weight: 700;
+    font-size: 15px;
+    color: #0f172a;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.settings-page .doctor-role-card__sub {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.settings-page .doctor-role-status {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    flex-shrink: 0;
+}
+
+.settings-page .doctor-role-status--active {
+    color: #047857;
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+}
+
+.settings-page .doctor-role-status--inactive {
+    color: #64748b;
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.settings-page .doctor-role-card__body,
+.settings-page .doctor-role-card--create .doctor-role-form {
+    padding: 20px;
+}
+
+.settings-page .doctor-role-card__body .form-group:last-of-type {
+    margin-bottom: 0;
+}
+
+.settings-page .doctor-role-permissions {
+    margin: 20px 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.settings-page .doctor-role-perm-group__title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin: 0 0 10px;
+}
+
+.settings-page .doctor-role-perm-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.settings-page .doctor-role-perm {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+    padding: 12px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fafbfc;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.settings-page .doctor-role-perm:hover {
+    border-color: #cbd5e1;
+    background: #fff;
+}
+
+.settings-page .doctor-role-perm__input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.settings-page .doctor-role-perm__box {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 2px solid #cbd5e1;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.settings-page .doctor-role-perm__box i {
+    font-size: 14px;
+    color: #fff;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.settings-page .doctor-role-perm__input:checked + .doctor-role-perm__box {
+    background: #0ea5e9;
+    border-color: #0ea5e9;
+}
+
+.settings-page .doctor-role-perm__input:checked + .doctor-role-perm__box i {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.settings-page .doctor-role-perm__input:focus-visible + .doctor-role-perm__box {
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+}
+
+.settings-page .doctor-role-perm__input:checked ~ .doctor-role-perm__text .doctor-role-perm__label {
+    color: #0f172a;
+}
+
+.settings-page .doctor-role-perm:has(.doctor-role-perm__input:checked) {
+    border-color: #7dd3fc;
+    background: #f0f9ff;
+    box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.08);
+}
+
+.settings-page .doctor-role-perm__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.settings-page .doctor-role-perm__label {
+    font-size: 13px;
     font-weight: 600;
+    color: #334155;
+    line-height: 1.35;
+}
+
+.settings-page .doctor-role-perm__hint {
+    font-size: 11px;
+    color: #94a3b8;
+    line-height: 1.4;
+}
+
+.settings-page .doctor-role-active {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.settings-page .doctor-role-active__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+}
+
+.settings-page .doctor-role-active__label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+.settings-page .doctor-role-card__foot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: #fafbfc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.settings-page .doctor-role-card__submit {
+    min-width: 140px;
 }
 
 .settings-page .doctor-role-delete-form {
-    border-top: 1px dashed #eee;
-    padding-top: 10px;
+    border-top: 1px dashed #e2e8f0;
+    padding: 12px 20px 16px;
+    background: #fff;
+}
+
+.settings-page .doctor-role-delete-btn {
+    margin: 0;
 }
 
 .settings-notification-matrix .table th,
@@ -538,6 +848,27 @@ body.lineup-app .settings-page .settings-tabs-nav .nav-link.active i {
     .settings-page .settings-actions {
         margin: 0 -16px -20px;
         padding: 14px 16px;
+        flex-wrap: wrap;
+    }
+
+    .settings-page .doctor-roles-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-page .doctor-role-card--create {
+        position: static;
+    }
+
+    .settings-page .doctor-role-perm-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-page .doctor-role-card__head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .settings-page .doctor-role-card__foot {
         flex-wrap: wrap;
     }
 }

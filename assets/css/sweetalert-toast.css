@@ -61,16 +61,8 @@
     width: min(460px, calc(100vw - 2rem)) !important;
 }
 
-.lineup-confirm-container .lineup-confirm-close {
-    color: #94a3b8 !important;
-    font-size: 1.25rem !important;
-    margin: 0.55rem 0.65rem 0 0 !important;
-    transition: color 0.15s ease !important;
-    z-index: 2 !important;
-}
-
-.lineup-confirm-container .lineup-confirm-close:hover {
-    color: #0f172a !important;
+.lineup-confirm-container .swal2-popup.lineup-confirm-popup .swal2-close {
+    display: none !important;
 }
 
 .lineup-confirm-container .swal2-popup.lineup-confirm-popup .swal2-icon,
@@ -122,6 +114,35 @@
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+}
+
+.lineup-confirm__close {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    color: #94a3b8;
+    cursor: pointer;
+    display: inline-flex;
+    flex-shrink: 0;
+    height: 32px;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    transition: background 0.15s ease, color 0.15s ease;
+    width: 32px;
+}
+
+.lineup-confirm__close .zmdi {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.lineup-confirm__close:hover,
+.lineup-confirm__close:focus-visible {
+    background: rgba(15, 23, 42, 0.06);
+    color: #0f172a;
+    outline: none;
 }
 
 .lineup-confirm__body {

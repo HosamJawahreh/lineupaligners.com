@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\DoctorRole;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class DoctorRoleController extends Controller
 {
@@ -18,8 +20,8 @@ class DoctorRoleController extends Controller
             'name' => $data['name'],
             'slug' => DoctorRole::generateSlug($data['name']),
             'description' => $data['description'] ?? null,
-            'permissions' => $data['permissions'] ?? [],
-            'is_active' => $request->boolean('is_active', true),
+            'permissions' => DoctorRole::normalizePermissions($request->input('permissions', [])),
+            'is_active' => $request->boolean('is_active'),
             'sort_order' => (DoctorRole::max('sort_order') ?? 0) + 1,
         ]);
 
@@ -34,8 +36,8 @@ class DoctorRoleController extends Controller
         $doctorRole->update([
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
-            'permissions' => $data['permissions'] ?? [],
-            'is_active' => $request->boolean('is_active', true),
+            'permissions' => DoctorRole::normalizePermissions($request->input('permissions', [])),
+            'is_active' => $request->boolean('is_active'),
         ]);
 
         return redirect()->route('settings.index', ['tab' => 'doctor-roles'])
@@ -59,12 +61,19 @@ class DoctorRoleController extends Controller
     {
         $permissionKeys = array_keys(config('doctor-permissions.permissions', []));
 
-        return $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:500'],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['string', Rule::in($permissionKeys)],
-            'is_active' => ['sometimes', 'boolean'],
+            'is_active' => ['nullable', 'in:0,1'],
         ]);
+
+        if ($validator->fails()) {
+            throw ValidationException::withMessages($validator->errors()->toArray())
+                ->redirectTo(route('settings.index', ['tab' => 'doctor-roles']));
+        }
+
+        return $validator->validated();
     }
 }

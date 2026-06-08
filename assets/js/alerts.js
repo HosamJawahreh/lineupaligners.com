@@ -118,6 +118,9 @@
                     '<div class="lineup-confirm" role="document">' +
                     '<div class="lineup-confirm__head">' +
                     '<span class="lineup-confirm__kicker">Confirmation</span>' +
+                    '<button type="button" class="lineup-confirm__close" data-lineup-confirm-close aria-label="Close">' +
+                    '<i class="zmdi zmdi-close" aria-hidden="true"></i>' +
+                    '</button>' +
                     '</div>' +
                     '<div class="lineup-confirm__body">' +
                     '<span class="lineup-confirm__icon ' + confirmTone(icon) + '" aria-hidden="true">' +
@@ -141,7 +144,7 @@
                 showCancelButton: true,
                 confirmButtonText: confirmLabel,
                 cancelButtonText: cancelLabel,
-                showCloseButton: true,
+                showCloseButton: false,
                 buttonsStyling: false,
                 reverseButtons: true,
                 focusCancel: true,
@@ -150,7 +153,6 @@
                 customClass: {
                     container: 'lineup-confirm-container',
                     popup: 'lineup-confirm-popup',
-                    closeButton: 'lineup-confirm-close',
                     actions: 'lineup-confirm-swal-actions',
                     confirmButton: 'lineup-confirm-swal-confirm',
                     cancelButton: 'lineup-confirm-swal-cancel',
@@ -158,13 +160,24 @@
                 didOpen: function (popup) {
                     var okBtn = popup.querySelector('[data-lineup-confirm-ok]');
                     var cancelBtn = popup.querySelector('[data-lineup-confirm-cancel]');
+                    var closeBtn = popup.querySelector('[data-lineup-confirm-close]');
                     var swalConfirm = Swal.getConfirmButton();
                     var swalCancel = Swal.getCancelButton();
 
-                    if (cancelBtn && swalCancel) {
-                        cancelBtn.addEventListener('click', function () {
+                    function dismissConfirm() {
+                        if (swalCancel) {
                             swalCancel.click();
-                        });
+                        } else {
+                            Swal.close();
+                        }
+                    }
+
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', dismissConfirm);
+                    }
+
+                    if (cancelBtn && swalCancel) {
+                        cancelBtn.addEventListener('click', dismissConfirm);
                         cancelBtn.focus();
                     }
 

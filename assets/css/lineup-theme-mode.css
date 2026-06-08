@@ -1109,6 +1109,108 @@ body.lineup-app.lineup-color-dark .settings-workflow-stages li strong {
     color: var(--lineup-text) !important;
 }
 
+/* Doctor roles */
+body.lineup-app.lineup-color-dark .settings-page .doctor-roles-intro__text {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-roles-alert--error {
+    background: rgba(127, 29, 29, 0.25) !important;
+    border-color: rgba(248, 113, 113, 0.35) !important;
+    color: #fecaca !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-card {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+    box-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-card__head,
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-card__foot {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-card h6 {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-card__sub {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-card__icon {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-status--active {
+    color: #6ee7b7 !important;
+    background: rgba(6, 78, 59, 0.35) !important;
+    border-color: rgba(52, 211, 153, 0.35) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-status--inactive {
+    color: var(--lineup-text-muted) !important;
+    background: var(--lineup-surface-hover) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-perm-group__title {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-perm {
+    background: var(--lineup-surface-muted) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-perm:hover {
+    background: var(--lineup-surface-hover) !important;
+    border-color: var(--lineup-border-strong, var(--lineup-border)) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-perm:has(.doctor-role-perm__input:checked) {
+    background: rgba(14, 165, 233, 0.12) !important;
+    border-color: rgba(56, 189, 248, 0.45) !important;
+    box-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-perm__box {
+    background: var(--lineup-surface-elevated) !important;
+    border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-perm__label {
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-perm__input:checked ~ .doctor-role-perm__text .doctor-role-perm__label {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-perm__hint {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-active {
+    border-top-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-active__label {
+    color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-delete-form {
+    background: var(--lineup-surface-elevated) !important;
+    border-top-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .doctor-role-card__empty-icon {
+    color: var(--lineup-text-muted) !important;
+}
+
 /* ── Notifications ── */
 body.lineup-app.lineup-color-dark .lineup-notify__dropdown {
     background: var(--lineup-surface-elevated) !important;
@@ -2468,11 +2570,13 @@ body.lineup-app.lineup-color-dark .swal2-popup.swal2-toast .swal2-close:hover {
 }
 
 /* Formal confirmation modal */
-body.lineup-app.lineup-color-dark .lineup-confirm-container .lineup-confirm-close {
+body.lineup-app.lineup-color-dark .lineup-confirm__close {
     color: var(--lineup-text-muted) !important;
 }
 
-body.lineup-app.lineup-color-dark .lineup-confirm-container .lineup-confirm-close:hover {
+body.lineup-app.lineup-color-dark .lineup-confirm__close:hover,
+body.lineup-app.lineup-color-dark .lineup-confirm__close:focus-visible {
+    background: var(--lineup-surface-hover) !important;
     color: var(--lineup-text) !important;
 }
 

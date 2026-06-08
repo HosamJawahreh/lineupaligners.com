@@ -2,116 +2,174 @@
     $groups = config('doctor-permissions.groups', []);
     $permissions = config('doctor-permissions.permissions', []);
     $permissionsByGroup = collect($permissions)->groupBy('group');
+    $roleErrors = $errors->getBag('default');
+    $hasRoleFormErrors = $roleErrors->isNotEmpty() && (
+        $roleErrors->has('name')
+        || $roleErrors->has('permissions')
+        || $roleErrors->has('permissions.*')
+        || $roleErrors->has('description')
+    );
 @endphp
 
 <div class="tab-pane" id="tab-doctor-roles" role="tabpanel">
-    <p class="settings-section-title">Doctor Roles</p>
-    <p class="text-muted m-b-25">Permissions follow the LineUp case workflow: submit cases → review plans → request modifications → order refinements. Assign a role when adding or editing a doctor.</p>
+    <div class="doctor-roles-intro">
+        <p class="settings-section-title m-b-5">Doctor Roles</p>
+        <p class="text-muted doctor-roles-intro__text">Define what each doctor type can do across the LineUp case workflow. Assign a role when adding or editing a doctor.</p>
+    </div>
 
-    <div class="row clearfix">
-        <div class="col-lg-5 col-md-12 m-b-30">
-            <div class="inner-card">
-                <h6><i class="zmdi zmdi-plus-circle m-r-5"></i> Add Role</h6>
-                <form method="POST" action="{{ route('doctor-roles.store') }}">
+    @if($hasRoleFormErrors)
+    <div class="doctor-roles-alert doctor-roles-alert--error" role="alert">
+        <i class="zmdi zmdi-alert-circle" aria-hidden="true"></i>
+        <div>
+            <strong>Could not save role.</strong>
+            <ul class="m-b-0">
+                @foreach($roleErrors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+    @endif
+
+    <div class="doctor-roles-layout">
+        <aside class="doctor-roles-create">
+            <div class="doctor-role-card doctor-role-card--create">
+                <div class="doctor-role-card__head">
+                    <span class="doctor-role-card__icon" aria-hidden="true"><i class="zmdi zmdi-plus-circle"></i></span>
+                    <div>
+                        <h6 class="m-b-0">Add Role</h6>
+                        <p class="doctor-role-card__sub m-b-0">Create a new permission profile</p>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ route('doctor-roles.store') }}" class="doctor-role-form">
                     @csrf
                     <div class="form-group">
-                        <label>Role Name</label>
-                        <input type="text" name="name" class="form-control" value="{{ old('name') }}" placeholder="e.g. Orthodontist" required>
+                        <label for="new-role-name">Role Name</label>
+                        <input type="text" name="name" id="new-role-name" class="form-control" value="{{ old('name') }}" placeholder="e.g. Orthodontist" required>
                     </div>
                     <div class="form-group">
-                        <label>Description</label>
-                        <textarea name="description" class="form-control" rows="2" placeholder="Optional">{{ old('description') }}</textarea>
+                        <label for="new-role-description">Description</label>
+                        <textarea name="description" id="new-role-description" class="form-control" rows="2" placeholder="Optional notes about this role">{{ old('description') }}</textarea>
                     </div>
-                    @foreach($groups as $groupKey => $groupLabel)
-                        @if($permissionsByGroup->has($groupKey))
-                        <div class="form-group">
-                            <label class="d-block m-b-10">{{ $groupLabel }}</label>
-                            @foreach($permissionsByGroup[$groupKey] as $key => $meta)
-                                <div class="checkbox">
-                                    <input type="checkbox" name="permissions[]" id="new-perm-{{ $key }}" value="{{ $key }}" @checked(in_array($key, old('permissions', [])))>
-                                    <label for="new-perm-{{ $key }}" title="{{ $meta['hint'] ?? '' }}">{{ $meta['label'] }}</label>
-                                </div>
-                            @endforeach
-                        </div>
-                        @endif
-                    @endforeach
-                    <div class="checkbox m-b-20">
-                        <input type="checkbox" name="is_active" id="new-role-active" value="1" @checked(old('is_active', true))>
-                        <label for="new-role-active">Active</label>
+
+                    @include('admin.settings.partials._doctor-role-permission-fields', [
+                        'prefix' => 'new',
+                        'selected' => [],
+                        'groups' => $groups,
+                        'permissionsByGroup' => $permissionsByGroup,
+                    ])
+
+                    <div class="doctor-role-active">
+                        <input type="hidden" name="is_active" value="0">
+                        <label class="doctor-role-active__label" for="new-role-active">
+                            <input type="checkbox" name="is_active" id="new-role-active" value="1" @checked(!session()->getOldInput() || filter_var(old('is_active', true), FILTER_VALIDATE_BOOLEAN))>
+                            <span>Active role</span>
+                        </label>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-round">
+
+                    <button type="submit" class="btn btn-primary btn-round doctor-role-card__submit">
                         <i class="zmdi zmdi-plus m-r-5"></i> Create Role
                     </button>
                 </form>
             </div>
-        </div>
+        </aside>
 
-        <div class="col-lg-7 col-md-12">
+        <div class="doctor-roles-list">
             @forelse($doctorRoles as $role)
-                <div class="inner-card doctor-role-card m-b-20">
-                    <form method="POST" action="{{ route('doctor-roles.update', $role) }}">
+                @php
+                    $normalizedPermissions = \App\Models\DoctorRole::normalizePermissions($role->permissions ?? []);
+                    $isEditingThisRole = (string) old('_role_id') === (string) $role->id;
+                @endphp
+                <article class="doctor-role-card @if(! $role->is_active) doctor-role-card--inactive @endif">
+                    <form method="POST" action="{{ route('doctor-roles.update', $role) }}" class="doctor-role-form">
                         @csrf
                         @method('PUT')
-                        <div class="d-flex justify-content-between align-items-start flex-wrap m-b-15">
-                            <div>
-                                <h6 class="m-b-5">{{ $role->name }}</h6>
-                                <small class="text-muted">{{ $role->doctors_count ?? 0 }} doctor(s) assigned</small>
-                            </div>
-                            <span class="badge @if($role->is_active) badge-success @else badge-default @endif">
-                                {{ $role->is_active ? 'Active' : 'Inactive' }}
-                            </span>
-                        </div>
-                        <div class="form-group">
-                            <label>Role Name</label>
-                            <input type="text" name="name" class="form-control" value="{{ old('name.'.$role->id, $role->name) }}" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Description</label>
-                            <textarea name="description" class="form-control" rows="2">{{ old('description.'.$role->id, $role->description) }}</textarea>
-                        </div>
-                        @foreach($groups as $groupKey => $groupLabel)
-                            @if($permissionsByGroup->has($groupKey))
-                            <div class="form-group">
-                                <label class="d-block m-b-10">{{ $groupLabel }}</label>
-                                <div class="row">
-                                    @foreach($permissionsByGroup[$groupKey] as $key => $meta)
-                                        <div class="col-md-6">
-                                            <div class="checkbox">
-                                                <input type="checkbox" name="permissions[]" id="role-{{ $role->id }}-{{ $key }}" value="{{ $key }}"
-                                                    @checked(in_array($key, old('permissions.'.$role->id, $role->permissions ?? [])))>
-                                                <label for="role-{{ $role->id }}-{{ $key }}" title="{{ $meta['hint'] ?? '' }}">{{ $meta['label'] }}</label>
-                                            </div>
-                                        </div>
-                                    @endforeach
+                        <input type="hidden" name="_role_id" value="{{ $role->id }}">
+
+                        <header class="doctor-role-card__head">
+                            <div class="doctor-role-card__identity">
+                                <span class="doctor-role-card__icon doctor-role-card__icon--role" aria-hidden="true">
+                                    <i class="zmdi zmdi-assignment-account"></i>
+                                </span>
+                                <div>
+                                    <h6 class="m-b-0">{{ $role->name }}</h6>
+                                    <p class="doctor-role-card__sub m-b-0">
+                                        {{ $role->doctors_count ?? 0 }} doctor{{ ($role->doctors_count ?? 0) === 1 ? '' : 's' }} assigned
+                                    </p>
                                 </div>
                             </div>
-                            @endif
-                        @endforeach
-                        <div class="checkbox m-b-15">
-                            <input type="checkbox" name="is_active" id="role-active-{{ $role->id }}" value="1" @checked(old('is_active.'.$role->id, $role->is_active))>
-                            <label for="role-active-{{ $role->id }}">Active</label>
+                            <span class="doctor-role-status @if($role->is_active) doctor-role-status--active @else doctor-role-status--inactive @endif">
+                                {{ $role->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </header>
+
+                        <div class="doctor-role-card__body">
+                            <div class="form-group">
+                                <label for="role-name-{{ $role->id }}">Role Name</label>
+                                <input type="text"
+                                       name="name"
+                                       id="role-name-{{ $role->id }}"
+                                       class="form-control @if($isEditingThisRole && $roleErrors->has('name')) is-invalid @endif"
+                                       value="{{ (string) old('_role_id') === (string) $role->id ? old('name', $role->name) : $role->name }}"
+                                       required>
+                            </div>
+                            <div class="form-group">
+                                <label for="role-description-{{ $role->id }}">Description</label>
+                                <textarea name="description"
+                                          id="role-description-{{ $role->id }}"
+                                          class="form-control"
+                                          rows="2"
+                                          placeholder="Optional">{{ (string) old('_role_id') === (string) $role->id ? old('description', $role->description) : $role->description }}</textarea>
+                            </div>
+
+                            @include('admin.settings.partials._doctor-role-permission-fields', [
+                                'prefix' => 'role-'.$role->id,
+                                'roleId' => $role->id,
+                                'selected' => $normalizedPermissions,
+                                'groups' => $groups,
+                                'permissionsByGroup' => $permissionsByGroup,
+                            ])
+
+                            <div class="doctor-role-active">
+                                <input type="hidden" name="is_active" value="0">
+                                <label class="doctor-role-active__label" for="role-active-{{ $role->id }}">
+                                    @php
+                                        $isActiveChecked = (string) old('_role_id') === (string) $role->id
+                                            ? filter_var(old('is_active', $role->is_active), FILTER_VALIDATE_BOOLEAN)
+                                            : $role->is_active;
+                                    @endphp
+                                    <input type="checkbox" name="is_active" id="role-active-{{ $role->id }}" value="1" @checked($isActiveChecked)>
+                                    <span>Active role</span>
+                                </label>
+                            </div>
                         </div>
-                        <div class="d-flex flex-wrap gap-actions">
-                            <button type="submit" class="btn btn-primary btn-round btn-sm">
-                                <i class="zmdi zmdi-check m-r-5"></i> Update
+
+                        <footer class="doctor-role-card__foot">
+                            <button type="submit" class="btn btn-primary btn-round btn-sm doctor-role-card__submit">
+                                <i class="zmdi zmdi-check m-r-5"></i> Save Changes
                             </button>
-                        </div>
+                        </footer>
                     </form>
+
                     @if(($role->doctors_count ?? 0) === 0)
-                        <form method="POST" action="{{ route('doctor-roles.destroy', $role) }}" class="doctor-role-delete-form m-t-10"
-                              data-role-name="{{ $role->name }}">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-round btn-sm btn-simple">
-                                <i class="zmdi zmdi-delete m-r-5"></i> Delete Role
-                            </button>
-                        </form>
+                    <form method="POST"
+                          action="{{ route('doctor-roles.destroy', $role) }}"
+                          class="doctor-role-delete-form"
+                          data-role-name="{{ $role->name }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-round btn-sm btn-simple doctor-role-delete-btn">
+                            <i class="zmdi zmdi-delete m-r-5"></i> Delete Role
+                        </button>
+                    </form>
                     @endif
-                </div>
+                </article>
             @empty
-                <div class="inner-card text-center p-4">
-                    <i class="zmdi zmdi-account-box zmdi-hc-3x text-muted m-b-15"></i>
-                    <p class="m-b-0 text-muted">No doctor roles yet. Create one using the form on the left.</p>
+                <div class="doctor-role-card doctor-role-card--empty text-center">
+                    <i class="zmdi zmdi-assignment-account doctor-role-card__empty-icon" aria-hidden="true"></i>
+                    <h6 class="m-b-5">No doctor roles yet</h6>
+                    <p class="m-b-0 text-muted">Create your first role using the form on the left.</p>
                 </div>
             @endforelse
         </div>
@@ -121,6 +179,10 @@
 @push('settings-scripts')
 <script>
 $(function () {
+    @if($hasRoleFormErrors || request('tab') === 'doctor-roles')
+    $('.settings-page .nav-tabs a[href="#tab-doctor-roles"]').tab('show');
+    @endif
+
     $('.doctor-role-delete-form').on('submit', function (e) {
         e.preventDefault();
         var form = this;
