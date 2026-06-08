@@ -5,7 +5,7 @@
 @section('body-class', 'patient-case-study-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=54">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=55">
 @endpush
 
 @section('content')
@@ -68,10 +68,22 @@
         </nav>
 
         {{-- Case summary — formal dossier for doctors & admins --}}
-        <section class="case-summary-card case-summary-card--dossier" aria-label="Case summary">
+        <section class="case-summary-card case-summary-card--dossier" aria-label="Case summary" data-case-summary-dossier>
             <div class="case-summary-card__glow" aria-hidden="true"></div>
             <div class="case-summary-card__accent" aria-hidden="true"></div>
             <div class="case-summary-card__inner">
+                <button type="button"
+                        class="case-summary-card__mobile-toggle"
+                        id="case-summary-dossier-toggle"
+                        aria-expanded="false"
+                        aria-controls="case-summary-dossier-panel">
+                    <span class="case-summary-card__mobile-toggle-text">
+                        <span class="case-summary-card__mobile-toggle-kicker">Case record</span>
+                        <span class="case-summary-card__mobile-toggle-name">{{ $patient->fullName() }}</span>
+                    </span>
+                    <i class="zmdi zmdi-chevron-down case-summary-card__mobile-toggle-icon" aria-hidden="true"></i>
+                </button>
+                <div class="case-summary-card__expandable" id="case-summary-dossier-panel" hidden>
                 <header class="case-summary-card__header">
                     <p class="case-summary-card__kicker">Case record</p>
                     <div class="case-summary-card__id-block">
@@ -167,6 +179,7 @@
                             @endif
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
         </section>
@@ -270,7 +283,7 @@
 </script>
 <script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=15"></script>
 @endif
-<script src="{{ asset('assets/js/patient-case-study.js') }}?v=2"></script>
+<script src="{{ asset('assets/js/patient-case-study.js') }}?v=3"></script>
 <script src="{{ asset('assets/js/case-action-confirm.js') }}?v=5"></script>
 <script src="{{ asset('assets/js/case-manufacture-plan.js') }}?v=7"></script>
 <script src="{{ asset('assets/js/case-photos-upload.js') }}?v=1"></script>

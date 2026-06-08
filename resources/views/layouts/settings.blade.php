@@ -50,7 +50,16 @@
 @push('scripts')
 @if(session('success'))
 <script>
-try { localStorage.removeItem('lineup-color-mode'); } catch (e) {}
+(function () {
+    var adminDefault = @json(\App\Models\Setting::dashboardColorMode());
+    try {
+        localStorage.setItem('lineup-color-mode-admin-default', adminDefault);
+        localStorage.removeItem('lineup-color-mode');
+        document.body.classList.remove('lineup-color-light', 'lineup-color-dark');
+        document.body.classList.add('lineup-color-' + adminDefault);
+        document.documentElement.style.colorScheme = adminDefault;
+    } catch (e) {}
+})();
 </script>
 @endif
 <script>
@@ -93,11 +102,19 @@ $(function () {
 
     applyFontPreview($('.settings-font-picker input[type=radio]:checked'));
 
+    function applyColorModePreview(mode) {
+        mode = mode === 'dark' ? 'dark' : 'light';
+        document.body.classList.remove('lineup-color-light', 'lineup-color-dark');
+        document.body.classList.add('lineup-color-' + mode);
+        document.documentElement.style.colorScheme = mode;
+    }
+
     $('.settings-color-mode-picker li').on('click', function () {
         var $li = $(this);
         $li.siblings().removeClass('active');
         $li.addClass('active');
-        $li.find('input[type=radio]').prop('checked', true);
+        var $input = $li.find('input[type=radio]').prop('checked', true);
+        applyColorModePreview($input.val());
     });
 
     $('.theme-light-dark label.btn').on('click', function () {

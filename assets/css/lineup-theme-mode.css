@@ -122,19 +122,10 @@ body.lineup-app.lineup-color-dark .settings-page .settings-actions {
     border-top-color: var(--lineup-border);
 }
 
-body.lineup-app.lineup-color-dark .settings-page .settings-tabs-header {
-    background: var(--lineup-surface-elevated);
-    border-bottom-color: var(--lineup-border);
-}
-
-body.lineup-app.lineup-color-dark .settings-page .nav-tabs .nav-link {
-    color: var(--lineup-text-muted);
-}
-
-body.lineup-app.lineup-color-dark .settings-page .nav-tabs .nav-link.active {
-    color: var(--lineup-text);
-    background: var(--lineup-surface-muted);
-    border-color: var(--lineup-border) var(--lineup-border) transparent;
+body.lineup-app.lineup-color-dark .settings-page .settings-card > .header.settings-tabs-header {
+    background: var(--lineup-surface-elevated) !important;
+    border-bottom-color: var(--lineup-border) !important;
+    color: var(--lineup-text) !important;
 }
 
 /* ── Forms ── */
@@ -1035,20 +1026,41 @@ body.lineup-app.lineup-color-dark .doctor-clinic-settings__panel {
 }
 
 /* ── Settings page ── */
+body.lineup-app.lineup-color-dark .settings-page .settings-tabs-nav {
+    background: var(--lineup-surface-elevated) !important;
+}
+
 body.lineup-app.lineup-color-dark .settings-page .settings-tabs-nav .nav-link {
     color: var(--lineup-text-muted) !important;
+    background: transparent !important;
+    border-bottom-color: transparent !important;
+    box-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .settings-tabs-nav .nav-link i {
+    color: var(--lineup-text-subtle) !important;
+    opacity: 1 !important;
 }
 
 body.lineup-app.lineup-color-dark .settings-page .settings-tabs-nav .nav-link:hover {
     color: var(--lineup-text-secondary) !important;
-    background: rgba(255, 255, 255, 0.04) !important;
+    background: var(--lineup-surface-hover) !important;
+    border-bottom-color: transparent !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .settings-tabs-nav .nav-link:hover i {
+    color: var(--lineup-text-secondary) !important;
 }
 
 body.lineup-app.lineup-color-dark .settings-page .settings-tabs-nav .nav-link.active {
     color: var(--lineup-text) !important;
     background: var(--lineup-surface-muted) !important;
-    border-bottom-color: var(--lineup-skin) !important;
-    box-shadow: none !important;
+    border-bottom-color: var(--lineup-link) !important;
+    box-shadow: inset 0 -1px 0 var(--lineup-surface-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .settings-page .settings-tabs-nav .nav-link.active i {
+    color: var(--lineup-link) !important;
 }
 
 body.lineup-app.lineup-color-dark .settings-page .settings-section-title {
@@ -1337,6 +1349,32 @@ body.lineup-app.lineup-color-dark.patient-case-study-page .ig-compose-preview__n
 body.lineup-app.lineup-color-dark .case-summary-card__header {
     background: linear-gradient(180deg, var(--lineup-surface-muted) 0%, var(--lineup-surface-elevated) 100%) !important;
     border-bottom-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card__mobile-toggle {
+    background: linear-gradient(180deg, var(--lineup-surface-muted) 0%, var(--lineup-surface-elevated) 100%) !important;
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card__mobile-toggle:hover,
+body.lineup-app.lineup-color-dark .case-summary-card__mobile-toggle:focus-visible {
+    background: var(--lineup-surface-hover) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card__mobile-toggle-kicker {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card__mobile-toggle-name {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card__mobile-toggle-icon {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-summary-card--dossier.is-open .case-summary-card__mobile-toggle-icon {
+    color: var(--lineup-link) !important;
 }
 
 body.lineup-app.lineup-color-dark .case-summary-card__case-id {

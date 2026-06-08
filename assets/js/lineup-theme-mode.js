@@ -2,6 +2,7 @@
     'use strict';
 
     var STORAGE_KEY = 'lineup-color-mode';
+    var ADMIN_DEFAULT_KEY = 'lineup-color-mode-admin-default';
     var body = document.body;
 
     if (!body || !body.classList.contains('lineup-app')) {
@@ -16,6 +17,20 @@
         return normalizeMode(body.getAttribute('data-default-color-mode') || 'light');
     }
 
+    function syncAdminDefault() {
+        var serverDefault = getDefaultMode();
+
+        try {
+            var cachedAdminDefault = localStorage.getItem(ADMIN_DEFAULT_KEY);
+            if (cachedAdminDefault !== serverDefault) {
+                localStorage.setItem(ADMIN_DEFAULT_KEY, serverDefault);
+                localStorage.removeItem(STORAGE_KEY);
+            }
+        } catch (err) {
+            /* ignore */
+        }
+    }
+
     function getStoredMode() {
         try {
             var stored = localStorage.getItem(STORAGE_KEY);
@@ -23,6 +38,11 @@
         } catch (err) {
             return null;
         }
+    }
+
+    function resolveMode() {
+        syncAdminDefault();
+        return getStoredMode() || getDefaultMode();
     }
 
     function applyMode(mode) {
@@ -52,7 +72,7 @@
     }
 
     function initMode() {
-        applyMode(getStoredMode() || getDefaultMode());
+        applyMode(resolveMode());
     }
 
     function bindToggle() {

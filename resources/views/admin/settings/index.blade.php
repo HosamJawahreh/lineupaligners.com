@@ -189,37 +189,9 @@
         @endphp
         <link rel="stylesheet" href="{{ $fontPreviewUrl }}">
         <div class="settings-panel-grid">
-            <div class="inner-card settings-font-card">
-                <h6>Dashboard Font</h6>
-                <p class="text-muted small m-b-15">Choose the typeface used across the admin dashboard, menus, tables, and forms.</p>
-                <ul class="settings-font-picker list-unstyled m-b-0">
-                    @foreach(config('settings.fonts', []) as $fontKey => $font)
-                    <li @class(['active' => $selectedFont === $fontKey])>
-                        <input type="radio"
-                               name="dashboard_font"
-                               id="page-font-{{ $fontKey }}"
-                               value="{{ $fontKey }}"
-                               class="d-none"
-                               form="settings-form"
-                               data-font-family="{{ $font['family'] }}"
-                               data-font-stack="{{ $font['stack'] }}"
-                               @checked($selectedFont === $fontKey)>
-                        <label for="page-font-{{ $fontKey }}" class="settings-font-option m-b-0">
-                            <span class="settings-font-option__name" style="font-family: {{ $font['stack'] }};">{{ $font['label'] }}</span>
-                            <span class="settings-font-option__sample" style="font-family: {{ $font['stack'] }};">Patient cases, treatment plans, and clinical notes.</span>
-                        </label>
-                    </li>
-                    @endforeach
-                </ul>
-                <div class="settings-font-live-preview m-t-20" id="settings-font-live-preview" aria-live="polite">
-                    <span class="settings-font-live-preview__label">Preview</span>
-                    <p class="settings-font-live-preview__title" id="settings-font-preview-title" style="font-family: {{ config('settings.fonts.'.$selectedFont.'.stack', config('settings.fonts.cairo.stack')) }};">Dashboard heading</p>
-                    <p class="settings-font-live-preview__body" id="settings-font-preview-body" style="font-family: {{ config('settings.fonts.'.$selectedFont.'.stack', config('settings.fonts.cairo.stack')) }};">This is how body text, buttons, and tables will look after you save.</p>
-                </div>
-            </div>
             <div class="inner-card settings-color-mode-card">
-                <h6>Dashboard Color Mode</h6>
-                <p class="text-muted small m-b-15">Switch the entire dashboard between light and dark. Everyone sees the saved default; users can also toggle from the top bar (saved in this browser).</p>
+                <h6>Default Dashboard Theme</h6>
+                <p class="text-muted small m-b-15">Choose whether the dashboard opens in light or dark mode for all users. Anyone can still switch theme from the top bar; that choice is saved per browser until you change this default again.</p>
                 @php $colorMode = old('dashboard_color_mode', $settings['dashboard_color_mode'] ?? 'light'); @endphp
                 <ul class="settings-color-mode-picker list-unstyled m-b-0">
                     <li @class(['active' => $colorMode === 'light'])>
@@ -251,6 +223,34 @@
                         </label>
                     </li>
                 </ul>
+            </div>
+            <div class="inner-card settings-font-card">
+                <h6>Dashboard Font</h6>
+                <p class="text-muted small m-b-15">Choose the typeface used across the admin dashboard, menus, tables, and forms.</p>
+                <ul class="settings-font-picker list-unstyled m-b-0">
+                    @foreach(config('settings.fonts', []) as $fontKey => $font)
+                    <li @class(['active' => $selectedFont === $fontKey])>
+                        <input type="radio"
+                               name="dashboard_font"
+                               id="page-font-{{ $fontKey }}"
+                               value="{{ $fontKey }}"
+                               class="d-none"
+                               form="settings-form"
+                               data-font-family="{{ $font['family'] }}"
+                               data-font-stack="{{ $font['stack'] }}"
+                               @checked($selectedFont === $fontKey)>
+                        <label for="page-font-{{ $fontKey }}" class="settings-font-option m-b-0">
+                            <span class="settings-font-option__name" style="font-family: {{ $font['stack'] }};">{{ $font['label'] }}</span>
+                            <span class="settings-font-option__sample" style="font-family: {{ $font['stack'] }};">Patient cases, treatment plans, and clinical notes.</span>
+                        </label>
+                    </li>
+                    @endforeach
+                </ul>
+                <div class="settings-font-live-preview m-t-20" id="settings-font-live-preview" aria-live="polite">
+                    <span class="settings-font-live-preview__label">Preview</span>
+                    <p class="settings-font-live-preview__title" id="settings-font-preview-title" style="font-family: {{ config('settings.fonts.'.$selectedFont.'.stack', config('settings.fonts.cairo.stack')) }};">Dashboard heading</p>
+                    <p class="settings-font-live-preview__body" id="settings-font-preview-body" style="font-family: {{ config('settings.fonts.'.$selectedFont.'.stack', config('settings.fonts.cairo.stack')) }};">This is how body text, buttons, and tables will look after you save.</p>
+                </div>
             </div>
             <div class="inner-card">
                 <h6>Theme Skins</h6>

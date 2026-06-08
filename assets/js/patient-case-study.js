@@ -492,10 +492,68 @@
         });
     }
 
+    function initCaseSummaryDossier() {
+        var $card = $('[data-case-summary-dossier]');
+        if (!$card.length) {
+            return;
+        }
+
+        var $toggle = $card.find('.case-summary-card__mobile-toggle');
+        var $panel = $card.find('.case-summary-card__expandable');
+        var mq = window.matchMedia('(max-width: 767px)');
+
+        function isMobile() {
+            return mq.matches;
+        }
+
+        function setExpanded(expanded) {
+            $card.toggleClass('is-open', expanded);
+            $toggle.attr('aria-expanded', expanded ? 'true' : 'false');
+
+            if (expanded) {
+                $panel.removeAttr('hidden');
+            } else {
+                $panel.attr('hidden', true);
+            }
+        }
+
+        function syncLayout() {
+            if (!isMobile()) {
+                $card.removeClass('is-open');
+                $toggle.attr('aria-expanded', 'true');
+                $panel.removeAttr('hidden');
+                return;
+            }
+
+            if (!$card.data('dossier-mobile-init')) {
+                setExpanded(false);
+                $card.data('dossier-mobile-init', true);
+            }
+        }
+
+        $toggle.on('click', function () {
+            if (!isMobile()) {
+                return;
+            }
+
+            setExpanded(!$card.hasClass('is-open'));
+        });
+
+        if (typeof mq.addEventListener === 'function') {
+            mq.addEventListener('change', syncLayout);
+        } else if (typeof mq.addListener === 'function') {
+            mq.addListener(syncLayout);
+        }
+
+        $(window).on('resize.caseSummaryDossier', syncLayout);
+        syncLayout();
+    }
+
     $(function () {
         initTabs();
         initChat();
         initSummaryNotes();
+        initCaseSummaryDossier();
         openTabFromParams();
     });
 })(jQuery);

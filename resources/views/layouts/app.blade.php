@@ -45,20 +45,29 @@
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-form-pages.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=8">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=11">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=13">
 </head>
 <body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"
       data-default-color-mode="{{ $dashboardColorMode }}"
       style="{{ $brandInlineStyle ?? '' }}">
 <script>
 (function () {
+    var storageKey = 'lineup-color-mode';
+    var adminDefaultKey = 'lineup-color-mode-admin-default';
+    var serverDefault = document.body.getAttribute('data-default-color-mode') === 'dark' ? 'dark' : 'light';
+
     try {
-        var stored = localStorage.getItem('lineup-color-mode');
-        if (stored === 'dark' || stored === 'light') {
-            document.body.classList.remove('lineup-color-light', 'lineup-color-dark');
-            document.body.classList.add('lineup-color-' + stored);
-            document.documentElement.style.colorScheme = stored;
+        var cachedAdminDefault = localStorage.getItem(adminDefaultKey);
+        if (cachedAdminDefault !== serverDefault) {
+            localStorage.setItem(adminDefaultKey, serverDefault);
+            localStorage.removeItem(storageKey);
         }
+
+        var stored = localStorage.getItem(storageKey);
+        var mode = stored === 'dark' || stored === 'light' ? stored : serverDefault;
+        document.body.classList.remove('lineup-color-light', 'lineup-color-dark');
+        document.body.classList.add('lineup-color-' + mode);
+        document.documentElement.style.colorScheme = mode;
     } catch (e) {}
 })();
 </script>
@@ -84,7 +93,7 @@
 <script>
     window.LINEUP_USER_ID = @json(auth()->id());
 </script>
-<script src="{{ asset('assets/js/lineup-theme-mode.js') }}?v=2"></script>
+<script src="{{ asset('assets/js/lineup-theme-mode.js') }}?v=3"></script>
 <script src="{{ asset('assets/js/lineup-mobile-nav.js') }}?v=2"></script>
 <script src="{{ asset('assets/js/lineup-notifications.js') }}"></script>
 <script src="{{ asset('assets/js/scan-upload-loading.js') }}"></script>
