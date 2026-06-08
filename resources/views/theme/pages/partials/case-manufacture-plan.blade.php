@@ -55,7 +55,7 @@
     @if(($canReviewTreatmentPlan ?? false) && !($canUploadTreatmentPlan ?? false))
     <p class="mfg-plan__role-note"><i class="zmdi zmdi-info-outline"></i>
         @if($isDivided)
-            Stages are reviewed in order. Approve or order a modification on the current stage only. Modification notes are required.
+            Stages are reviewed in order. Approve the current stage, or use <strong>Request Modification</strong> for plan changes.
         @else
             Review the plan below. Ordering a modification requires notes for LineUp admin.
         @endif

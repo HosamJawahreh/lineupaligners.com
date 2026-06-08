@@ -125,6 +125,7 @@ class PatientController extends Controller
         $patient = Patient::create($data);
         $this->storeCasePhotos($request, $patient);
         $this->storeJawScans($request, $patient);
+        $this->storeCaseDataZip($request, $patient);
         $this->syncPrimaryPhoto($patient);
 
         $patient->load('doctor.user');
@@ -193,6 +194,8 @@ class PatientController extends Controller
             'modificationRecords' => $patient->modificationRecords(),
             'refinementRecords' => $patient->refinementRecords(),
             'caseTimeline' => app(CaseTimelineBuilder::class)->build($patient),
+            'modificationTimeline' => app(CaseTimelineBuilder::class)->buildModificationHistory($patient),
+            'refinementTimeline' => app(CaseTimelineBuilder::class)->buildRefinementHistory($patient),
             'canRequestModification' => auth()->user()->can('requestModification', $patient),
             'canRequestRefinement' => auth()->user()->can('requestRefinement', $patient),
             'refinementsEnabled' => Schema::hasTable('patient_case_refinements'),
@@ -271,6 +274,22 @@ class PatientController extends Controller
 
         return response()->file($absolutePath, [
             'Content-Type' => $mime,
+        ]);
+    }
+
+    public function downloadCaseDataZip(Patient $patient): BinaryFileResponse
+    {
+        $this->authorize('view', $patient);
+
+        if (! $patient->hasCaseDataZip()) {
+            abort(404, 'Case data archive not found.');
+        }
+
+        $disk = Storage::disk('public');
+        $absolutePath = $disk->path($patient->case_data_zip);
+
+        return response()->download($absolutePath, $patient->caseDataZipDisplayName(), [
+            'Content-Type' => 'application/zip',
         ]);
     }
 
@@ -372,6 +391,7 @@ class PatientController extends Controller
         $this->removeCasePhotos($request, $patient);
         $this->storeCasePhotos($request, $patient);
         $this->storeJawScans($request, $patient);
+        $this->storeCaseDataZip($request, $patient);
         $this->syncPrimaryPhoto($patient);
 
         return redirect()->route('patients.index')->with('success', 'Patient case study updated successfully.');
@@ -407,6 +427,8 @@ class PatientController extends Controller
             'lower_jaw_scan' => ['nullable', 'file', Rule::file()->extensions(self::SCAN_EXTENSIONS)->max(self::SCAN_MAX_KB)],
             'remove_upper_jaw_scan' => ['sometimes', 'boolean'],
             'remove_lower_jaw_scan' => ['sometimes', 'boolean'],
+            'case_data_zip' => ['nullable', 'file', 'mimes:zip', 'max:'.self::SCAN_MAX_KB],
+            'remove_case_data_zip' => ['sometimes', 'boolean'],
             'photos' => ['nullable', 'array'],
             'photos.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:'.self::PHOTO_MAX_KB],
             'remove_photos' => ['nullable', 'array'],
@@ -518,9 +540,54 @@ class PatientController extends Controller
 
         if ($request->hasFile('lower_jaw_scan')) {
             $this->replaceScan($patient, 'lower_jaw_scan', $request->file('lower_jaw_scan'));
-        } elseif ($request->boolean('remove_lower_jaw_scan')) {
+        } else        if ($request->boolean('remove_lower_jaw_scan')) {
             $this->removeScan($patient, 'lower_jaw_scan');
         }
+    }
+
+    private function storeCaseDataZip(Request $request, Patient $patient): void
+    {
+        if ($request->hasFile('case_data_zip')) {
+            $this->replaceCaseDataZip($patient, $request->file('case_data_zip'));
+        } elseif ($request->boolean('remove_case_data_zip')) {
+            $this->removeCaseDataZip($patient);
+        }
+    }
+
+    private function replaceCaseDataZip(Patient $patient, UploadedFile $file): void
+    {
+        $oldPath = $patient->case_data_zip;
+        if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        $base = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) ?: 'case-data';
+        $filename = $base.'.zip';
+        $dir = "patients/{$patient->id}";
+
+        if (Storage::disk('public')->exists("{$dir}/{$filename}")) {
+            $filename = $base.'_'.time().'.zip';
+        }
+
+        $path = $file->storeAs($dir, $filename, 'public');
+
+        $patient->update([
+            'case_data_zip' => $path,
+            'case_data_zip_name' => $file->getClientOriginalName(),
+        ]);
+    }
+
+    private function removeCaseDataZip(Patient $patient): void
+    {
+        $path = $patient->case_data_zip;
+        if ($path && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
+
+        $patient->update([
+            'case_data_zip' => null,
+            'case_data_zip_name' => null,
+        ]);
     }
 
     private function replaceScan(Patient $patient, string $field, UploadedFile $file): void
@@ -587,7 +654,7 @@ class PatientController extends Controller
         }
 
         return [
-            'status' => $this->filterString($request, 'status'),
+            'status' => $this->filterStatus($request),
             'patient' => $this->filterString($request, 'patient'),
             'doctor' => $this->filterString($request, 'doctor'),
             'creator' => $this->filterString($request, 'creator'),
@@ -611,6 +678,18 @@ class PatientController extends Controller
         return trim((string) $value);
     }
 
+    private function filterStatus(Request $request): string
+    {
+        $status = $this->filterString($request, 'status');
+        $allowed = array_keys(config('patient-statuses.tabs', []));
+
+        if ($status !== '' && ! in_array($status, $allowed, true)) {
+            return '';
+        }
+
+        return $status;
+    }
+
     private function isValidDateFilter(string $value): bool
     {
         return $value !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) === 1;
@@ -629,6 +708,7 @@ class PatientController extends Controller
                 'first_name',
                 'last_name',
                 'email',
+                'phone',
                 'patient_id',
             ], fullNameColumns: ['first_name', 'last_name']);
         }
@@ -644,11 +724,13 @@ class PatientController extends Controller
         }
 
         if ($filters['creator'] !== '' && auth()->user()->isAdmin()) {
-            $query->whereHas('doctor.user', function ($q) use ($filters) {
-                $this->applyPersonNameFilter($q, $filters['creator'], [
-                    'name',
-                    'email',
-                ]);
+            $query->whereHas('doctor', function ($q) use ($filters) {
+                $q->whereHas('user', function ($userQuery) use ($filters) {
+                    $this->applyPersonNameFilter($userQuery, $filters['creator'], [
+                        'name',
+                        'email',
+                    ]);
+                });
             });
         }
 

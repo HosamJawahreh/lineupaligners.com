@@ -51,7 +51,7 @@
                     ->count();
             @endphp
 
-            <form method="GET" action="{{ route('patients.index') }}" class="cases-filters" id="cases-filter-form">
+            <form method="GET" action="{{ route('patients.index') }}" class="cases-filters @if($activeFilterCount > 0) is-open @endif" id="cases-filter-form">
                 <input type="hidden" name="status" value="{{ $filters['status'] }}">
                 <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
                 <input type="hidden" name="dir" value="{{ $filters['dir'] }}">
@@ -60,7 +60,7 @@
                     <button type="button"
                             class="cases-filters-toggle"
                             id="cases-filters-toggle"
-                            aria-expanded="false"
+                            aria-expanded="{{ $activeFilterCount > 0 ? 'true' : 'false' }}"
                             aria-controls="cases-filters-panel">
                         <i class="zmdi zmdi-filter-list" aria-hidden="true"></i>
                         <span>Filters</span>
@@ -73,7 +73,7 @@
                     @endif
                 </div>
 
-                <div class="cases-filters-row" id="cases-filters-panel">
+                <div class="cases-filters-row" id="cases-filters-panel" @if($activeFilterCount === 0) hidden @endif>
                     <div class="cases-field cases-field-search">
                         <i class="zmdi zmdi-search" aria-hidden="true"></i>
                         <input type="text" name="patient" class="form-control" value="{{ $filters['patient'] }}" placeholder="Patient Name">
@@ -136,7 +136,9 @@
             <div class="cases-table-scroll">
             <div class="cases-table-wrap">
                 <table class="cases-table lineup-datatable table table-hover w-100" id="cases-table"
-                       data-order-col="6" data-order-dir="desc" data-no-sort-columns="8" data-page-length="20"
+                       data-order-col="{{ $filters['sort'] === 'patient_id' ? 0 : 6 }}"
+                       data-order-dir="{{ $filters['dir'] }}"
+                       data-no-sort-columns="8" data-page-length="20"
                        data-responsive="false">
                     <thead>
                         <tr>
@@ -277,6 +279,7 @@
 
 @push('scripts')
 <script src="{{ asset('assets/js/cases-actions.js') }}"></script>
+<script src="{{ asset('assets/js/cases-filters.js') }}"></script>
 <script>
 $(function () {
     $('.cases-delete-form').on('submit', function (e) {
@@ -292,14 +295,8 @@ $(function () {
     if (window.LineUpInitCasesActions) {
         window.LineUpInitCasesActions();
     }
-
-    var $filterForm = $('#cases-filter-form');
-    var $filterToggle = $('#cases-filters-toggle');
-    if ($filterToggle.length) {
-        $filterToggle.on('click', function () {
-            var open = $filterForm.toggleClass('is-open').hasClass('is-open');
-            $filterToggle.attr('aria-expanded', open ? 'true' : 'false');
-        });
+    if (window.LineUpInitCasesFilters) {
+        window.LineUpInitCasesFilters();
     }
 });
 </script>

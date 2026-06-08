@@ -4242,7 +4242,96 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     margin: 0;
     font-size: 13px;
     line-height: 1.5;
-    max-width: 28ch;
+    max-width: 32ch;
+}
+
+.case-cycle-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.case-cycle-timeline__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 10px;
+}
+
+.case-cycle-timeline__title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.case-cycle-timeline__subtitle {
+    margin: 0;
+    flex: 1 1 100%;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #64748b;
+}
+
+.case-cycle-timeline__count {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+
+.case-timeline--embedded {
+    padding: 0;
+}
+
+.case-cycle-timeline--compact .case-timeline__header {
+    display: none;
+}
+
+.case-cycle-timeline--compact .case-timeline__day {
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 10px;
+}
+
+.case-cycle-timeline--compact .case-timeline__event {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 0 10px;
+}
+
+.case-cycle-timeline--compact .case-timeline__node {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+}
+
+.case-cycle-timeline--compact .case-timeline__event-title {
+    font-size: 13px;
+}
+
+.case-cycle-timeline--compact .case-timeline__summary,
+.case-cycle-timeline--compact .case-timeline__body p {
+    font-size: 12px;
+}
+
+.case-cycle-timeline--compact .case-timeline__card {
+    padding: 12px 14px;
+}
+
+.case-cycle-timeline--compact .case-timeline__latest-tag {
+    font-size: 10px;
+}
+
+@media (max-width: 991px) {
+    .case-modification__layout,
+    .case-refinement__layout {
+        grid-template-columns: 1fr;
+    }
+
+    .case-cycle-timeline--compact .case-timeline__day {
+        grid-template-columns: 1fr;
+    }
 }
 
 .case-modification-card__required {
@@ -5542,6 +5631,27 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     color: #fff;
     box-shadow: none;
     flex-shrink: 0;
+}
+
+a.case-data-zip-chip {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+a.case-data-zip-chip:hover,
+a.case-data-zip-chip:focus-visible {
+    border-color: #94a3b8;
+    background: #f1f5f9;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+    text-decoration: none;
+    color: inherit;
+}
+
+a.case-data-zip-chip:focus-visible {
+    outline: 2px solid #0284c7;
+    outline-offset: 2px;
 }
 
 /* Tablet / mobile — stack scan header (avoid absolute overlap) */

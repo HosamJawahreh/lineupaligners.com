@@ -596,14 +596,12 @@ class SmilizHtmlRenderer
             $html
         ) ?? $html;
 
-        if (filled($page['form_title'] ?? null) || filled($page['form_intro'] ?? null)) {
-            $html = preg_replace(
-                '/(<div class="pbmit-heading-subheading text-center">\s*)<h2[^>]*class="pbmit-title"[^>]*>.*?<\/h2>\s*<div class="pbmit-heading-desc">.*?<\/div>/is',
-                '$1<h2 class="pbmit-title">'.e($page['form_title'] ?? '').'</h2><div class="pbmit-heading-desc">'.e($page['form_intro'] ?? '').'</div>',
-                $html,
-                1
-            ) ?? $html;
-        }
+        $html = preg_replace(
+            '/(<div class="pbmit-heading-subheading text-center">\s*)<h2[^>]*class="pbmit-title"[^>]*>.*?<\/h2>\s*<div class="pbmit-heading-desc">.*?<\/div>/is',
+            '$1<h2 class="pbmit-title">'.e($page['form_title'] ?? config('website.default_contact_page.form_title', 'Send us a message')).'</h2><div class="pbmit-heading-desc">'.e($page['form_intro'] ?? config('website.default_contact_page.form_intro', '')).'</div>',
+            $html,
+            1
+        ) ?? $html;
 
         return $this->injectContactForm($html);
     }

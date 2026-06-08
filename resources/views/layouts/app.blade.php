@@ -46,7 +46,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=11">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-performance.css') }}?v=1">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=24">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=25">
 </head>
 <body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"
       data-default-color-mode="{{ $dashboardColorMode }}"

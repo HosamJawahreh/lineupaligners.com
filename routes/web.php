@@ -118,6 +118,8 @@ Route::middleware('auth')->group(function () {
         Route::get('patients/{patient}/scans/{scan}', [PatientController::class, 'downloadScan'])
             ->whereIn('scan', ['upper', 'lower'])
             ->name('patients.scans.download');
+        Route::get('patients/{patient}/case-data-zip', [PatientController::class, 'downloadCaseDataZip'])
+            ->name('patients.case-data-zip.download');
         Route::get('patients/{patient}/photos/download-all', [PatientController::class, 'downloadAllPhotos'])
             ->name('patients.photos.download-all');
         Route::get('patients/{patient}/photos/{photo}/download', [PatientController::class, 'downloadPhoto'])

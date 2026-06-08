@@ -45,7 +45,7 @@ class PublicWebsiteInquiryController extends Controller
             ]);
         }
 
-        $inquiry = WebsiteContactInquiry::create([
+        $inquiryAttributes = [
             'name' => trim((string) $data['name']),
             'email' => trim((string) $data['email']),
             'phone' => filled($data['phone'] ?? null) ? trim((string) $data['phone']) : null,
@@ -53,15 +53,26 @@ class PublicWebsiteInquiryController extends Controller
             'form_type' => $formType,
             'locale' => app()->getLocale(),
             'ip_address' => (string) $request->ip(),
-        ]);
+        ];
+
+        $inquiry = new WebsiteContactInquiry($inquiryAttributes);
+
+        try {
+            $inquiry->save();
+        } catch (\Throwable $e) {
+            Log::warning('Website inquiry save failed: '.$e->getMessage(), [
+                'email' => $inquiryAttributes['email'],
+                'form_type' => $formType,
+            ]);
+        }
 
         $mailPayload = [
-            'name' => $inquiry->name,
-            'email' => $inquiry->email,
-            'phone' => $inquiry->phone,
+            'name' => $inquiryAttributes['name'],
+            'email' => $inquiryAttributes['email'],
+            'phone' => $inquiryAttributes['phone'],
             'subject' => $data['subject'] ?? null,
-            'message' => $inquiry->message,
-            'form_type' => $inquiry->form_type,
+            'message' => $inquiryAttributes['message'],
+            'form_type' => $inquiryAttributes['form_type'],
         ];
 
         $contact = $website->all(app()->getLocale())['contact'] ?? [];
@@ -71,8 +82,9 @@ class PublicWebsiteInquiryController extends Controller
 
         Log::info('Website inquiry received', [
             'id' => $inquiry->id,
-            'email' => $inquiry->email,
-            'form_type' => $inquiry->form_type,
+            'email' => $inquiryAttributes['email'],
+            'form_type' => $formType,
+            'saved' => $inquiry->exists,
         ]);
 
         if (filled($recipient)) {
@@ -89,7 +101,7 @@ class PublicWebsiteInquiryController extends Controller
 
         if ($formType !== 'newsletter') {
             try {
-                Mail::to($inquiry->email)->send(new WebsiteInquiryConfirmationMail($inquiry));
+                Mail::to($inquiryAttributes['email'])->send(new WebsiteInquiryConfirmationMail($inquiry));
             } catch (\Throwable $e) {
                 Log::warning('Website inquiry confirmation mail failed: '.$e->getMessage());
             }

@@ -66,6 +66,21 @@
                 persistActiveTab(tabId);
             }
         });
+
+        $(document).on('click', '[data-case-tab-switch]', function () {
+            var tabId = $(this).data('caseTabSwitch');
+
+            if (activateTab(tabId)) {
+                persistActiveTab(tabId);
+
+                if (tabId === 'modification') {
+                    var target = document.getElementById('case-modification-request');
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            }
+        });
     }
 
     function initChat() {

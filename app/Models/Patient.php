@@ -34,6 +34,8 @@ class Patient extends Model
         'upper_jaw_scan_name',
         'lower_jaw_scan',
         'lower_jaw_scan_name',
+        'case_data_zip',
+        'case_data_zip_name',
         'notes',
         'last_visit',
     ];
@@ -1559,6 +1561,38 @@ class Patient extends Model
         return $this->scanDownloadUrl('lower');
     }
 
+    public function hasCaseDataZip(): bool
+    {
+        if (! filled($this->case_data_zip)) {
+            return false;
+        }
+
+        return Storage::disk('public')->exists($this->case_data_zip);
+    }
+
+    public function caseDataZipDownloadUrl(): ?string
+    {
+        if (! $this->hasCaseDataZip()) {
+            return null;
+        }
+
+        return route('patients.case-data-zip.download', $this);
+    }
+
+    public function caseDataZipDisplayName(): string
+    {
+        if ($this->case_data_zip_name) {
+            return basename($this->case_data_zip_name);
+        }
+
+        return $this->display_patient_id.'-case-data.zip';
+    }
+
+    public function caseDataZipSizeLabel(): ?string
+    {
+        return $this->scanSizeLabelForPath($this->case_data_zip);
+    }
+
     public function scanViewUrl(string $scan): ?string
     {
         $field = $scan === 'upper' ? 'upper_jaw_scan' : 'lower_jaw_scan';
@@ -1765,7 +1799,7 @@ class Patient extends Model
         $disk = Storage::disk('public');
         $paths = [];
 
-        foreach ([$this->upper_jaw_scan, $this->lower_jaw_scan, $this->photo] as $path) {
+        foreach ([$this->upper_jaw_scan, $this->lower_jaw_scan, $this->photo, $this->case_data_zip] as $path) {
             if (filled($path)) {
                 $paths[] = $path;
             }

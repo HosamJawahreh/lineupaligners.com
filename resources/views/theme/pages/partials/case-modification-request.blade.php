@@ -116,10 +116,10 @@
                     <i class="zmdi zmdi-time" aria-hidden="true"></i>
                     <p>A modification is in progress{{ $isDivided ? ' for one or more stages' : '' }}. LineUp will upload a revised plan for you to review. After you approve it, the case continues toward manufacturing — refinement is only available after LineUp marks the case as manufactured.</p>
                 </div>
-                @elseif($hasWorkflowPermission && ! $canRequestNow && $reviewStage)
+                @elseif($hasWorkflowPermission && ! $canRequestNow && $reviewStage && ! $patient->hasActiveRefinement())
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-                    <p>Stage {{ $reviewStage }} is pending your approval on the <strong>Treatment Plan</strong> tab. You can also request a modification here before approving.</p>
+                    <p>Stage {{ $reviewStage }} is pending your approval on the <strong>Treatment Plan</strong> tab. You can also request a modification here before approving when this stage is eligible.</p>
                 </div>
                 @elseif(! $hasWorkflowPermission)
                 <div class="case-modification__notice case-modification__notice--info">
@@ -139,17 +139,45 @@
                 </div>
                 @endif
             @else
+                @if($patient->hasActiveRefinement())
+                <div class="case-modification__notice case-modification__notice--info">
+                    <i class="zmdi zmdi-lock" aria-hidden="true"></i>
+                    <p>Modifications are closed while a <strong>refinement cycle</strong> is in progress. Review the refinement plan on the <strong>Treatment Plan</strong> tab. After the doctor approves it, use <strong>Order Refinement</strong> for the next cycle when needed.</p>
+                </div>
+                @elseif($awaitingPlan)
+                <div class="case-modification__notice case-modification__notice--pending">
+                    <i class="zmdi zmdi-time" aria-hidden="true"></i>
+                    <p>A modification is in progress. Upload the revised plan on the <strong>Treatment Plan</strong> tab. The assigned doctor will review it when ready.</p>
+                </div>
+                @elseif($canRequestNow)
+                <div class="case-modification__notice case-modification__notice--info">
+                    <i class="zmdi zmdi-account" aria-hidden="true"></i>
+                    <p>
+                        A treatment plan is uploaded and ready for modification.
+                        @if($patient->doctor)
+                        <strong>Dr. {{ $patient->doctor->fullName() }}</strong> can submit a request from this tab when logged in as the assigned doctor.
+                        @else
+                        The assigned doctor can submit a request from this tab.
+                        @endif
+                    </p>
+                </div>
+                @else
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-account" aria-hidden="true"></i>
                     <p>Only the assigned doctor can submit modification requests. When a request is active, upload a revised plan in the Treatment Plan tab.</p>
                 </div>
+                @endif
             @endif
         </div>
 
         <aside class="case-modification__aside" aria-label="Modification history">
-            @include('theme.pages.partials.case-modification-records', [
-                'patient' => $patient,
-                'modificationRecords' => $modificationRecords ?? collect(),
+            @include('theme.pages.partials.case-cycle-timeline-panel', [
+                'cycleTimeline' => $modificationTimeline ?? ['events' => [], 'grouped' => []],
+                'panelTitle' => 'Modification history',
+                'panelSubtitle' => 'Requests, revised plans, and doctor reviews.',
+                'emptyTitle' => 'No modifications yet',
+                'emptyMessage' => 'Submitted requests and plan updates will appear here.',
+                'timelineIdPrefix' => 'mod-history',
             ])
         </aside>
     </div>

@@ -207,6 +207,28 @@
                         </div>
                     </div>
 
+                    <div class="row clearfix">
+                        <div class="col-md-6 col-sm-12">
+                            <div class="form-group scan-upload-box">
+                                <label for="case_data_zip">Case Data Archive <span class="text-success small">optional</span></label>
+                                <input type="file" name="case_data_zip" id="case_data_zip" accept=".zip,application/zip">
+                                <small class="text-muted d-block m-t-5">ZIP file — max 100MB</small>
+                                @if($isEdit && $patient->hasCaseDataZip())
+                                <div class="scan-current-file">
+                                    <a href="{{ $patient->caseDataZipDownloadUrl() }}" download>{{ $patient->caseDataZipDisplayName() }}</a>
+                                    @if($size = $patient->caseDataZipSizeLabel())
+                                    <small class="text-muted d-block">{{ $size }}</small>
+                                    @endif
+                                </div>
+                                <div class="checkbox m-t-10 m-b-0">
+                                    <input type="checkbox" name="remove_case_data_zip" id="remove_case_data_zip" value="1">
+                                    <label for="remove_case_data_zip">Remove current archive</label>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="text-center m-t-20">
                         <button type="submit" class="btn btn-primary btn-round btn-lg patient-case-submit">
                             <i class="zmdi zmdi-plus m-r-5"></i>{{ $isEdit ? 'Update Patient Case Study' : 'Create Patient Case Study' }}

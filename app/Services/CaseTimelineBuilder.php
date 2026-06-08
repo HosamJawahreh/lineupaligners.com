@@ -61,7 +61,80 @@ class CaseTimelineBuilder
             $events->push($this->manufacturedEvent($patient));
         }
 
-        $sorted = $events
+        return $this->finalizeTimeline($events);
+    }
+
+    /**
+     * @return array{events: list<array<string, mixed>>, grouped: array<string, list<array<string, mixed>>>}
+     */
+    public function buildModificationHistory(Patient $patient): array
+    {
+        $patient->loadMissing(['treatmentPlans', 'caseModifications']);
+
+        return $this->buildFiltered($patient, function (array $event) use ($patient): bool {
+            if (in_array($event['type'], ['modification_requested', 'plan_rejected'], true)) {
+                return true;
+            }
+
+            $plan = $this->planFromEventId($patient, $event['id'] ?? '');
+
+            if ($plan === null || $plan->refinement_id !== null) {
+                return false;
+            }
+
+            if ($event['type'] === 'plan_uploaded') {
+                return $plan->version > 1;
+            }
+
+            if ($event['type'] === 'plan_approved') {
+                return $plan->version > 1
+                    || $patient->caseModifications->contains('treatment_plan_id', $plan->id);
+            }
+
+            return false;
+        });
+    }
+
+    /**
+     * @return array{events: list<array<string, mixed>>, grouped: array<string, list<array<string, mixed>>>}
+     */
+    public function buildRefinementHistory(Patient $patient): array
+    {
+        $patient->loadMissing(['treatmentPlans', 'caseRefinements']);
+
+        return $this->buildFiltered($patient, function (array $event) use ($patient): bool {
+            if ($event['type'] === 'refinement_ordered') {
+                return true;
+            }
+
+            $plan = $this->planFromEventId($patient, $event['id'] ?? '');
+
+            if ($plan !== null && $plan->refinement_id !== null) {
+                return in_array($event['type'], ['plan_uploaded', 'plan_approved', 'plan_rejected'], true);
+            }
+
+            return false;
+        });
+    }
+
+    /**
+     * @param  callable(array<string, mixed>): bool  $filter
+     * @return array{events: list<array<string, mixed>>, grouped: array<string, list<array<string, mixed>>>}
+     */
+    protected function buildFiltered(Patient $patient, callable $filter): array
+    {
+        $events = collect($this->build($patient)['events'])->filter($filter)->values();
+
+        return $this->finalizeTimeline($events);
+    }
+
+    /**
+     * @param  Collection<int, array<string, mixed>>|list<array<string, mixed>>  $events
+     * @return array{events: list<array<string, mixed>>, grouped: array<string, list<array<string, mixed>>>}
+     */
+    protected function finalizeTimeline(Collection|array $events): array
+    {
+        $sorted = collect($events)
             ->filter(fn (?array $e) => $e !== null && ! empty($e['occurred_at']))
             ->sortByDesc(fn (array $e) => $e['occurred_at']->timestamp)
             ->values()
@@ -85,6 +158,15 @@ class CaseTimelineBuilder
             'events' => $sorted,
             'grouped' => $grouped,
         ];
+    }
+
+    protected function planFromEventId(Patient $patient, string $eventId): ?PatientTreatmentPlan
+    {
+        if (! preg_match('/^plan-(?:upload|review)-(\d+)$/', $eventId, $matches)) {
+            return null;
+        }
+
+        return $patient->treatmentPlans->firstWhere('id', (int) $matches[1]);
     }
 
     /**

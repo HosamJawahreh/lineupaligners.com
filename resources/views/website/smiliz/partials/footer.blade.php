@@ -154,20 +154,6 @@
 
                         <div class="textwidget">
 
-                            <div class="pbmit-footer-logo">
-
-                                <a href="{{ $websiteHomeUrl ?? route('website.home') }}">
-                                    <img class="logo-img"
-                                         src="{{ $websiteContent->footerImageUrl() }}"
-                                         alt="{{ $projectName }}"
-                                         width="160"
-                                         height="64"
-                                         decoding="async"
-                                         onerror="this.onerror=null;this.src='{{ \App\Models\Setting::defaultLogoAsset() }}';">
-                                </a>
-
-                            </div>
-
                             <div>{{ $contact['tagline'] ?? '' }}</div>
 
                             @if($socialLinks->isNotEmpty())

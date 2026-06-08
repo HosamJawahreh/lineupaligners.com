@@ -90,13 +90,13 @@
                 <div class="col-md-6">
                     <div class="wm-field">
                         <label class="wm-label">Form title <span class="text-muted">(Contact page variant 2)</span></label>
-                        <input type="text" name="contact_page_form_title" class="form-control wm-input" value="{{ old('contact_page_form_title', $contactPage['form_title'] ?? '') }}" placeholder="Book an appointment">
+                        <input type="text" name="contact_page_form_title" class="form-control wm-input" value="{{ old('contact_page_form_title', $contactPage['form_title'] ?? '') }}" placeholder="Send us a message">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="wm-field">
                         <label class="wm-label">Form intro <span class="text-muted">(Contact page variant 2)</span></label>
-                        <input type="text" name="contact_page_form_intro" class="form-control wm-input" value="{{ old('contact_page_form_intro', $contactPage['form_intro'] ?? '') }}" placeholder="Call us to schedule an appointment">
+                        <input type="text" name="contact_page_form_intro" class="form-control wm-input" value="{{ old('contact_page_form_intro', $contactPage['form_intro'] ?? '') }}" placeholder="Fill in your details below and we will get back to you as soon as possible.">
                     </div>
                 </div>
             </div>

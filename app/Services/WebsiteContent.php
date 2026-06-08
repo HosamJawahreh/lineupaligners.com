@@ -1185,7 +1185,7 @@ class WebsiteContent
         $defaults = config('website.default_contact_page', []);
         $saved = $this->decodeJson($stored['website_contact_page'] ?? null, $defaults);
 
-        return [
+        return $this->remapLegacyContactPageCopy([
             'subtitle' => trim($saved['subtitle'] ?? $defaults['subtitle'] ?? ''),
             'title' => trim($saved['title'] ?? $defaults['title'] ?? ''),
             'intro' => trim($saved['intro'] ?? $defaults['intro'] ?? ''),
@@ -1194,7 +1194,7 @@ class WebsiteContent
             'location_title' => trim($saved['location_title'] ?? $defaults['location_title'] ?? ''),
             'form_title' => trim($saved['form_title'] ?? $defaults['form_title'] ?? ''),
             'form_intro' => trim($saved['form_intro'] ?? $defaults['form_intro'] ?? ''),
-        ];
+        ]);
     }
 
     /** @return array<string, mixed> */
@@ -1363,7 +1363,7 @@ class WebsiteContent
     {
         $defaults = config('website.default_contact_page', []);
 
-        return [
+        return $this->remapLegacyContactPageCopy([
             'subtitle' => trim($data['contact_page_subtitle'] ?? $defaults['subtitle'] ?? ''),
             'title' => trim($data['contact_page_title'] ?? $defaults['title'] ?? ''),
             'intro' => trim($data['contact_page_intro'] ?? $defaults['intro'] ?? ''),
@@ -1372,7 +1372,48 @@ class WebsiteContent
             'location_title' => trim($data['contact_page_location_title'] ?? $defaults['location_title'] ?? ''),
             'form_title' => trim($data['contact_page_form_title'] ?? $defaults['form_title'] ?? ''),
             'form_intro' => trim($data['contact_page_form_intro'] ?? $defaults['form_intro'] ?? ''),
+        ]);
+    }
+
+    /** @param  array<string, string>  $page */
+    private function remapLegacyContactPageCopy(array $page, ?array $replacementDefaults = null): array
+    {
+        $defaults = $replacementDefaults ?? config('website.default_contact_page', []);
+
+        $legacyFormTitles = [
+            'book an appointment',
+            'book appointment',
+            'schedule an appointment',
+            'احجز موعداً',
+            'احجز موعد',
         ];
+
+        $legacyFormIntros = [
+            'call us with any emergency or to schedule an appointment.',
+            'call us to schedule an appointment',
+            'call us to schedule an appointment.',
+            'call us in any emergency or to schedule an appointment.',
+            'اتصل بنا في أي حالة طارئة أو لحجز موعد.',
+            'اتصل بنا لحجز موعد',
+        ];
+
+        $formTitle = strtolower(trim($page['form_title'] ?? ''));
+        foreach ($legacyFormTitles as $legacyTitle) {
+            if ($formTitle === strtolower($legacyTitle) || str_contains($formTitle, 'appointment')) {
+                $page['form_title'] = $defaults['form_title'] ?? '';
+                break;
+            }
+        }
+
+        $formIntro = strtolower(trim($page['form_intro'] ?? ''));
+        foreach ($legacyFormIntros as $legacyIntro) {
+            if ($formIntro === strtolower($legacyIntro) || str_contains($formIntro, 'schedule an appointment') || str_contains($formIntro, 'emergency or to schedule')) {
+                $page['form_intro'] = $defaults['form_intro'] ?? '';
+                break;
+            }
+        }
+
+        return $page;
     }
 
     private function normalizeCtaBanner(array $data): array
@@ -1873,6 +1914,14 @@ class WebsiteContent
 
         if (! empty($content['features'])) {
             $content['about']['pills'] = $this->aboutPills($content['features']);
+        }
+
+        if (! empty($content['contact']['page']) && is_array($content['contact']['page'])) {
+            $localeDefaults = $locale === 'ar' ? config('website-i18n-ar.contact.page', []) : null;
+            $content['contact']['page'] = $this->remapLegacyContactPageCopy(
+                $content['contact']['page'],
+                is_array($localeDefaults) && $localeDefaults !== [] ? $localeDefaults : null
+            );
         }
 
         return $content;

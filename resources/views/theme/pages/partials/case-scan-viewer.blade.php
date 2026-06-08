@@ -10,7 +10,8 @@
     $hasAnyScanFiles = collect($scanSets)->contains(fn ($set) => count($set['files'] ?? []) > 0);
     $hasScanSets = count($scanSets) > 0;
     $hasAnyPhotos = ! empty($casePhotosBySet) && collect($casePhotosBySet)->flatten(1)->isNotEmpty();
-    $showCaseDataHeader = $hasScanSets || $hasAnyPhotos;
+    $hasCaseDataZip = $patient && $patient->hasCaseDataZip();
+    $showCaseDataHeader = $hasScanSets || $hasAnyPhotos || $hasCaseDataZip;
     $upperScanPlaceholder = asset('assets/images/placeholders/uppper-paceholder.jpeg');
     $lowerScanPlaceholder = asset('assets/images/placeholders/lower-paceholder.jpeg');
 @endphp
@@ -27,7 +28,7 @@
         @endif
         <hr class="case-scan-section__divider" role="presentation" aria-hidden="true">
         <div class="case-scan-section__head">
-            <div class="case-scan-section__head-inline @if($hasAnyPhotos) case-scan-section__head-inline--has-photos @endif" aria-label="3D models and scan files">
+            <div class="case-scan-section__head-inline @if($hasAnyPhotos || $hasCaseDataZip) case-scan-section__head-inline--has-photos @endif" aria-label="3D models and scan files">
                 <div class="case-scan-section__head-start">
                     <h3>3D Models</h3>
                     @if($patient)
@@ -37,6 +38,7 @@
                             'caseScanSets' => $scanSets,
                             'defaultScanSetKey' => $defaultScanSetKey,
                         ])
+                        @include('theme.pages.partials.case-data-zip-chip', ['patient' => $patient])
                     @endif
                 </div>
                 @if($hasScanSets)

@@ -5,7 +5,7 @@
 @section('body-class', 'patient-case-study-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=60">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=61">
 @endpush
 
 @section('content')
@@ -230,7 +230,7 @@
                     @include('theme.pages.partials.case-modification-request', [
                         'patient' => $patient,
                         'canRequestModification' => $canRequestModification ?? false,
-                        'modificationRecords' => $modificationRecords ?? collect(),
+                        'modificationTimeline' => $modificationTimeline ?? ['events' => [], 'grouped' => []],
                     ])
                 @elseif($tab['id'] === 'order-refinement')
                     @include('theme.pages.partials.case-order-refinement', [
@@ -238,7 +238,7 @@
                         'canRequestRefinement' => $canRequestRefinement ?? false,
                         'refinementsEnabled' => $refinementsEnabled ?? true,
                         'activeRefinement' => $activeRefinement ?? null,
-                        'refinementRecords' => $refinementRecords ?? collect(),
+                        'refinementTimeline' => $refinementTimeline ?? ['events' => [], 'grouped' => []],
                         'scanUploadLimitsOk' => $scanUploadLimitsOk ?? true,
                         'scanUploadLimitsLabel' => $scanUploadLimitsLabel ?? '',
                     ])

@@ -37,6 +37,16 @@ body.lineup-app.lineup-color-dark {
     --lineup-sidebar-fg-hover: #cbd5e1;
     --lineup-sidebar-fg-active: #f1f5f9;
 
+    /* Professional dark buttons (inherits into lineup-buttons.css) */
+    --lineup-btn-bg: #141c28;
+    --lineup-btn-border: rgba(148, 163, 184, 0.32);
+    --lineup-btn-text: #e8edf4;
+    --lineup-btn-text-muted: #cbd5e1;
+    --lineup-btn-hover-bg: #1a2433;
+    --lineup-btn-hover-border: rgba(148, 163, 184, 0.52);
+    --lineup-btn-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --lineup-btn-hover-shadow: 0 2px 8px rgba(0, 0, 0, 0.42);
+
     background: var(--lineup-surface) !important;
     color: var(--lineup-text);
 }
@@ -213,8 +223,8 @@ body.lineup-app.lineup-color-dark .cases-dashboard {
 }
 
 body.lineup-app.lineup-color-dark .settings-page .settings-actions {
-    background: var(--lineup-surface-muted);
-    border-top-color: var(--lineup-border);
+    background: var(--lineup-surface-muted) !important;
+    border-top-color: var(--lineup-border) !important;
 }
 
 body.lineup-app.lineup-color-dark .settings-page .settings-card > .header.settings-tabs-header {
@@ -359,18 +369,75 @@ body.lineup-app.lineup-color-dark .modal-footer {
     border-color: var(--lineup-border);
 }
 
-/* ── Buttons (neutral / default) ── */
-body.lineup-app.lineup-color-dark .btn-default,
-body.lineup-app.lineup-color-dark .btn.btn-default {
-    background: var(--lineup-surface-muted);
-    border-color: var(--lineup-border);
-    color: var(--lineup-text);
+/* ── Buttons (neutral / default) — tabs excluded via :not(.nav-link) ── */
+body.lineup-app.lineup-color-dark .btn-primary:not(.btn-icon):not(.btn-circle):not(.btn-simple):not(.nav-link),
+body.lineup-app.lineup-color-dark .btn-success:not(.btn-icon):not(.btn-circle):not(.btn-simple):not(.nav-link),
+body.lineup-app.lineup-color-dark .btn-info:not(.btn-icon):not(.btn-circle):not(.btn-simple):not(.nav-link),
+body.lineup-app.lineup-color-dark .btn-warning:not(.btn-icon):not(.btn-circle):not(.btn-simple):not(.nav-link),
+body.lineup-app.lineup-color-dark .btn-danger:not(.btn-icon):not(.btn-circle):not(.btn-simple):not(.nav-link),
+body.lineup-app.lineup-color-dark .cases-btn-primary:not(.cases-btn-icon) {
+    background: #141c28 !important;
+    border-color: rgba(13, 148, 136, 0.5) !important;
+    color: #e8edf4 !important;
+    box-shadow: 0 0 0 1px rgba(13, 148, 136, 0.15), 0 0 14px rgba(13, 148, 136, 0.18) !important;
 }
 
-body.lineup-app.lineup-color-dark .btn-default:hover,
-body.lineup-app.lineup-color-dark .btn.btn-default:hover {
-    background: #243044;
-    color: #fff;
+body.lineup-app.lineup-color-dark .btn-primary:not(.btn-icon):not(.btn-circle):not(.btn-simple):not(.nav-link):hover,
+body.lineup-app.lineup-color-dark .btn-primary:not(.btn-icon):not(.btn-circle):not(.btn-simple):not(.nav-link):focus,
+body.lineup-app.lineup-color-dark .cases-btn-primary:not(.cases-btn-icon):hover,
+body.lineup-app.lineup-color-dark .cases-btn-primary:not(.cases-btn-icon):focus {
+    background: #1a2433 !important;
+    border-color: rgba(13, 148, 136, 0.7) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 0 0 1px rgba(13, 148, 136, 0.25), 0 0 18px rgba(13, 148, 136, 0.28) !important;
+}
+
+body.lineup-app.lineup-color-dark .btn-default:not(.btn-icon):not(.btn-circle):not(.nav-link),
+body.lineup-app.lineup-color-dark .btn.btn-default:not(.btn-icon):not(.btn-circle):not(.nav-link),
+body.lineup-app.lineup-color-dark .cases-btn-outline:not(.cases-btn-icon) {
+    background: #101820 !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+    color: #cbd5e1 !important;
+    box-shadow: 0 0 10px rgba(15, 23, 42, 0.35) !important;
+}
+
+body.lineup-app.lineup-color-dark .btn-default:not(.btn-icon):not(.btn-circle):not(.nav-link):hover,
+body.lineup-app.lineup-color-dark .btn.btn-default:not(.btn-icon):not(.btn-circle):not(.nav-link):hover,
+body.lineup-app.lineup-color-dark .cases-btn-outline:not(.cases-btn-icon):hover,
+body.lineup-app.lineup-color-dark .cases-btn-outline:not(.cases-btn-icon):focus {
+    background: #161f2b !important;
+    border-color: rgba(148, 163, 184, 0.55) !important;
+    color: #f1f5f9 !important;
+    box-shadow: 0 0 14px rgba(148, 163, 184, 0.12) !important;
+}
+
+body.lineup-app.lineup-color-dark .btn.btn-simple:not(.nav-link),
+body.lineup-app.lineup-color-dark a.btn.btn-simple:not(.nav-link) {
+    background: transparent !important;
+    border-color: transparent !important;
+    color: var(--lineup-text-muted) !important;
+    box-shadow: none !important;
+}
+
+body.lineup-app.lineup-color-dark .btn.btn-simple:not(.nav-link):hover,
+body.lineup-app.lineup-color-dark a.btn.btn-simple:not(.nav-link):hover {
+    background: var(--lineup-surface-hover) !important;
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .swal2-popup .swal2-styled.swal2-confirm,
+body.lineup-app.lineup-color-dark .swal2-popup .swal2-styled.swal2-cancel {
+    background: #141c28 !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+    color: #e8edf4 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+}
+
+body.lineup-app.lineup-color-dark .swal2-popup .swal2-styled.swal2-confirm:hover,
+body.lineup-app.lineup-color-dark .swal2-popup .swal2-styled.swal2-cancel:hover {
+    background: #1a2433 !important;
+    border-color: rgba(148, 163, 184, 0.55) !important;
+    color: #f8fafc !important;
 }
 
 /* ── Right sidebar settings panel ── */
@@ -1121,6 +1188,11 @@ body.lineup-app.lineup-color-dark .doctor-profile__panel {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
+body.lineup-app.lineup-color-dark .doctor-profile__footer {
+    background: var(--lineup-surface-muted) !important;
+    border-top-color: var(--lineup-border) !important;
+}
+
 body.lineup-app.lineup-color-dark .doctor-profile__identity {
     background: linear-gradient(180deg, var(--lineup-surface-muted) 0%, var(--lineup-surface-elevated) 100%) !important;
     border-bottom-color: var(--lineup-border) !important;
@@ -1152,6 +1224,17 @@ body.lineup-app.lineup-color-dark .doctor-clinic-settings__panel {
     background: var(--lineup-surface-elevated) !important;
     border-color: var(--lineup-border) !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.lineup-app.lineup-color-dark .doctor-clinic-settings__footer {
+    background: var(--lineup-surface-muted) !important;
+    border-top-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .doctor-clinic-settings__field .form-control {
+    background-color: var(--lineup-input-bg) !important;
+    border-color: var(--lineup-input-border) !important;
+    color: var(--lineup-input-text) !important;
 }
 
 /* ── Settings page ── */
@@ -2403,6 +2486,13 @@ body.lineup-app.lineup-color-dark .case-scan-section__head-inline .case-scan-fil
 
 body.lineup-app.lineup-color-dark .case-scan-section__head-inline .case-scan-file-card--inline .case-scan-file__size {
     color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark a.case-data-zip-chip:hover,
+body.lineup-app.lineup-color-dark a.case-data-zip-chip:focus-visible {
+    border-color: rgba(148, 163, 184, 0.55) !important;
+    background: var(--lineup-surface-hover) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
 }
 
 /* Case history timeline */

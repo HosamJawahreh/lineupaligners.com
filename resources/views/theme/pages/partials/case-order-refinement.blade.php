@@ -160,17 +160,35 @@
                     </p>
                 </div>
             @else
+                @if(! auth()->user()->isDoctor() && $patient->canRequestRefinement())
+                <div class="case-refinement__notice case-refinement__notice--info">
+                    <i class="zmdi zmdi-account" aria-hidden="true"></i>
+                    <p>
+                        This case is ready for refinement.
+                        @if($patient->doctor)
+                        <strong>Dr. {{ $patient->doctor->fullName() }}</strong> can start a refinement from this tab when logged in as the assigned doctor.
+                        @else
+                        The assigned doctor can start a refinement from this tab.
+                        @endif
+                    </p>
+                </div>
+                @else
                 <div class="case-refinement__notice case-refinement__notice--info">
                     <i class="zmdi zmdi-account" aria-hidden="true"></i>
                     <p>Only the assigned doctor can order a refinement. When active, LineUp admin uploads plans under Treatment Plan for this new cycle.</p>
                 </div>
+                @endif
             @endif
         </div>
 
         <aside class="case-refinement__aside" aria-label="Refinement history">
-            @include('theme.pages.partials.case-refinement-records', [
-                'patient' => $patient,
-                'refinementRecords' => $refinementRecords ?? collect(),
+            @include('theme.pages.partials.case-cycle-timeline-panel', [
+                'cycleTimeline' => $refinementTimeline ?? ['events' => [], 'grouped' => []],
+                'panelTitle' => 'Refinement history',
+                'panelSubtitle' => 'Ordered cycles, plans, and doctor reviews.',
+                'emptyTitle' => 'No refinements yet',
+                'emptyMessage' => 'Ordered refinements and plan updates will appear here.',
+                'timelineIdPrefix' => 'ref-history',
             ])
         </aside>
     </div>
