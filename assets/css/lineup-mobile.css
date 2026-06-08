@@ -85,15 +85,20 @@ body.lineup-app.overlay-open .lineup-topbar-btn-menu--drawer .lineup-topbar-menu
     }
 
     .lineup-topbar-start {
-        gap: 8px;
+        gap: 14px;
         min-width: 0;
         flex: 1;
+    }
+
+    .lineup-topbar-btn-menu--drawer {
+        margin-right: 0;
     }
 
     .lineup-topbar-brand {
         min-width: 0;
         flex: 1;
-        padding: 4px 6px 4px 2px;
+        margin-left: 0;
+        padding: 4px 6px 4px 0;
     }
 
     .lineup-topbar-brand-name {

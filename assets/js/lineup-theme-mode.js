@@ -37,6 +37,10 @@
             toggle.setAttribute('title', next === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
             toggle.setAttribute('aria-label', toggle.getAttribute('title'));
         }
+
+        body.dispatchEvent(new CustomEvent('lineup-color-mode-change', {
+            detail: { mode: next },
+        }));
     }
 
     function persistMode(mode) {

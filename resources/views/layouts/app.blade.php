@@ -44,8 +44,8 @@
 @stack('styles')
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-form-pages.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=3">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=7">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=10">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=8">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=11">
 </head>
 <body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"
       data-default-color-mode="{{ $dashboardColorMode }}"
@@ -84,7 +84,7 @@
 <script>
     window.LINEUP_USER_ID = @json(auth()->id());
 </script>
-<script src="{{ asset('assets/js/lineup-theme-mode.js') }}"></script>
+<script src="{{ asset('assets/js/lineup-theme-mode.js') }}?v=2"></script>
 <script src="{{ asset('assets/js/lineup-mobile-nav.js') }}?v=2"></script>
 <script src="{{ asset('assets/js/lineup-notifications.js') }}"></script>
 <script src="{{ asset('assets/js/scan-upload-loading.js') }}"></script>

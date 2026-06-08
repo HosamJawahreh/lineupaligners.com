@@ -1445,6 +1445,11 @@ body.lineup-app.lineup-color-dark .case-scan-layout {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25) !important;
 }
 
+body.lineup-app.lineup-color-dark .case-scan-viewer-pane,
+body.lineup-app.lineup-color-dark .case-scan-canvas-wrap {
+    background: var(--lineup-surface) !important;
+}
+
 body.lineup-app.lineup-color-dark .case-scan-toolbar-wrap {
     background: linear-gradient(180deg, var(--lineup-surface-muted) 0%, var(--lineup-surface) 100%) !important;
     border-bottom-color: var(--lineup-border) !important;

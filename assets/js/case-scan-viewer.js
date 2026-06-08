@@ -47,8 +47,21 @@ if (root && canvas) {
     /** >1 pulls camera back so models appear smaller on screen */
     const CAMERA_DISTANCE_FACTOR = 1.55;
 
-    const BG_COLORS = [0xb8c5d4, 0xe2e8f0, 0xf8fafc, 0x1e293b];
+    const BG_COLORS_LIGHT = [0xb8c5d4, 0xe2e8f0, 0xf8fafc, 0x1e293b];
+    const BG_COLORS_DARK = [0x0c1117, 0x161b22, 0x1c2330, 0x0f1623];
     const LIGHT_LEVELS = [0.55, 0.9, 1.3];
+
+    function isDarkMode() {
+        return document.body.classList.contains('lineup-color-dark');
+    }
+
+    function getBgColors() {
+        return isDarkMode() ? BG_COLORS_DARK : BG_COLORS_LIGHT;
+    }
+
+    function getDefaultBgIndex() {
+        return 0;
+    }
 
     const viewerState = {
         wireframe: false,
@@ -87,7 +100,7 @@ if (root && canvas) {
     const pointerNdc = new THREE.Vector2();
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(BG_COLORS[0]);
+    scene.background = new THREE.Color(getBgColors()[getDefaultBgIndex()]);
 
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 8000);
     camera.position.set(0, 40, 180);
@@ -819,7 +832,11 @@ if (root && canvas) {
     }
 
     function syncBackground() {
-        const hex = BG_COLORS[viewerState.bgIndex];
+        const palette = getBgColors();
+        if (viewerState.bgIndex >= palette.length) {
+            viewerState.bgIndex = getDefaultBgIndex();
+        }
+        const hex = palette[viewerState.bgIndex];
         scene.background = new THREE.Color(hex);
         const css = '#' + hex.toString(16).padStart(6, '0');
         if (canvasWrap) {
@@ -1181,7 +1198,13 @@ if (root && canvas) {
     }
 
     function cycleBackground() {
-        viewerState.bgIndex = (viewerState.bgIndex + 1) % BG_COLORS.length;
+        const palette = getBgColors();
+        viewerState.bgIndex = (viewerState.bgIndex + 1) % palette.length;
+        syncBackground();
+    }
+
+    function applyThemeDefaultBackground() {
+        viewerState.bgIndex = getDefaultBgIndex();
         syncBackground();
     }
 
@@ -1313,6 +1336,8 @@ if (root && canvas) {
             syncBackground();
             refreshViewerLayout(true);
         });
+
+        document.body.addEventListener('lineup-color-mode-change', applyThemeDefaultBackground);
     }
 
     function getVisibleMeshEntries() {
