@@ -22,8 +22,8 @@
 
     <div class="container-fluid">
         <div class="card lineup-notify-card">
-            <div class="header d-flex justify-content-between align-items-center flex-wrap">
-                <h2 class="m-b-0"><strong>All</strong> notifications</h2>
+            <div class="header lineup-form-card-header d-flex justify-content-between align-items-center flex-wrap">
+                <h2 class="m-b-0">All notifications</h2>
                 @if(auth()->user()->unreadNotifications()->count() > 0)
                 <form method="POST" action="{{ route('notifications.read-all') }}" class="m-b-0">
                     @csrf

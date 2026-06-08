@@ -67,6 +67,35 @@
         },
     };
 
+    function escapeHtml(text) {
+        return String(text || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function confirmTone(icon) {
+        if (icon === 'warning' || icon === 'error') {
+            return 'lineup-confirm__icon--warning';
+        }
+        if (icon === 'success') {
+            return 'lineup-confirm__icon--success';
+        }
+        return 'lineup-confirm__icon--neutral';
+    }
+
+    function confirmZmdi(icon) {
+        if (icon === 'success') {
+            return 'zmdi-check';
+        }
+        if (icon === 'warning' || icon === 'error') {
+            return 'zmdi-alert-circle-o';
+        }
+        return 'zmdi-info-outline';
+    }
+
     window.AppConfirm = {
         ask: function (options) {
             options = options || {};
@@ -77,6 +106,10 @@
             }
 
             var icon = options.icon || 'question';
+            var title = options.title || 'Confirm action';
+            var text = options.text || 'Are you sure you want to continue?';
+            var confirmLabel = options.confirmButtonText || 'Confirm';
+            var cancelLabel = options.cancelButtonText || 'Cancel';
             var confirmClass = options.confirmButtonClass || 'lineup-confirm-btn--primary';
 
             if (icon === 'warning') {
@@ -86,28 +119,60 @@
             }
 
             return Swal.fire({
-                title: options.title || 'Confirm action',
-                text: options.text || 'Are you sure you want to continue?',
-                icon: icon,
+                title: '',
+                html:
+                    '<div class="lineup-confirm" role="document">' +
+                    '<div class="lineup-confirm__head">' +
+                    '<span class="lineup-confirm__kicker">Confirmation</span>' +
+                    '</div>' +
+                    '<div class="lineup-confirm__body">' +
+                    '<span class="lineup-confirm__icon ' + confirmTone(icon) + '" aria-hidden="true">' +
+                    '<i class="zmdi ' + confirmZmdi(icon) + '"></i>' +
+                    '</span>' +
+                    '<h2 class="lineup-confirm__title" id="lineup-confirm-title">' + escapeHtml(title) + '</h2>' +
+                    '<p class="lineup-confirm__text">' + escapeHtml(text) + '</p>' +
+                    '</div>' +
+                    '<div class="lineup-confirm__foot">' +
+                    '<button type="button" class="lineup-confirm-btn lineup-confirm-btn--cancel" data-lineup-confirm-cancel>' + escapeHtml(cancelLabel) + '</button>' +
+                    '<button type="button" class="lineup-confirm-btn ' + confirmClass + '" data-lineup-confirm-ok>' + escapeHtml(confirmLabel) + '</button>' +
+                    '</div>' +
+                    '</div>',
+                showConfirmButton: true,
                 showCancelButton: true,
-                confirmButtonText: options.confirmButtonText || 'Yes, continue',
-                cancelButtonText: options.cancelButtonText || 'Cancel',
+                confirmButtonText: confirmLabel,
+                cancelButtonText: cancelLabel,
                 showCloseButton: true,
                 buttonsStyling: false,
                 reverseButtons: true,
                 focusCancel: true,
                 heightAuto: true,
-                backdrop: 'rgba(9, 36, 60, 0.42)',
+                backdrop: 'rgba(15, 23, 42, 0.38)',
                 customClass: {
                     container: 'lineup-confirm-container',
                     popup: 'lineup-confirm-popup',
-                    title: 'lineup-confirm__title',
-                    htmlContainer: 'lineup-confirm__text',
-                    actions: 'lineup-confirm__actions',
-                    confirmButton: 'lineup-confirm-btn ' + confirmClass,
-                    cancelButton: 'lineup-confirm-btn lineup-confirm-btn--muted',
                     closeButton: 'lineup-confirm-close',
-                    icon: 'lineup-confirm-swal-icon',
+                    actions: 'lineup-confirm-swal-actions',
+                    confirmButton: 'lineup-confirm-swal-confirm',
+                    cancelButton: 'lineup-confirm-swal-cancel',
+                },
+                didOpen: function (popup) {
+                    var okBtn = popup.querySelector('[data-lineup-confirm-ok]');
+                    var cancelBtn = popup.querySelector('[data-lineup-confirm-cancel]');
+                    var swalConfirm = Swal.getConfirmButton();
+                    var swalCancel = Swal.getCancelButton();
+
+                    if (cancelBtn && swalCancel) {
+                        cancelBtn.addEventListener('click', function () {
+                            swalCancel.click();
+                        });
+                        cancelBtn.focus();
+                    }
+
+                    if (okBtn && swalConfirm) {
+                        okBtn.addEventListener('click', function () {
+                            swalConfirm.click();
+                        });
+                    }
                 },
             }).then(function (result) {
                 return !!result.isConfirmed;

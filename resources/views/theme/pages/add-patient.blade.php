@@ -10,7 +10,7 @@
 @section('title', $isEdit ? 'Edit Case' : 'New Case')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-form.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-form.css') }}?v=2">
 @endpush
 
 @section('content')

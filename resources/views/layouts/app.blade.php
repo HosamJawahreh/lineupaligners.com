@@ -26,7 +26,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/color_skins.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/theme-skins-extra.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/settings-panel.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/sweetalert-toast.css') }}?v=3">
+<link rel="stylesheet" href="{{ asset('assets/css/sweetalert-toast.css') }}?v=4">
 <link rel="stylesheet" href="{{ asset('assets/css/forms-fix.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-datatable/dataTables.bootstrap4.min.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-dashboard.css') }}">
@@ -43,6 +43,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-brand-system.css') }}?v=1">
 @include('layouts.partials.brand-css-vars')
 @stack('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-form-pages.css') }}?v=1">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=1">
 </head>
 <body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"
@@ -77,7 +78,7 @@
 <script src="{{ asset('assets/bundles/datatablescripts.bundle.js') }}"></script>
 <script src="{{ asset('assets/js/lineup-datatables.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.all.min.js"></script>
-<script src="{{ asset('assets/js/alerts.js') }}?v=3"></script>
+<script src="{{ asset('assets/js/alerts.js') }}?v=4"></script>
 @include('layouts.partials.flash-sweetalert')
 <script>
     window.LINEUP_USER_ID = @json(auth()->id());
