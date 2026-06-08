@@ -260,6 +260,7 @@ class WebsiteContent
         $this->saveHeroMedia($data);
         $this->saveAboutImage($data);
         $this->saveTitleBarImage($data);
+        $this->saveFooterImage($data);
 
         if ($editLocale === 'en') {
             $treatableItems = $this->normalizeTreatableItems($data['treatable_items'] ?? []);
@@ -1452,6 +1453,17 @@ class WebsiteContent
         }
     }
 
+    private function saveFooterImage(array $data): void
+    {
+        if (! empty($data['remove_footer_image'])) {
+            $this->deleteStoredFile(Setting::get('website_footer_image'));
+            Setting::set('website_footer_image', '');
+        } elseif (($data['footer_image'] ?? null) instanceof UploadedFile) {
+            $this->deleteStoredFile(Setting::get('website_footer_image'));
+            Setting::set('website_footer_image', $data['footer_image']->store('website/footer', 'public'));
+        }
+    }
+
     /** @param  array<int, array<string, mixed>>  $inputRows */
     private function mergeFeatureImages(array $inputRows): void
     {
@@ -2369,7 +2381,10 @@ class WebsiteContent
         $defaults = config('website.default_navigation', []);
         $saved = $this->decodeJson($stored['website_navigation'] ?? null, []);
 
-        return $this->normalizeNavigation(array_replace_recursive($defaults, $saved));
+        $navigation = $this->normalizeNavigation(array_replace_recursive($defaults, $saved));
+        $navigation['footer_image'] = $stored['website_footer_image'] ?? '';
+
+        return $navigation;
     }
 
     /** @param  array<string, mixed>  $input
@@ -2989,5 +3004,22 @@ class WebsiteContent
             Setting::get('website_titlebar_image'),
             config('website.default_titlebar_image', 'images/bg/titlebar-bg.jpg')
         );
+    }
+
+    public function footerImageUrl(): string
+    {
+        $path = trim((string) Setting::get('website_footer_image', ''));
+
+        if ($path !== '' && str_starts_with($path, 'website/')) {
+            $url = PublicStorageUrl::url($path);
+
+            if ($url !== null) {
+                return $url;
+            }
+        }
+
+        $logoFallback = Setting::defaultLogoAsset();
+
+        return PublicStorageUrl::url(trim((string) Setting::get('logo', '')), $logoFallback) ?? $logoFallback;
     }
 }

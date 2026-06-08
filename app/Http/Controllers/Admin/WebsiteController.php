@@ -136,6 +136,8 @@ class WebsiteController extends Controller
         $data['remove_about_image'] = $request->boolean('remove_about_image');
         $data['titlebar_image'] = $request->file('titlebar_image');
         $data['remove_titlebar_image'] = $request->boolean('remove_titlebar_image');
+        $data['footer_image'] = $request->file('footer_image');
+        $data['remove_footer_image'] = $request->boolean('remove_footer_image');
         $data['hero_video'] = $request->file('hero_video');
         $data['remove_hero_video'] = $request->boolean('remove_hero_video');
         $data['slides'] = collect($request->input('slides', []))
@@ -387,6 +389,8 @@ class WebsiteController extends Controller
             'remove_about_image' => ['sometimes', 'boolean'],
             'titlebar_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
             'remove_titlebar_image' => ['sometimes', 'boolean'],
+            'footer_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+            'remove_footer_image' => ['sometimes', 'boolean'],
             'about_subtitle' => ['nullable', 'string', 'max:120'],
             'about_title' => ['nullable', 'string', 'max:255'],
             'about_body' => ['nullable', 'string', 'max:5000'],

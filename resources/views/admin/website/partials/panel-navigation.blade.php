@@ -23,6 +23,31 @@
         </p>
         @endif
 
+        <div class="wm-block m-b-20">
+            <h4 class="wm-block__title">Footer logo</h4>
+            <p class="wm-hint m-b-12">Image shown in the first footer column. Leave empty to use your dashboard logo.</p>
+            @if($structuralLocked)
+            <div class="wm-section-media wm-section-media--logo">
+                <div class="wm-section-media__preview">
+                    <img src="{{ $websiteContent->footerImageUrl() }}" alt="">
+                </div>
+                <div class="wm-section-media__controls">
+                    <p class="wm-hint m-b-0">Upload or remove the footer image in English.</p>
+                </div>
+            </div>
+            @else
+            @include('admin.website.partials.section-image-field', [
+                'label' => 'Footer image',
+                'inputName' => 'footer_image',
+                'currentUrl' => $websiteContent->footerImageUrl(),
+                'removeName' => filled($nav['footer_image'] ?? '') ? 'remove_footer_image' : null,
+                'previewId' => 'footer-image-preview',
+                'logoField' => true,
+                'hint' => 'PNG or SVG-friendly logo on a transparent background works best.',
+            ])
+            @endif
+        </div>
+
         <details class="wm-accordion" open>
             <summary class="wm-accordion__head">Social media</summary>
             <div class="wm-accordion__body">

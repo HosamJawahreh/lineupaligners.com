@@ -157,7 +157,13 @@
                             <div class="pbmit-footer-logo">
 
                                 <a href="{{ $websiteHomeUrl ?? route('website.home') }}">
-                                    @include('website.smiliz.partials.logo-img', ['width' => 160, 'height' => 64])
+                                    <img class="logo-img"
+                                         src="{{ $websiteContent->footerImageUrl() }}"
+                                         alt="{{ $projectName }}"
+                                         width="160"
+                                         height="64"
+                                         decoding="async"
+                                         onerror="this.onerror=null;this.src='{{ \App\Models\Setting::defaultLogoAsset() }}';">
                                 </a>
 
                             </div>
