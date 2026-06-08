@@ -139,13 +139,15 @@
     }
 
     function initContextSwitcher($root) {
-        var $select = $root.find('[data-mfg-context-select]');
-        if (!$select.length) {
+        var $selects = $root.find('[data-mfg-context-select]');
+        if (!$selects.length) {
             return;
         }
 
         function showContext(contextKey) {
             var key = String(contextKey);
+
+            $selects.val(key);
 
             $root.find('[data-mfg-context-panel]').each(function () {
                 var $panel = $(this);
@@ -159,11 +161,11 @@
             });
         }
 
-        $select.on('change', function () {
+        $selects.on('change', function () {
             showContext($(this).val());
         });
 
-        showContext($select.val());
+        showContext($selects.first().val());
     }
 
     function initStepRangeFields($root) {

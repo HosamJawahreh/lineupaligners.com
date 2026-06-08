@@ -1211,6 +1211,8 @@ class Patient extends Model
             }
 
             if ($key === 'refinement') {
+                $hasRefinement = $this->hasActiveRefinement() || $this->hasRefinementHistory();
+
                 if ($index === $currentIndex && $this->hasActiveRefinement()) {
                     $state = 'current';
                     $variant = 'refinement';
@@ -1221,6 +1223,11 @@ class Patient extends Model
                 } elseif ($index < $currentIndex) {
                     $state = 'completed';
                     $label = 'Refinement complete';
+                    if ($hasRefinement) {
+                        $variant = 'refinement';
+                    }
+                } elseif ($hasRefinement) {
+                    $variant = 'refinement';
                 }
             }
 
@@ -1277,6 +1284,13 @@ class Patient extends Model
 
         if (in_array($variant, ['refinement', 'refinement-review'], true)) {
             return 'refinement';
+        }
+
+        if ($key === 'refinement'
+            && $state === 'upcoming'
+            && ! $this->hasActiveRefinement()
+            && ! $this->hasRefinementHistory()) {
+            return 'default';
         }
 
         return match ($key) {

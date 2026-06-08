@@ -413,6 +413,22 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     font-weight: 600;
 }
 
+/* Refinement step — red when a refinement exists (active or historical) */
+.case-workflow-step--tone-refinement.case-workflow-step--upcoming .case-workflow-node__ring {
+    border-color: #ef4444;
+    background: #fff;
+}
+
+.case-workflow-step--tone-refinement.case-workflow-step--upcoming .case-workflow-node__core {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.case-workflow-step--tone-refinement.case-workflow-step--upcoming .case-workflow-label {
+    color: #b91c1c;
+    font-weight: 700;
+}
+
 /* Modification skipped — neutral line, icon, and label only */
 .case-workflow-step--no-mod::after {
     background: #e2e8f0;
@@ -2200,21 +2216,32 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     border-bottom: 1px solid #e2e8f0;
 }
 
-.mfg-plan__head--with-switcher {
-    flex-wrap: wrap;
+.mfg-plan__card-head--with-switcher {
     align-items: center;
 }
 
-.mfg-plan__head--with-switcher .mfg-plan__head-text {
-    flex: 1 1 220px;
+.mfg-plan__card-head-text {
+    flex: 1 1 auto;
     min-width: 0;
 }
 
-.mfg-plan__context-switcher {
+.mfg-plan__context-switcher--in-card {
     position: static;
     transform: none;
-    flex: 0 1 auto;
-    max-width: 100%;
+    flex: 0 0 auto;
+    margin-left: auto;
+    max-width: min(100%, 420px);
+}
+
+.mfg-plan__card--context-bar {
+    margin-bottom: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.mfg-plan__card--context-bar .mfg-plan__card-head {
+    border-bottom: none;
 }
 
 .mfg-plan__context-panels {

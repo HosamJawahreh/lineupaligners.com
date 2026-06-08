@@ -6,7 +6,7 @@
 @endphp
 
 <div class="mfg-plan" id="case-manufacture-plan">
-    <header class="mfg-plan__head mfg-plan__head--with-switcher">
+    <header class="mfg-plan__head">
         <div class="mfg-plan__head-text">
             <h3 class="mfg-plan__title @if(!$isDivided) mfg-plan__title--solo @endif">Treatment Plan</h3>
             @if($isDivided)
@@ -14,28 +14,9 @@
                 Each stage covers a step range (from–to) with its own viewer link. Every stage follows a full approve / reject cycle, like a full case.
             </p>
             @else
-            <p class="mfg-plan__subtitle">Switch between original, modification, and refinement plans. The latest action is shown by default.</p>
+            <p class="mfg-plan__subtitle">Use the plan set switcher on the plan card to move between original, modification, and refinement cycles.</p>
             @endif
         </div>
-        @if(count($contexts) > 0)
-        <div class="case-scan-set-switcher case-plan-context-switcher mfg-plan__context-switcher" role="group" aria-labelledby="mfg-plan-context-label">
-            <label id="mfg-plan-context-label" for="mfg-plan-context-select" class="case-scan-set-switcher__label">
-                <i class="zmdi zmdi-layers" aria-hidden="true"></i>
-                <span>Plan set</span>
-            </label>
-            <div class="case-scan-set-switcher__control">
-                <select id="mfg-plan-context-select"
-                        class="case-scan-set-switcher__select"
-                        data-mfg-context-select
-                        @if(! $hasMultipleContexts) disabled @endif
-                        aria-describedby="mfg-plan-context-label">
-                    @foreach($contexts as $ctx)
-                    <option value="{{ $ctx['key'] }}" @selected($ctx['key'] === $defaultContextKey)>{{ $ctx['label'] }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-        @endif
         <span class="mfg-plan__type-badge">{{ $patient->caseTypeLabel() }}</span>
     </header>
 
@@ -54,6 +35,7 @@
             'patient' => $patient,
             'context' => $ctx,
             'defaultTreatmentPlanContextKey' => $defaultContextKey,
+            'treatmentPlanContexts' => $contexts,
             'canUploadTreatmentPlan' => $canUploadTreatmentPlan ?? false,
             'canReviewTreatmentPlan' => $canReviewTreatmentPlan ?? false,
             'canMarkManufactured' => $canMarkManufactured ?? false,

@@ -63,6 +63,10 @@
                 'canMarkManufactured' => $canMarkManufactured ?? false,
                 'inStagePicker' => $inStagePicker ?? false,
                 'isHistorical' => ! $plan->is_current,
+                'showPlanSetSwitcher' => ($enablePlanSetSwitcher ?? false) && $plan->version === $defaultVersion,
+                'treatmentPlanContexts' => $treatmentPlanContexts ?? [],
+                'defaultTreatmentPlanContextKey' => $defaultTreatmentPlanContextKey ?? 'original',
+                'planSetSwitcherId' => $navKey ?? 'full',
             ])
         @if($hasMultiple)
         </div>

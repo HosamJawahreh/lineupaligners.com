@@ -32,6 +32,14 @@
                     <i class="zmdi zmdi-brightness-2 lineup-theme-icon--moon"></i>
                 </span>
             </button>
+            <a href="{{ route('website.home') }}"
+               class="lineup-topbar-btn"
+               title="Visit website"
+               aria-label="Visit website"
+               target="_blank"
+               rel="noopener noreferrer">
+                <i class="zmdi zmdi-globe"></i>
+            </a>
             <a href="{{ $settingsUrl }}" class="lineup-topbar-btn d-none d-md-inline-flex" title="Settings" aria-label="Settings">
                 <i class="zmdi zmdi-settings"></i>
             </a>
