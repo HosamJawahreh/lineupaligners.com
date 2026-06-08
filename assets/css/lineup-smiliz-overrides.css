@@ -2000,6 +2000,21 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
     padding: 8px 0;
 }
 
+.lineup-process-showcase__nav-hint {
+    display: none;
+    margin: 0 0 10px 12px;
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+@media (min-width: 992px) {
+    .lineup-process-showcase.is-interactive .lineup-process-showcase__nav-hint {
+        display: block;
+    }
+}
+
 .lineup-process-showcase__rail {
     position: absolute;
     top: 28px;
@@ -2184,6 +2199,60 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 
 .lineup-process-showcase__panel:not(.is-active) {
     display: none;
+}
+
+/* Click-driven desktop — smooth crossfade, no long scroll pin */
+.lineup-process-showcase.is-interactive .lineup-process-showcase__panel,
+.lineup-process-showcase.is-interactive .lineup-process-showcase__panel:not(.is-active) {
+    display: block;
+}
+
+.lineup-process-showcase.is-interactive .lineup-process-showcase__panel {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition:
+        opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+        visibility 0.42s;
+    visibility: hidden;
+}
+
+.lineup-process-showcase.is-interactive .lineup-process-showcase__panel.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+.lineup-process-showcase.is-interactive .lineup-process-showcase__panel.is-entering {
+    animation: lineup-process-panel-in 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes lineup-process-panel-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.lineup-process-showcase.is-interactive .lineup-process-showcase__tab {
+    border: 1px solid transparent;
+    border-radius: 12px;
+}
+
+.lineup-process-showcase.is-interactive .lineup-process-showcase__tab.is-active {
+    border-color: #e2e8f0;
+}
+
+.lineup-process-showcase.is-interactive .lineup-process-showcase__tab:focus-visible {
+    outline: 2px solid rgba(var(--lineup-brand-primary-rgb, 2, 132, 199), 0.45);
+    outline-offset: 2px;
 }
 
 .lineup-process-showcase__device {

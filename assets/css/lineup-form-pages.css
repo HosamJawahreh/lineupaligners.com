@@ -3,60 +3,84 @@
  * (neutral headers like System Settings — no theme-skin blue bars)
  */
 
-body.lineup-app .doctor-form-page .card > .header,
-body.lineup-app .patient-form-page .patient-case-card-header,
-body.lineup-app .lineup-notify-page .card > .header {
+body.lineup-app section.content.doctor-form-page .lineup-form-card-header,
+body.lineup-app section.content.doctor-form-page .doctor-form-card-header,
+body.lineup-app section.content.doctor-form-page .card > .header,
+body.lineup-app section.content.patient-form-page .lineup-form-card-header,
+body.lineup-app section.content.patient-form-page .patient-case-card-header,
+body.lineup-app section.content.lineup-notify-page .lineup-form-card-header,
+body.lineup-app section.content.lineup-notify-page .card > .header {
     background: #f8fafc !important;
     border-bottom: 1px solid #e2e8f0 !important;
     color: #0f172a !important;
+    font-size: 15px !important;
     font-weight: 600 !important;
     padding: 16px 22px !important;
 }
 
-body.lineup-app .doctor-form-page .card > .header h2,
-body.lineup-app .doctor-form-page .card > .header h2 strong,
-body.lineup-app .doctor-form-page .card > .header h2 small,
-body.lineup-app .patient-form-page .patient-case-card-header,
-body.lineup-app .lineup-notify-page .card > .header h2,
-body.lineup-app .lineup-notify-page .card > .header h2 strong,
-body.lineup-app .lineup-notify-page .card > .header h2 small {
+body.lineup-app section.content.lineup-notify-page .lineup-form-card-header,
+body.lineup-app section.content.lineup-notify-page .card > .header {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+body.lineup-app section.content.doctor-form-page .card > .header h2,
+body.lineup-app section.content.doctor-form-page .card > .header h2 strong,
+body.lineup-app section.content.doctor-form-page .card > .header h2 small,
+body.lineup-app section.content.doctor-form-page .doctor-form-card-header,
+body.lineup-app section.content.patient-form-page .patient-case-card-header,
+body.lineup-app section.content.lineup-notify-page .lineup-form-card-header,
+body.lineup-app section.content.lineup-notify-page .lineup-form-card-header h2,
+body.lineup-app section.content.lineup-notify-page .card > .header h2,
+body.lineup-app section.content.lineup-notify-page .card > .header h2 strong,
+body.lineup-app section.content.lineup-notify-page .card > .header h2 small {
     color: #0f172a !important;
     font-size: 15px !important;
     font-weight: 600 !important;
     margin: 0 !important;
 }
 
-body.lineup-app .patient-form-page .patient-case-card-header {
-    font-size: 15px !important;
-}
-
-body.lineup-app .patient-form-page .patient-case-card-header i {
+body.lineup-app section.content.doctor-form-page .doctor-form-card-header i,
+body.lineup-app section.content.patient-form-page .patient-case-card-header i {
     color: #64748b !important;
     font-size: 20px !important;
     margin-right: 10px;
     vertical-align: middle;
 }
 
-body.lineup-app .doctor-form-page .block-header h2,
-body.lineup-app .lineup-notify-page .block-header h2 {
-    color: #1a1a2e !important;
+body.lineup-app section.content.doctor-form-page .card > .header h2::before,
+body.lineup-app section.content.patient-form-page .card > .header h2::before,
+body.lineup-app section.content.lineup-notify-page .card > .header h2::before {
+    display: none !important;
 }
 
-body.lineup-app .doctor-form-page .block-header h2 small,
-body.lineup-app .doctor-form-page .block-header h2 .text-muted,
-body.lineup-app .lineup-notify-page .block-header h2 small {
-    color: #6b7280 !important;
+body.lineup-app section.content.doctor-form-page .card > .header h2 strong,
+body.lineup-app section.content.lineup-notify-page .card > .header h2 strong {
+    color: #0f172a !important;
 }
 
-body.lineup-app .doctor-form-page .card,
-body.lineup-app .patient-form-page .patient-case-card,
-body.lineup-app .lineup-notify-page .lineup-notify-card {
+body.lineup-app section.content.doctor-form-page .doctor-form-card,
+body.lineup-app section.content.doctor-form-page .card,
+body.lineup-app section.content.patient-form-page .patient-case-card,
+body.lineup-app section.content.lineup-notify-page .lineup-notify-card {
     border: 1px solid #e2e8f0 !important;
+    border-radius: 0 !important;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+    overflow: hidden;
 }
 
-body.lineup-app .lineup-notify-page .card > .header .btn-default,
-body.lineup-app .lineup-notify-page .card > .header .btn-round {
+body.lineup-app section.content.doctor-form-page .doctor-form-card + .doctor-form-card,
+body.lineup-app section.content.doctor-form-page .doctor-form-card:not(:last-child) {
+    margin-bottom: 24px;
+}
+
+body.lineup-app section.content.lineup-notify-page .card > .header .btn-default,
+body.lineup-app section.content.lineup-notify-page .card > .header .btn-round,
+body.lineup-app section.content.lineup-notify-page .lineup-form-card-header .btn-default,
+body.lineup-app section.content.lineup-notify-page .lineup-form-card-header .btn-round {
     background: #fff !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 6px !important;
@@ -66,28 +90,33 @@ body.lineup-app .lineup-notify-page .card > .header .btn-round {
     padding: 6px 12px !important;
 }
 
-body.lineup-app .lineup-notify-page .card > .header .btn-default:hover {
+body.lineup-app section.content.lineup-notify-page .card > .header .btn-default:hover,
+body.lineup-app section.content.lineup-notify-page .lineup-form-card-header .btn-default:hover {
     background: #f8fafc !important;
     border-color: #94a3b8 !important;
     color: #0f172a !important;
 }
 
-body.lineup-app.lineup-color-dark .doctor-form-page .card > .header,
-body.lineup-app.lineup-color-dark .patient-form-page .patient-case-card-header,
-body.lineup-app.lineup-color-dark .lineup-notify-page .card > .header {
+body.lineup-app.lineup-color-dark section.content.doctor-form-page .lineup-form-card-header,
+body.lineup-app.lineup-color-dark section.content.doctor-form-page .doctor-form-card-header,
+body.lineup-app.lineup-color-dark section.content.doctor-form-page .card > .header,
+body.lineup-app.lineup-color-dark section.content.patient-form-page .patient-case-card-header,
+body.lineup-app.lineup-color-dark section.content.lineup-notify-page .lineup-form-card-header,
+body.lineup-app.lineup-color-dark section.content.lineup-notify-page .card > .header {
     background: #1e293b !important;
     border-bottom-color: #334155 !important;
     color: #f1f5f9 !important;
 }
 
-body.lineup-app.lineup-color-dark .doctor-form-page .card > .header h2,
-body.lineup-app.lineup-color-dark .doctor-form-page .card > .header h2 strong,
-body.lineup-app.lineup-color-dark .patient-form-page .patient-case-card-header,
-body.lineup-app.lineup-color-dark .lineup-notify-page .card > .header h2,
-body.lineup-app.lineup-color-dark .lineup-notify-page .card > .header h2 strong {
+body.lineup-app.lineup-color-dark section.content.doctor-form-page .doctor-form-card-header,
+body.lineup-app.lineup-color-dark section.content.patient-form-page .patient-case-card-header,
+body.lineup-app.lineup-color-dark section.content.lineup-notify-page .lineup-form-card-header,
+body.lineup-app.lineup-color-dark section.content.lineup-notify-page .lineup-form-card-header h2,
+body.lineup-app.lineup-color-dark section.content.lineup-notify-page .card > .header h2 {
     color: #f1f5f9 !important;
 }
 
-body.lineup-app.lineup-color-dark .patient-form-page .patient-case-card-header i {
+body.lineup-app.lineup-color-dark section.content.doctor-form-page .doctor-form-card-header i,
+body.lineup-app.lineup-color-dark section.content.patient-form-page .patient-case-card-header i {
     color: #94a3b8 !important;
 }

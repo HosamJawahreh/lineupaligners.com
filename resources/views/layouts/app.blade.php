@@ -29,7 +29,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/sweetalert-toast.css') }}?v=4">
 <link rel="stylesheet" href="{{ asset('assets/css/forms-fix.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-datatable/dataTables.bootstrap4.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-dashboard.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-dashboard.css') }}?v=2">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-topbar.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/cases-dashboard.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-buttons.css') }}">
@@ -40,10 +40,10 @@
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-notifications.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-call-support.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/scan-upload-overlay.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-brand-system.css') }}?v=1">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-brand-system.css') }}?v=2">
 @include('layouts.partials.brand-css-vars')
 @stack('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-form-pages.css') }}?v=1">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-form-pages.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=1">
 </head>
 <body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"

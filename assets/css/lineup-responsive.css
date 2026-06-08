@@ -115,13 +115,18 @@
         min-width: 520px;
     }
 
-    .lineup-notify-page .lineup-notify-card > .header {
+    .lineup-notify-page .lineup-notify-card > .lineup-form-card-header {
         padding: 14px 16px;
         gap: 10px;
     }
 
-    .lineup-notify-page .lineup-notify-card > .header h2 {
+    .lineup-notify-page .lineup-notify-card > .lineup-form-card-header h2 {
         font-size: 1rem;
+    }
+
+    body.lineup-app section.content.doctor-form-page .doctor-form-card-header,
+    body.lineup-app section.content.lineup-notify-page .lineup-form-card-header {
+        padding: 14px 16px !important;
     }
 }
 

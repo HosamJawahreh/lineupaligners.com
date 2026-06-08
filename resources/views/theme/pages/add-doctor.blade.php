@@ -2,8 +2,12 @@
 
 @section('title', isset($doctor) ? 'Edit Doctor' : 'Add Doctor')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/doctor-form.css') }}?v=1">
+@endpush
+
 @section('content')
-<section class="content doctor-form-page">
+<section class="content doctor-form-page doctor-form">
     <div class="block-header">
         <div class="row">
             <div class="col-lg-7 col-md-5 col-sm-12">
@@ -23,8 +27,11 @@
             @if(isset($doctor)) @method('PUT') @endif
             <div class="row clearfix">
                 <div class="col-md-12">
-                    <div class="card">
-                        <div class="header"><h2><strong>Doctor</strong> Profile</h2></div>
+                    <div class="card doctor-form-card">
+                        <div class="doctor-form-card-header">
+                            <i class="zmdi zmdi-account" aria-hidden="true"></i>
+                            {{ isset($doctor) ? 'Edit' : 'Add' }} doctor profile
+                        </div>
                         <div class="body">
                             <div class="row clearfix">
                                 <div class="col-sm-6">
@@ -70,8 +77,11 @@
             </div>
             <div class="row clearfix">
                 <div class="col-md-12">
-                    <div class="card">
-                        <div class="header"><h2><strong>Doctor's</strong> Account Information</h2></div>
+                    <div class="card doctor-form-card">
+                        <div class="doctor-form-card-header">
+                            <i class="zmdi zmdi-lock" aria-hidden="true"></i>
+                            Doctor account information
+                        </div>
                         <div class="body">
                             <div class="row clearfix">
                                 <div class="col-sm-12">

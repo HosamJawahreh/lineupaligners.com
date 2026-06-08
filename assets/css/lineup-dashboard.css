@@ -267,30 +267,33 @@ body.lineup-app .block-header .breadcrumb-item a:hover {
     color: var(--lineup-skin) !important;
 }
 
-/* Card section headers — theme skin (settings tabs excluded) */
-body.lineup-app .patient-case-card-header,
-body.lineup-app section.content .card:not(.settings-card) > .header {
+/* Card section headers — theme skin (settings + formal form pages excluded) */
+body.lineup-app section.content:not(.doctor-form-page):not(.patient-form-page):not(.lineup-notify-page) .card:not(.settings-card) > .header {
     background: var(--lineup-skin) !important;
     color: #fff !important;
 }
 
-body.lineup-app .patient-case-card-header,
-body.lineup-app section.content .card:not(.settings-card) > .header h2,
-body.lineup-app section.content .card:not(.settings-card) > .header h2 strong,
-body.lineup-app section.content .card:not(.settings-card) > .header h2 small,
-body.lineup-app section.content .card:not(.settings-card) > .header .header-dropdown,
-body.lineup-app section.content .card:not(.settings-card) > .header .header-dropdown a {
+body.lineup-app section.content:not(.doctor-form-page):not(.patient-form-page):not(.lineup-notify-page) .card:not(.settings-card) > .header h2,
+body.lineup-app section.content:not(.doctor-form-page):not(.patient-form-page):not(.lineup-notify-page) .card:not(.settings-card) > .header h2 strong,
+body.lineup-app section.content:not(.doctor-form-page):not(.patient-form-page):not(.lineup-notify-page) .card:not(.settings-card) > .header h2 small,
+body.lineup-app section.content:not(.doctor-form-page):not(.patient-form-page):not(.lineup-notify-page) .card:not(.settings-card) > .header .header-dropdown,
+body.lineup-app section.content:not(.doctor-form-page):not(.patient-form-page):not(.lineup-notify-page) .card:not(.settings-card) > .header .header-dropdown a {
     color: #fff !important;
 }
 
 body.lineup-app .settings-page .block-header h2,
-body.lineup-app .patient-form-page .block-header h2 {
+body.lineup-app .patient-form-page .block-header h2,
+body.lineup-app .doctor-form-page .block-header h2,
+body.lineup-app .lineup-notify-page .block-header h2 {
     color: #1a1a2e !important;
 }
 
 body.lineup-app .settings-page .block-header h2 small,
 body.lineup-app .patient-form-page .block-header h2 small,
-body.lineup-app .patient-form-page .block-header h2 small.text-muted {
+body.lineup-app .patient-form-page .block-header h2 small.text-muted,
+body.lineup-app .doctor-form-page .block-header h2 small,
+body.lineup-app .doctor-form-page .block-header h2 .text-muted,
+body.lineup-app .lineup-notify-page .block-header h2 small {
     color: #6b7280 !important;
 }
 

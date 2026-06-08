@@ -52,5 +52,6 @@ return [
     'partners_eyebrow' => 'شركاؤنا الموثوقون',
     'partner_logo' => 'شعار عيادة شريكة',
     'process_dashboard_url' => 'lineupaligners.com',
+    'process_select_step' => 'اختر خطوة لمعاينة سير العمل',
     'process_step_label' => 'الخطوة :num',
 ];

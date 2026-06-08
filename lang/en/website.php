@@ -52,5 +52,6 @@ return [
     'partners_eyebrow' => 'Trusted partners',
     'partner_logo' => 'Partner clinic logo',
     'process_dashboard_url' => 'lineupaligners.com',
+    'process_select_step' => 'Select a step to preview the workflow',
     'process_step_label' => 'Step :num',
 ];

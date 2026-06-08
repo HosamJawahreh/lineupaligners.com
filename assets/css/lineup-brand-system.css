@@ -16,11 +16,11 @@ body.lineup-app .block-header h2 small {
     color: var(--lineup-brand-secondary);
 }
 
-body.lineup-app .card .header h2::before {
+body.lineup-app section.content:not(.doctor-form-page):not(.patient-form-page):not(.lineup-notify-page) .card .header h2::before {
     background: linear-gradient(180deg, var(--lineup-brand) 0%, var(--lineup-brand-secondary) 100%);
 }
 
-body.lineup-app .card .header h2 strong {
+body.lineup-app section.content:not(.doctor-form-page):not(.patient-form-page):not(.lineup-notify-page) .card .header h2 strong {
     color: var(--lineup-brand-secondary);
 }
 

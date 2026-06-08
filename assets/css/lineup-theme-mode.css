@@ -68,6 +68,8 @@ body.lineup-app.lineup-color-dark .block-header h2,
 body.lineup-app.lineup-color-dark[class*="theme-"] .block-header h2,
 body.lineup-app.lineup-color-dark .settings-page .block-header h2,
 body.lineup-app.lineup-color-dark .patient-form-page .block-header h2,
+body.lineup-app.lineup-color-dark .doctor-form-page .block-header h2,
+body.lineup-app.lineup-color-dark .lineup-notify-page .block-header h2,
 body.lineup-app.lineup-color-dark .cases-panel-head h1 {
     color: var(--lineup-text) !important;
 }
@@ -77,7 +79,9 @@ body.lineup-app.lineup-color-dark .block-header h2 .text-muted,
 body.lineup-app.lineup-color-dark .block-header .breadcrumb-item,
 body.lineup-app.lineup-color-dark .block-header .breadcrumb-item a,
 body.lineup-app.lineup-color-dark .settings-page .block-header h2 small,
-body.lineup-app.lineup-color-dark .patient-form-page .block-header h2 small {
+body.lineup-app.lineup-color-dark .patient-form-page .block-header h2 small,
+body.lineup-app.lineup-color-dark .doctor-form-page .block-header h2 small,
+body.lineup-app.lineup-color-dark .lineup-notify-page .block-header h2 small {
     color: var(--lineup-text-muted) !important;
 }
 
