@@ -44,7 +44,7 @@
     @if(! $plan->stage_number)
     <p class="mfg-plan__canvas-desc">LineUp admin submits the treatment plan canvas link from the viewer. The doctor approves or rejects before manufacturing proceeds.</p>
     @endif
-    @if($plan->is_current && ! $isHistorical && isset($patient))
+    @if($plan->is_current && ! $isHistorical && isset($patient) && ! $plan->stage_number)
     @include('theme.pages.partials.case-manufacture-plan-manufactured-banner', [
         'patient' => $patient,
         'canMarkManufactured' => $canMarkManufactured ?? false,

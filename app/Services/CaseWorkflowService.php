@@ -251,6 +251,15 @@ class CaseWorkflowService
 
         if ($stages->every(fn (PatientTreatmentPlan $plan) => $plan->isApproved())
             && ! $patient->hasActiveModificationForAny()) {
+            if ($patient->isAwaitingNextDividedStageAfterSingleApproval()) {
+                $patient->update([
+                    'case_workflow_stage' => 'waiting_plan',
+                    'status' => Patient::STATUS_ACTIVE,
+                ]);
+
+                return;
+            }
+
             $patient->update([
                 'case_workflow_stage' => 'approved',
                 'status' => Patient::STATUS_ACTIVE,

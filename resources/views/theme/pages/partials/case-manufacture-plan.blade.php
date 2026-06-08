@@ -211,6 +211,13 @@
             @endforeach
         </div>
 
+        @if($patient->hasCompletedManufacturing() || (($canMarkManufactured ?? false) && $patient->isReadyForManufacturedMark()))
+        @include('theme.pages.partials.case-manufacture-plan-manufactured-banner', [
+            'patient' => $patient,
+            'canMarkManufactured' => $canMarkManufactured ?? false,
+        ])
+        @endif
+
         @include('theme.pages.partials.case-manufacture-plan-add-stage', [
             'patient' => $patient,
             'canUploadTreatmentPlan' => $canUploadTreatmentPlan ?? false,

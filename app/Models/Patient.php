@@ -191,11 +191,11 @@ class Patient extends Model
     /** Doctor approved all plans in the active scope; admin may mark as manufactured. */
     public function isReadyForManufacturedMark(): bool
     {
-        if ($this->workflowStageKey() !== 'approved') {
+        if ($this->hasActiveModificationForAny()) {
             return false;
         }
 
-        if ($this->hasActiveModificationForAny()) {
+        if ($this->doctorReviewStageNumber() !== null) {
             return false;
         }
 
@@ -217,6 +217,10 @@ class Patient extends Model
 
             return $stages->isNotEmpty()
                 && $stages->every(fn (PatientTreatmentPlan $plan) => $plan->isApproved());
+        }
+
+        if ($this->workflowStageKey() !== 'approved') {
+            return false;
         }
 
         $plan = $this->originalCycleFullTreatmentPlan();
@@ -338,6 +342,34 @@ class Patient extends Model
         }
 
         return $this->doctorReviewStageNumber() === $stageNumber;
+    }
+
+    /**
+     * Divided stages: one stage approved and admin may still upload the next stage.
+     * Case must not enter manufacture-ready until more stages are added or admin marks manufactured.
+     */
+    public function isAwaitingNextDividedStageAfterSingleApproval(): bool
+    {
+        if (! $this->isDividedStages() || $this->hasActiveRefinement()) {
+            return false;
+        }
+
+        if ($this->doctorReviewStageNumber() !== null) {
+            return false;
+        }
+
+        $stages = $this->currentStageTreatmentPlans();
+
+        if ($stages->count() !== 1) {
+            return false;
+        }
+
+        $only = $stages->first();
+
+        return $only !== null
+            && $only->isApproved()
+            && ! $this->hasActiveModificationFor($only->stage_number)
+            && $this->canAdminAddNewDividedStage();
     }
 
     public function canAdminAddNewDividedStage(): bool
@@ -852,7 +884,10 @@ class Patient extends Model
             $variant = null;
 
             if ($key === 'waiting_plan') {
-                if ($index === $currentIndex && $internalKey === 'waiting_plan' && $planOverlay === null) {
+                if ($index === $currentIndex && $this->isAwaitingNextDividedStageAfterSingleApproval()) {
+                    $state = 'current';
+                    $label = 'Stage approved · add next stage';
+                } elseif ($index === $currentIndex && $internalKey === 'waiting_plan' && $planOverlay === null) {
                     $label = 'Awaiting treatment plan';
                 } elseif ($index < $currentIndex) {
                     $label = 'Treatment plan ready';
