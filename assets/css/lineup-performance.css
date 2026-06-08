@@ -1,0 +1,70 @@
+/**
+ * LineUp — shared rendering & scroll performance (dashboard + public site)
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+    html.lineup-smooth-scroll {
+        scroll-behavior: smooth;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.lineup-smooth-scroll {
+        scroll-behavior: auto;
+    }
+}
+
+/* Composited scroll surfaces */
+.lineup-scroll-surface,
+body.lineup-app .cases-table-scroll,
+body.lineup-app .ig-chat-thread,
+body.lineup-app .case-study-tabs-scroll,
+body.lineup-app .case-scan-files__panel,
+body.lineup-app .case-scan-toolbar-wrap {
+    -webkit-overflow-scrolling: touch;
+    overflow-anchor: auto;
+}
+
+/* Isolate heavy paint regions on case review */
+body.lineup-app .case-scan-viewer-root,
+body.lineup-app .case-scan-viewer-pane,
+body.lineup-app .case-scan-canvas-wrap {
+    contain: layout paint;
+}
+
+body.lineup-app .case-study-tabs-bar {
+    contain: layout style;
+}
+
+body.lineup-app .cases-panel {
+    contain: layout;
+}
+
+/* Skip rendering off-screen homepage bands until near viewport */
+.lineup-smiliz-site #about,
+.lineup-smiliz-site #services,
+.lineup-smiliz-site #process,
+.lineup-smiliz-site #faq,
+.lineup-smiliz-site .lineup-why-lineup-section,
+.lineup-smiliz-site .lineup-cases-section,
+.lineup-smiliz-site .lineup-faq-section,
+.lineup-smiliz-site .site-footer {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 520px;
+}
+
+.lineup-smiliz-site .pbmit-slider-area,
+.lineup-smiliz-site .lineup-hero-video {
+    contain: layout paint;
+}
+
+/* Reduce scroll-linked animation cost when user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    body.lineup-app *,
+    body.lineup-app *::before,
+    body.lineup-app *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}

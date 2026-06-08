@@ -41,7 +41,14 @@
         $panel.addClass('is-active').removeAttr('hidden');
 
         if (tabId === 'view-data' && window.caseScanViewer) {
+            window.caseScanViewer.resume();
             window.caseScanViewer.resize();
+        } else if (window.caseScanViewer) {
+            window.caseScanViewer.pause();
+        }
+
+        if (typeof window.lineupSyncCaseScanViewer === 'function') {
+            window.lineupSyncCaseScanViewer();
         }
 
         if (tabId === 'messages' && window.caseChatOnTabShow) {

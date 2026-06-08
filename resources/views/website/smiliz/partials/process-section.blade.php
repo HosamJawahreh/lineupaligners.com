@@ -110,7 +110,7 @@
 
 @once
 @push('scripts')
-<script src="{{ asset('assets/js/lineup-process-section.js') }}?v=17" defer></script>
+<script src="{{ asset('assets/js/lineup-process-section.js') }}?v=18" defer></script>
 @endpush
 @endonce
 

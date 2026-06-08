@@ -49,6 +49,7 @@
             var options = {
                 responsive: responsive,
                 autoWidth: false,
+                deferRender: true,
                 pageLength: pageLen,
                 lengthMenu: [[10, 20, 50, 100, -1], [10, 20, 50, 100, 'All']],
                 order: orderCol !== undefined ? [[orderCol, orderDir]] : [],

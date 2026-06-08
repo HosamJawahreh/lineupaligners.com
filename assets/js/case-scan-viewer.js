@@ -2837,8 +2837,17 @@ if (root && canvas) {
         renderer.render(scene, camera);
     }
 
-    const resizeObserver = new ResizeObserver(() => {
-        resize();
+    let resizeFrame = null;
+
+    const resizeObserver = new ResizeObserver(function () {
+        if (resizeFrame !== null) {
+            cancelAnimationFrame(resizeFrame);
+        }
+
+        resizeFrame = requestAnimationFrame(function () {
+            resizeFrame = null;
+            resize();
+        });
     });
     resizeObserver.observe(canvas.parentElement);
     if (viewerPane) {
@@ -2886,7 +2895,14 @@ if (root && canvas) {
     syncBackground();
     applyLighting();
     resize();
-    animate();
+
+    var viewerPanel = root.closest('.case-study-panel');
+    var startAnimating = !document.hidden
+        && (!viewerPanel || (!viewerPanel.hasAttribute('hidden') && viewerPanel.classList.contains('is-active')));
+
+    if (startAnimating) {
+        animate();
+    }
 
     if (initialScanSet) {
         notifyScanSetChanged(initialScanSet.key);

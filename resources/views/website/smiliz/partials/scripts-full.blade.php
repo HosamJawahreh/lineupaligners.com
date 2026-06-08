@@ -50,3 +50,5 @@
 
 <script src="{{ asset('assets/js/lineup-smiliz-a11y.js') }}?v=1" defer></script>
 
+<script src="{{ asset('assets/js/lineup-performance.js') }}?v=1" defer></script>
+

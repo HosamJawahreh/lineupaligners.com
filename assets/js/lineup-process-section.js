@@ -199,6 +199,11 @@
                 return;
             }
 
+            ScrollTrigger.config({
+                limitCallbacks: true,
+                ignoreMobileResize: true,
+            });
+
             var proxy = { progress: 0 };
 
             scrollTimeline = gsap.timeline({
@@ -243,7 +248,7 @@
         window.addEventListener('resize', function () {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(enableScrollDrive, 150);
-        });
+        }, { passive: true });
 
         window.addEventListener('load', function () {
             enableScrollDrive();
