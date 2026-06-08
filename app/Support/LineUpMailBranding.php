@@ -79,15 +79,21 @@ class LineUpMailBranding
 
     public static function fromAddress(): string
     {
+        $envFrom = trim((string) config('mail.from.address', ''));
+
+        if (filled($envFrom) && filter_var($envFrom, FILTER_VALIDATE_EMAIL)) {
+            return $envFrom;
+        }
+
         $clinicEmail = self::settingsAvailable()
             ? trim((string) Setting::get('clinic_email', ''))
             : '';
 
-        if (filled($clinicEmail)) {
+        if (filled($clinicEmail) && filter_var($clinicEmail, FILTER_VALIDATE_EMAIL)) {
             return $clinicEmail;
         }
 
-        return (string) config('mail.from.address', 'hello@example.com');
+        return 'hello@example.com';
     }
 
     public static function fromName(): string
@@ -107,9 +113,24 @@ class LineUpMailBranding
 
     public static function replyToAddress(): ?string
     {
-        $email = self::fromAddress();
+        if (! self::settingsAvailable()) {
+            return null;
+        }
 
-        return filled($email) && $email !== 'hello@example.com' ? $email : null;
+        $clinicEmail = trim((string) Setting::get('clinic_email', ''));
+
+        if (filled($clinicEmail) && filter_var($clinicEmail, FILTER_VALIDATE_EMAIL)) {
+            return $clinicEmail;
+        }
+
+        $from = self::fromAddress();
+
+        return $from !== 'hello@example.com' ? $from : null;
+    }
+
+    public static function clinicName(): string
+    {
+        return self::data()['clinicName'];
     }
 
     public static function subjectPrefix(string $subject): string

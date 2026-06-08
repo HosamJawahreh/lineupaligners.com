@@ -98,12 +98,14 @@
                     || 'Approve this plan for manufacture? You may still request a modification before manufacturing begins.';
                 options.icon = 'success';
                 options.confirmButtonText = $trigger.data('confirmBtn') || 'Approve for manufacture';
+                options.confirmButtonClass = 'lineup-confirm-btn--success';
             } else if ($trigger.val() === 'rejected') {
                 options.title = $trigger.data('confirmTitle') || 'Reject treatment plan?';
                 options.text = $trigger.data('confirmText')
                     || 'Send this plan back to LineUp with your feedback for a revised plan?';
                 options.icon = 'warning';
                 options.confirmButtonText = $trigger.data('confirmBtn') || 'Reject plan';
+                options.confirmButtonClass = 'lineup-confirm-btn--warning';
             }
         }
 

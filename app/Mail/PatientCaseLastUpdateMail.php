@@ -31,6 +31,10 @@ class PatientCaseLastUpdateMail extends Mailable
         $replyTo = LineUpMailBranding::replyToAddress();
 
         return new Envelope(
+            from: new Address(
+                LineUpMailBranding::fromAddress(),
+                LineUpMailBranding::fromName(),
+            ),
             subject: LineUpMailBranding::subjectPrefix(
                 'Case update · '.$this->patient->display_patient_id
             ),

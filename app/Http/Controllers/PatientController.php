@@ -233,7 +233,8 @@ class PatientController extends Controller
 
         return redirect()
             ->route('patients.show', $patient)
-            ->with('success', 'Emailed the patient about: '.$latestTitle.'.');
+            ->with('patient_email_sent', $patient->email)
+            ->with('success', 'Email sent successfully to '.$patient->email.' — '.$latestTitle.'.');
     }
 
     public function downloadScan(Request $request, Patient $patient, string $scan): BinaryFileResponse
