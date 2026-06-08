@@ -1831,6 +1831,92 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     background: #b8c5d4;
 }
 
+.case-scan-files__panel--overlay {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 12;
+    width: min(272px, calc(100% - 24px));
+    max-height: min(340px, calc(100% - 24px));
+    pointer-events: auto;
+}
+
+.case-scan-files__panel--overlay.is-hidden {
+    display: none;
+}
+
+.case-scan-files__panel--overlay .case-scan-files__list {
+    padding: 10px;
+    gap: 10px;
+    max-height: min(280px, 38vh);
+}
+
+.case-scan-file-card--panel {
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.case-scan-file-card--panel .case-scan-file__body {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+}
+
+.case-scan-file-card--panel .case-scan-file__thumb {
+    width: 48px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: #fff;
+}
+
+.case-scan-file-card--panel .case-scan-file__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.case-scan-file-card--panel .case-scan-file__jaw {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #0369a1;
+}
+
+.case-scan-file-card--panel .case-scan-file__name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.case-scan-file-card--panel .case-scan-file__size {
+    font-size: 10px;
+    margin-top: 0;
+}
+
+.case-scan-file-card--panel .case-scan-file__actions {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 0;
+}
+
+.case-scan-file-card--panel .case-scan-file__action {
+    min-height: 28px;
+    min-width: 28px;
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    border-radius: 6px;
+}
+
 #case-scan-canvas {
     display: block;
     width: 100%;
@@ -4119,14 +4205,18 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     padding: 24px;
 }
 
-.case-modification__layout {
+.case-modification__layout,
+.case-refinement__layout {
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
     gap: 20px;
     align-items: start;
+    width: 100%;
 }
 
-.case-modification__aside {
+.case-modification__aside,
+.case-refinement__aside,
+.case-refinement__main {
     min-width: 0;
 }
 
@@ -4383,8 +4473,160 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     gap: 14px;
 }
 
-.case-modification-card__upload-block--photos {
+.case-modification-card__upload-block--photos,
+.case-jaw-scan-fields {
     grid-column: 1 / -1;
+}
+
+.case-jaw-scan-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.case-modification-card .scan-upload-box {
+    background: #fff;
+    border: 2px dashed #fed7aa;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.case-modification-card .scan-upload-box:hover {
+    border-color: #ea580c;
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.08);
+}
+
+.case-modification-card .scan-upload-box__visual {
+    display: flex;
+    justify-content: center;
+    margin: 6px 0 10px;
+    opacity: 0.9;
+}
+
+.case-modification-card .scan-upload-box__visual img {
+    max-width: 100%;
+    width: 120px;
+    height: 76px;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+.case-modification-card .scan-upload-box label {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.case-modification-card .scan-upload-box input[type="file"] {
+    width: 100%;
+    font-size: 12px;
+}
+
+.case-modification-card .scan-upload-box .case-modification-card__hint {
+    display: block;
+    margin-top: 8px;
+}
+
+.case-modification-card__uploads--compact .case-photos-upload-block__label {
+    margin-bottom: 6px;
+}
+
+.case-modification-card__uploads--compact .case-photos-dropzone {
+    position: relative;
+    padding: 10px 12px;
+    border: 2px dashed #fed7aa;
+    border-radius: 8px;
+    background: #fffaf5;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.case-modification-card__uploads--compact .case-photos-dropzone:hover,
+.case-modification-card__uploads--compact .case-photos-dropzone.dragover {
+    border-color: #ea580c;
+    background: #fff7ed;
+}
+
+.case-modification-card__uploads--compact .case-photos-dropzone i.zmdi-camera {
+    display: block;
+    font-size: 20px;
+    color: #ea580c;
+    margin-bottom: 4px;
+}
+
+.case-modification-card__uploads--compact .case-photos-dropzone p {
+    margin: 0 0 2px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.case-modification-card__uploads--compact .case-photos-dropzone small {
+    font-size: 10px;
+    color: #64748b;
+}
+
+.case-modification-card__uploads--compact .case-photos-dropzone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.case-modification-card__uploads--compact .case-photos-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.case-modification-card__uploads--compact .case-photo-preview-item {
+    width: 52px;
+    text-align: center;
+}
+
+.case-modification-card__uploads--compact .case-photo-preview-item img {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid #e2e8f0;
+}
+
+.case-modification-card__uploads--compact .case-photo-preview-item small {
+    display: block;
+    margin-top: 2px;
+    font-size: 9px;
+    color: #64748b;
+    word-break: break-all;
+    line-height: 1.2;
+}
+
+.case-modification-card__uploads--compact .scan-upload-box {
+    padding: 12px 14px;
+}
+
+.case-modification-card__uploads--compact .scan-upload-box__visual img {
+    width: 96px;
+    height: 60px;
+}
+
+.case-modification-card--refinement .case-modification-card__uploads--compact .case-photos-dropzone {
+    border-color: #bfdbfe;
+    background: #f8fafc;
+}
+
+.case-modification-card--refinement .case-modification-card__uploads--compact .case-photos-dropzone:hover,
+.case-modification-card--refinement .case-modification-card__uploads--compact .case-photos-dropzone.dragover {
+    border-color: #0284c7;
+    background: #eff6ff;
+}
+
+.case-modification-card--refinement .case-modification-card__uploads--compact .case-photos-dropzone i.zmdi-camera {
+    color: #0284c7;
 }
 
 .case-modification-card__upload-block label,
@@ -5809,11 +6051,22 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
         grid-column: auto;
     }
 
-    .case-modification__layout {
+    .case-modification__layout,
+    .case-refinement__layout {
         grid-template-columns: 1fr;
     }
 
     .case-refinement__uploads,
+    .case-jaw-scan-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .case-scan-files__panel--overlay {
+        top: 8px;
+        right: 8px;
+        width: min(260px, calc(100% - 16px));
+    }
+
     .case-modification-card__uploads {
         grid-template-columns: 1fr;
     }

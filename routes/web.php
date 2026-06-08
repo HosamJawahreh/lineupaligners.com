@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ContactRequestController;
 use App\Http\Controllers\Admin\DoctorRoleController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\WebsiteController;
@@ -158,6 +159,17 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin')->group(function () {
+        Route::get('admin/contact-requests/unread-count', [ContactRequestController::class, 'unreadCount'])
+            ->name('admin.contact-requests.unread-count');
+        Route::post('admin/contact-requests/read-all', [ContactRequestController::class, 'markAllRead'])
+            ->name('admin.contact-requests.read-all');
+        Route::post('admin/contact-requests/{contactRequest}/read', [ContactRequestController::class, 'markRead'])
+            ->name('admin.contact-requests.read');
+        Route::get('admin/contact-requests/{contactRequest}', [ContactRequestController::class, 'show'])
+            ->name('admin.contact-requests.show');
+        Route::get('admin/contact-requests', [ContactRequestController::class, 'index'])
+            ->name('admin.contact-requests.index');
+
         Route::get('website', [WebsiteController::class, 'index'])->name('admin.website.index');
         Route::put('website/content', [WebsiteController::class, 'updateContent'])->name('admin.website.content.update');
         Route::put('website/pages', [WebsiteController::class, 'updatePages'])->name('admin.website.pages.update');

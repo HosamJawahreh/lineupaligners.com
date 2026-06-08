@@ -36,7 +36,7 @@ class PatientCaseLastUpdateMail extends Mailable
                 LineUpMailBranding::fromName(),
             ),
             subject: LineUpMailBranding::subjectPrefix(
-                'Case update · '.$this->patient->display_patient_id
+                'Case update · '.$this->patient->display_patient_id.' — '.$this->patient->fullName()
             ),
             replyTo: $replyTo
                 ? [new Address($replyTo, LineUpMailBranding::fromName())]

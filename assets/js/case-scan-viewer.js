@@ -27,6 +27,9 @@ if (root && canvas) {
     const modNotesEl = document.getElementById('case-scan-mod-notes');
     const modNotesText = document.getElementById('case-scan-mod-notes-text');
     const filesListEl = document.getElementById('case-scan-files-list');
+    const filesPanelEl = document.getElementById('case-scan-files-panel');
+    const upperPlaceholderUrl = root.dataset.upperPlaceholder || '';
+    const lowerPlaceholderUrl = root.dataset.lowerPlaceholder || '';
     const canvasWrap = document.getElementById('case-scan-canvas-wrap');
     const viewerPane = document.getElementById('case-scan-viewer-pane');
     const toolbar = root.querySelector('.case-scan-toolbar');
@@ -2668,29 +2671,64 @@ if (root && canvas) {
         )).join('');
     }
 
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function placeholderForScan(file) {
+        if (file.id === 'lower') {
+            return lowerPlaceholderUrl;
+        }
+
+        return upperPlaceholderUrl;
+    }
+
+    function jawLabelForScan(file) {
+        if (file.label) {
+            return file.label;
+        }
+
+        return file.id === 'lower' ? 'Lower 3D model' : 'Upper 3D model';
+    }
+
     function rebuildFileList(files) {
         if (!filesListEl) {
             return;
         }
 
-        filesListEl.innerHTML = files.map((file, index) => (
-            `<li class="case-scan-file-card case-scan-file-card--inline" data-scan-id="${file.id}">`
-            + '<div class="case-scan-file__body">'
-            + `<span class="case-scan-file__index">${index + 1}</span>`
-            + '<div class="case-scan-file__info">'
-            + '<span class="case-scan-file__icon" aria-hidden="true"><i class="zmdi zmdi-layers"></i></span>'
-            + '<div class="case-scan-file__details">'
-            + `<span class="case-scan-file__name" title="${file.name}">${file.name}</span>`
-            + `<span class="case-scan-file__size">${file.size || file.ext}</span>`
-            + '</div></div>'
-            + '<div class="case-scan-file__actions">'
-            + `<label class="case-scan-file__action case-scan-file__action--view" for="case-scan-vis-${file.id}" title="Show in viewer">`
-            + `<input type="checkbox" id="case-scan-vis-${file.id}" checked data-scan-id="${file.id}">`
-            + '<i class="zmdi zmdi-eye" aria-hidden="true"></i></label>'
-            + `<a href="${file.download_url}" class="case-scan-file__action case-scan-file__action--download" download title="Download file">`
-            + '<i class="zmdi zmdi-download" aria-hidden="true"></i></a>'
-            + '</div></div></li>'
-        )).join('');
+        if (filesPanelEl) {
+            filesPanelEl.classList.toggle('is-hidden', !files.length);
+        }
+
+        filesListEl.innerHTML = files.map((file) => {
+            const thumbUrl = placeholderForScan(file);
+            const jawLabel = jawLabelForScan(file);
+            const sizeLabel = file.size || file.ext || '';
+
+            return (
+                `<li class="case-scan-file-card case-scan-file-card--panel" data-scan-id="${file.id}">`
+                + '<div class="case-scan-file__body">'
+                + (thumbUrl
+                    ? `<img class="case-scan-file__thumb" src="${escapeHtml(thumbUrl)}" alt="" width="48" height="32">`
+                    : '')
+                + '<div class="case-scan-file__info">'
+                + `<span class="case-scan-file__jaw">${escapeHtml(jawLabel)}</span>`
+                + `<span class="case-scan-file__name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>`
+                + `<span class="case-scan-file__size">${escapeHtml(sizeLabel)}</span>`
+                + '</div>'
+                + '<div class="case-scan-file__actions">'
+                + `<label class="case-scan-file__action case-scan-file__action--view" for="case-scan-vis-${file.id}" title="Show in viewer">`
+                + `<input type="checkbox" id="case-scan-vis-${file.id}" checked data-scan-id="${file.id}">`
+                + '<i class="zmdi zmdi-eye" aria-hidden="true"></i></label>'
+                + `<a href="${escapeHtml(file.download_url)}" class="case-scan-file__action case-scan-file__action--download" download title="Download file">`
+                + '<i class="zmdi zmdi-download" aria-hidden="true"></i></a>'
+                + '</div></div></li>'
+            );
+        }).join('');
 
         bindMoveSelectionFromFiles();
         bindVisibilityToggles();

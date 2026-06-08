@@ -5,7 +5,7 @@
 @section('body-class', 'patient-case-study-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=58">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=60">
 @endpush
 
 @section('content')
@@ -281,7 +281,7 @@
     }
 }
 </script>
-<script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=17"></script>
+<script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=18"></script>
 @endif
 <script src="{{ asset('assets/js/patient-case-study.js') }}?v=4"></script>
 <script src="{{ asset('assets/js/case-action-confirm.js') }}?v=7"></script>

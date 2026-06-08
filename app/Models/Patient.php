@@ -305,6 +305,36 @@ class Patient extends Model
         ];
     }
 
+    public function lastManufacturedStageNumber(): ?int
+    {
+        if (! $this->isDividedStages()) {
+            return null;
+        }
+
+        $last = $this->originalCycleStageTreatmentPlans()
+            ->filter(fn (PatientTreatmentPlan $plan) => $plan->isManufactured())
+            ->max('stage_number');
+
+        return $last !== null ? (int) $last : null;
+    }
+
+    public function nextStageReadyForManufacturedMark(): ?int
+    {
+        if (! $this->isDividedStages()) {
+            return null;
+        }
+
+        foreach ($this->originalCycleStageTreatmentPlans()->sortBy('stage_number') as $plan) {
+            $stageNumber = (int) $plan->stage_number;
+
+            if ($this->isStageReadyForManufacturedMark($stageNumber)) {
+                return $stageNumber;
+            }
+        }
+
+        return null;
+    }
+
     public function canRequestRefinement(): bool
     {
         if (! Schema::hasTable('patient_case_refinements')) {
@@ -1273,9 +1303,24 @@ class Patient extends Model
 
             if ($key === 'approved') {
                 $mfgProgress = $this->dividedManufacturingProgress();
-                if ($mfgProgress && $mfgProgress['done'] > 0 && $mfgProgress['done'] < $mfgProgress['total'] && $index === $currentIndex) {
+                $readyMfgStage = $this->nextStageReadyForManufacturedMark();
+                $lastMfgStage = $this->lastManufacturedStageNumber();
+
+                if ($index === $currentIndex && $this->hasCompletedManufacturing()) {
                     $state = 'current';
-                    $label = 'Manufacturing '.$mfgProgress['done'].'/'.$mfgProgress['total'].' stages';
+                    $label = 'Treatment plan Manufactured';
+                } elseif ($mfgProgress && $mfgProgress['done'] > 0 && $mfgProgress['done'] < $mfgProgress['total'] && $index === $currentIndex) {
+                    $state = 'current';
+                    if ($readyMfgStage !== null) {
+                        $label = 'Ready to mark Stage '.$readyMfgStage.' manufactured';
+                    } elseif ($lastMfgStage !== null) {
+                        $label = 'Stage '.$lastMfgStage.' has been manufactured';
+                    } else {
+                        $label = 'Manufacturing '.$mfgProgress['done'].'/'.$mfgProgress['total'].' stages';
+                    }
+                } elseif ($readyMfgStage !== null && $index === $currentIndex) {
+                    $state = 'current';
+                    $label = 'Ready to mark Stage '.$readyMfgStage.' manufactured';
                 } elseif ($this->isReadyForManufacturedMark() && $index === $currentIndex) {
                     $state = 'current';
                     $label = 'Ready to mark manufactured';

@@ -63,26 +63,14 @@
                                 <i class="zmdi zmdi-cloud-upload" aria-hidden="true"></i>
                                 Scans &amp; photos
                             </h5>
-                            <div class="case-modification-card__uploads">
+                            <div class="case-modification-card__uploads case-modification-card__uploads--compact">
                                 <div class="case-modification-card__upload-block case-modification-card__upload-block--photos">
                                     @include('theme.pages.partials.case-photos-upload', ['uploadId' => 'modification-photos'])
                                 </div>
-                                <div class="case-modification-card__upload-block">
-                                    <label for="modification-upper">Upper jaw 3D file <span class="case-modification-card__optional">optional</span></label>
-                                    <div class="case-modification-card__file-wrap">
-                                        <span class="case-modification-card__file-icon" aria-hidden="true"><i class="zmdi zmdi-file"></i></span>
-                                        <input type="file" id="modification-upper" name="upper_jaw_scan" accept=".stl,.obj,.ply,.zip">
-                                    </div>
-                                    <span class="case-modification-card__hint">STL, OBJ, or PLY — upload when you have a new upper scan.</span>
-                                </div>
-                                <div class="case-modification-card__upload-block">
-                                    <label for="modification-lower">Lower jaw 3D file <span class="case-modification-card__optional">optional</span></label>
-                                    <div class="case-modification-card__file-wrap">
-                                        <span class="case-modification-card__file-icon" aria-hidden="true"><i class="zmdi zmdi-file"></i></span>
-                                        <input type="file" id="modification-lower" name="lower_jaw_scan" accept=".stl,.obj,.ply,.zip">
-                                    </div>
-                                    <span class="case-modification-card__hint">STL, OBJ, or PLY — upload when you have a new lower scan.</span>
-                                </div>
+                                @include('theme.pages.partials.case-jaw-scan-fields', [
+                                    'upperInputId' => 'modification-upper',
+                                    'lowerInputId' => 'modification-lower',
+                                ])
                             </div>
                         </div>
 

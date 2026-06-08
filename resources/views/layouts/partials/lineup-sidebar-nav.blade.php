@@ -13,7 +13,7 @@
                 <i class="zmdi {{ $item['icon'] }}"></i>
                 <span>{{ $item['label'] }}</span>
                 @if(!empty($item['badge']))
-                <span class="lineup-nav__badge" id="{{ $item['route'] === 'notifications.index' ? 'lineup-sidebar-notify-badge' : '' }}" hidden>0</span>
+                <span class="lineup-nav__badge" id="{{ $item['badge_id'] ?? ($item['route'] === 'notifications.index' ? 'lineup-sidebar-notify-badge' : '') }}" hidden>0</span>
                 @endif
             </a>
         </li>

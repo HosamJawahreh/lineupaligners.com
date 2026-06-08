@@ -625,27 +625,30 @@ class PatientController extends Controller
         }
 
         if ($filters['patient'] !== '') {
-            $term = '%'.$filters['patient'].'%';
-            $query->where(function ($q) use ($term) {
-                $q->where('first_name', 'like', $term)
-                    ->orWhere('last_name', 'like', $term)
-                    ->orWhere('patient_id', 'like', $term);
-            });
+            $this->applyPersonNameFilter($query, $filters['patient'], [
+                'first_name',
+                'last_name',
+                'email',
+                'patient_id',
+            ], fullNameColumns: ['first_name', 'last_name']);
         }
 
         if ($filters['doctor'] !== '' && auth()->user()->isAdmin()) {
-            $term = '%'.$filters['doctor'].'%';
-            $query->whereHas('doctor', function ($q) use ($term) {
-                $q->where('first_name', 'like', $term)
-                    ->orWhere('last_name', 'like', $term);
+            $query->whereHas('doctor', function ($q) use ($filters) {
+                $this->applyPersonNameFilter($q, $filters['doctor'], [
+                    'first_name',
+                    'last_name',
+                    'email',
+                ], fullNameColumns: ['first_name', 'last_name']);
             });
         }
 
         if ($filters['creator'] !== '' && auth()->user()->isAdmin()) {
-            $term = '%'.$filters['creator'].'%';
-            $query->whereHas('doctor', function ($q) use ($term) {
-                $q->where('first_name', 'like', $term)
-                    ->orWhere('last_name', 'like', $term);
+            $query->whereHas('doctor.user', function ($q) use ($filters) {
+                $this->applyPersonNameFilter($q, $filters['creator'], [
+                    'name',
+                    'email',
+                ]);
             });
         }
 
@@ -666,6 +669,37 @@ class PatientController extends Controller
             : 'created_at';
 
         return $query->orderBy($sortColumn, $filters['dir']);
+    }
+
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder  $query
+     * @param  list<string>  $columns
+     * @param  list<string>|null  $fullNameColumns
+     */
+    private function applyPersonNameFilter($query, string $term, array $columns, ?array $fullNameColumns = null): void
+    {
+        $needle = '%'.trim($term).'%';
+        $words = array_values(array_filter(preg_split('/\s+/', trim($term)) ?: []));
+
+        $query->where(function ($q) use ($needle, $words, $columns, $fullNameColumns) {
+            foreach ($columns as $column) {
+                $q->orWhere($column, 'like', $needle);
+            }
+
+            if ($fullNameColumns !== null && count($fullNameColumns) === 2) {
+                [$first, $last] = $fullNameColumns;
+                $q->orWhereRaw("CONCAT({$first}, ' ', {$last}) LIKE ?", [$needle])
+                    ->orWhereRaw("CONCAT({$last}, ' ', {$first}) LIKE ?", [$needle]);
+            }
+
+            if (count($words) >= 2 && $fullNameColumns !== null && count($fullNameColumns) === 2) {
+                [$first, $last] = $fullNameColumns;
+                $q->orWhere(function ($sub) use ($words, $first, $last) {
+                    $sub->where($first, 'like', '%'.$words[0].'%')
+                        ->where($last, 'like', '%'.$words[1].'%');
+                });
+            }
+        });
     }
 
     protected function clinicNameForList(): string

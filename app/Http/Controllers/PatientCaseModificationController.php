@@ -54,10 +54,7 @@ class PatientCaseModificationController extends Controller
         }
 
         $validated = $request->validate([
-            'stage_number' => $patient->isDividedStages()
-                ? ['required', 'integer', 'min:1', 'max:99']
-                : ['nullable'],
-            'notes' => ['nullable', 'string', 'max:10000'],
+            'notes' => ['required', 'string', 'max:10000'],
             'upper_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
             'lower_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
             'photos' => ['nullable', 'array'],

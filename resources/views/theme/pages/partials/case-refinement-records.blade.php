@@ -5,7 +5,12 @@
     $navKey = $navKey ?? 'refinements';
 @endphp
 
-@if($records->isNotEmpty())
+@if($records->isEmpty())
+<div class="case-modification__history-empty">
+    <i class="zmdi zmdi-time-restore" aria-hidden="true"></i>
+    <p>No refinement cycles yet. Ordered refinements and their status will appear here.</p>
+</div>
+@else
 <section class="case-cycle-records case-cycle-records--refinement" aria-label="Refinement history">
     @if($hasMultiple)
     <nav class="mfg-plan__stage-nav mfg-plan__stage-nav--versions case-cycle-records__nav"
@@ -123,3 +128,4 @@
     </div>
 </section>
 @endif
+

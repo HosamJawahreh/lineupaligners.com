@@ -30,13 +30,13 @@ return [
 
     'default_contact_page' => [
         'subtitle' => 'Contact us',
-        'title' => 'Reach out for best treatment',
-        'intro' => 'Have questions or ready to contact us today for expert personalized consultations and top-quality care.',
+        'title' => 'Get in touch with LineUp',
+        'intro' => 'Questions about clear aligner planning, partner onboarding, or an active case? Send us a message and our team will respond shortly.',
         'email_title' => 'Mail us 24/7',
         'phone_title' => 'Call us 24/7',
         'location_title' => 'Our location',
-        'form_title' => 'Book an appointment',
-        'form_intro' => 'Call us with any emergency or to schedule an appointment.',
+        'form_title' => 'Send us a message',
+        'form_intro' => 'Fill in your details below and we will get back to you as soon as possible.',
     ],
 
     'default_service_page' => [

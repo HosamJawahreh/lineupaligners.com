@@ -82,9 +82,6 @@
 
         $links.on('click', function (e) {
             e.preventDefault();
-            if (hasDirtyForms() && !window.confirm('You have unsaved changes. Leave this section without saving?')) {
-                return;
-            }
             showSection($(this).data('wm-section'));
         });
 
@@ -106,9 +103,6 @@
 
         $(document).on('click', '.wm-goto-section', function (e) {
             e.preventDefault();
-            if (hasDirtyForms() && !window.confirm('You have unsaved changes. Leave this section without saving?')) {
-                return;
-            }
             showSection($(this).data('wm-section'));
         });
     }
@@ -287,14 +281,6 @@
             $form.on('submit', function () {
                 clearFormDirty(selector);
             });
-        });
-
-        $(window).on('beforeunload.lineupDirty', function (e) {
-            if (!hasDirtyForms()) {
-                return;
-            }
-            e.preventDefault();
-            e.returnValue = '';
         });
     }
 

@@ -27,6 +27,6 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('assets/js/lineup-website-admin.js') }}?v=27"></script>
+<script src="{{ asset('assets/js/lineup-website-admin.js') }}?v=28"></script>
 @stack('website-scripts')
 @endpush

@@ -605,7 +605,34 @@ class SmilizHtmlRenderer
             ) ?? $html;
         }
 
-        return $html;
+        return $this->injectContactForm($html);
+    }
+
+    private function injectContactForm(string $html): string
+    {
+        $loader = '<span class="form-btn-loader d-none">'
+            .'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><circle fill="#fff" stroke="#fff" stroke-width="15" r="15" cx="40" cy="50"><animate attributeName="opacity" calcMode="spline" dur="2" values="1;0;1;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="-.4"></animate></circle><circle fill="#fff" stroke="#fff" stroke-width="15" r="15" cx="100" cy="50"><animate attributeName="opacity" calcMode="spline" dur="2" values="1;0;1;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="-.2"></animate></circle><circle fill="#fff" stroke="#fff" stroke-width="15" r="15" cx="160" cy="50"><animate attributeName="opacity" calcMode="spline" dur="2" values="1;0;1;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="0"></animate></circle></svg>'
+            .'</span>';
+
+        $formBody = '<div class="row">'
+            .'<div class="col-md-6"><input type="text" class="form-control" placeholder="Name *" name="name" required></div>'
+            .'<div class="col-md-6"><input type="text" class="form-control" placeholder="Phone *" name="phone" required></div>'
+            .'<div class="col-md-12"><input type="email" class="form-control" placeholder="Email *" name="email" required></div>'
+            .'<div class="col-md-12"><textarea name="message" cols="40" rows="8" class="form-control" placeholder="Message *" required></textarea></div>'
+            .'</div>'
+            .'<button class="pbmit-btn submit pbmit-form-btn" type="submit">'
+            .'<span class="pbmit-icon-hover"></span>'
+            .'<span class="pbmit-button-content-wrapper"><span class="pbmit-button-text">Submit</span></span>'
+            .$loader
+            .'</button>'
+            .'<div class="message-status mt-3"></div>';
+
+        return preg_replace(
+            '/(<form\b[^>]*(?:contact-form|id=["\']contact-form["\'])[^>]*>).*?(<\/form>)/is',
+            '$1'.$formBody.'$2',
+            $html,
+            1
+        ) ?? $html;
     }
 
     /** @param  array<string, mixed>  $content

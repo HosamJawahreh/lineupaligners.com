@@ -68,13 +68,12 @@
             name: $.trim($form.find('[name="name"]').val() || ''),
             email: $.trim($form.find('[name="email"]').val() || ''),
             phone: $.trim($form.find('[name="phone"]').val() || ''),
-            subject: $.trim($form.find('[name="subject"]').val() || ''),
             message: $.trim($form.find('[name="message"]').val() || ''),
             form_type: formType || 'contact',
             website_hp: '',
         };
 
-        if (!payload.name || !payload.email || !payload.message) {
+        if (!payload.name || !payload.phone || !payload.email || !payload.message) {
             showStatus($form, cfg.requiredMessage || 'Please fill in all required fields.', true);
             return;
         }
