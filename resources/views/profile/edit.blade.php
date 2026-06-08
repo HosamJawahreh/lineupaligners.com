@@ -4,7 +4,7 @@
 @section('body-class', 'doctor-profile-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/profile-page.css') }}?v=5">
+<link rel="stylesheet" href="{{ asset('assets/css/profile-page.css') }}?v=6">
 @endpush
 
 @section('content')

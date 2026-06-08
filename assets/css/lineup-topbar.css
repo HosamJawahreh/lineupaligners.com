@@ -134,8 +134,16 @@ body.lineup-app #leftsidebar.lineup-sidebar {
 .lineup-topbar-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     flex-shrink: 0;
+}
+
+body.lineup-app .lineup-topbar .lineup-topbar-user {
+    margin-right: 2px;
+}
+
+body.lineup-app .lineup-topbar .lineup-topbar-btn-signout {
+    margin-left: 4px;
 }
 
 .lineup-topbar-tools {
