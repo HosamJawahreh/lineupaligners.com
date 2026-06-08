@@ -157,7 +157,7 @@
     @include('website.smiliz.partials.our-work')
 
     @if($content['sections']['faq'] ?? true)
-    <section class="section-md pbmit-bg-color-light bottom-radius position-relative lineup-faq-section" id="faq">
+    <section class="section-md pbmit-bg-color-light position-relative lineup-faq-section" id="faq">
         @include('website.smiliz.partials.section-grid-atmosphere')
         <div class="container position-relative">
             <div class="row">

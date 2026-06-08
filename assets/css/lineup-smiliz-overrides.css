@@ -2584,13 +2584,19 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 .lineup-smiliz-site .lineup-faq-section {
     background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%) !important;
     border-top: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 0 !important;
 }
 
 .lineup-smiliz-site #faq.lineup-faq-section {
     overflow: visible;
     background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 48%, #f1f5f9 100%) !important;
     border-top: none;
+    border-radius: 0 !important;
     isolation: isolate;
+}
+
+.lineup-smiliz-site .lineup-faq-section.bottom-radius {
+    border-radius: 0 !important;
 }
 
 .lineup-smiliz-site #faq.lineup-faq-section > .container {
