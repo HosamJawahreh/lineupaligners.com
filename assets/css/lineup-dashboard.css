@@ -140,7 +140,7 @@ body.lineup-app #leftsidebar.lineup-sidebar .list {
 }
 
 .lineup-sidebar-mobile-head {
-    display: none;
+    display: none !important;
 }
 
 /* Legacy sidebar tabs hidden */

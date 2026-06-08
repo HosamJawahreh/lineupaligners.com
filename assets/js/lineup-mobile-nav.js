@@ -21,7 +21,7 @@
             $body.removeClass('overlay-open lineup-mobile-nav-open');
             $overlay.fadeOut(200);
             $toggle.attr('aria-expanded', 'false');
-            $('.lineup-topbar-overflow-menu').removeClass('is-open');
+            closeOverflowMenu();
         }
     }
 
@@ -29,6 +29,24 @@
         if ($('body').hasClass('overlay-open')) {
             setMenuOpen(false);
         }
+    }
+
+    function closeOverflowMenu() {
+        $('.lineup-topbar-overflow-menu').removeClass('is-open');
+        $('.lineup-topbar-btn-more').attr('aria-expanded', 'false');
+    }
+
+    function syncOverflowThemeLabel() {
+        var isDark = $('body').hasClass('lineup-color-dark');
+        var $btn = $('[data-lineup-overflow-theme]');
+
+        if (!$btn.length) {
+            return;
+        }
+
+        $btn.find('[data-lineup-overflow-theme-label]').text(isDark ? 'Light mode' : 'Dark mode');
+        $btn.find('i.zmdi').attr('class', isDark ? 'zmdi zmdi-sun' : 'zmdi zmdi-brightness-2');
+        $btn.attr('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
     }
 
     function bindDrawerToggle() {
@@ -74,14 +92,41 @@
         $(document).on('click.lineupMobileNav', '.lineup-topbar-btn-more', function (event) {
             event.preventDefault();
             event.stopPropagation();
-            $(this).siblings('.lineup-topbar-overflow-menu').toggleClass('is-open');
+
+            var $menu = $(this).siblings('.lineup-topbar-overflow-menu');
+            var willOpen = !$menu.hasClass('is-open');
+
+            $menu.toggleClass('is-open');
+            $(this).attr('aria-expanded', willOpen ? 'true' : 'false');
+
+            if (willOpen) {
+                syncOverflowThemeLabel();
+            }
+        });
+
+        $(document).on('click.lineupMobileNav', '[data-lineup-overflow-theme]', function (event) {
+            event.preventDefault();
+
+            var $themeToggle = $('#lineup-theme-toggle');
+            if ($themeToggle.length) {
+                $themeToggle.trigger('click');
+            }
+
+            window.setTimeout(syncOverflowThemeLabel, 0);
+            closeOverflowMenu();
+        });
+
+        $(document).on('click.lineupMobileNav', '.lineup-topbar-overflow-menu a', function () {
+            closeOverflowMenu();
         });
 
         $(document).on('click.lineupMobileNav', function (event) {
             if (!$(event.target).closest('.lineup-topbar-tools-overflow').length) {
-                $('.lineup-topbar-overflow-menu').removeClass('is-open');
+                closeOverflowMenu();
             }
         });
+
+        syncOverflowThemeLabel();
 
         $(window).on('resize.lineupMobileNav', function () {
             if (!isMobileNav()) {

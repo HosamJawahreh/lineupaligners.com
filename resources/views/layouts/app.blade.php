@@ -29,7 +29,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/sweetalert-toast.css') }}?v=5">
 <link rel="stylesheet" href="{{ asset('assets/css/forms-fix.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-datatable/dataTables.bootstrap4.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-dashboard.css') }}?v=2">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-dashboard.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-topbar.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/cases-dashboard.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-buttons.css') }}">
@@ -45,7 +45,7 @@
 @stack('styles')
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-form-pages.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=2">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=1">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=2">
 </head>
 <body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"
       data-default-color-mode="{{ $dashboardColorMode }}"
@@ -85,7 +85,7 @@
     window.LINEUP_USER_ID = @json(auth()->id());
 </script>
 <script src="{{ asset('assets/js/lineup-theme-mode.js') }}"></script>
-<script src="{{ asset('assets/js/lineup-mobile-nav.js') }}?v=1"></script>
+<script src="{{ asset('assets/js/lineup-mobile-nav.js') }}?v=2"></script>
 <script src="{{ asset('assets/js/lineup-notifications.js') }}"></script>
 <script src="{{ asset('assets/js/scan-upload-loading.js') }}"></script>
 @stack('scripts')

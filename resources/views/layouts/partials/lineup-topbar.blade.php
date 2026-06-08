@@ -3,6 +3,7 @@
     $userRole = $user->isAdmin() ? 'Administrator' : 'Doctor';
     $profileUrl = route('profile.edit');
     $settingsUrl = $user->isAdmin() ? route('settings.index') : route('doctor.clinic-settings.edit');
+    $unreadNotificationCount = $user->unreadNotifications()->count();
 @endphp
 <nav class="navbar lineup-topbar" role="banner" aria-label="Application header">
     <div class="lineup-topbar-start">
@@ -28,10 +29,12 @@
 
     <div class="lineup-topbar-actions">
         <div class="lineup-topbar-tools">
-            @include('layouts.partials.lineup-notifications')
+            <div class="lineup-topbar-tool lineup-topbar-tool--overflow-hidden">
+                @include('layouts.partials.lineup-notifications')
+            </div>
             <button type="button"
                     id="lineup-theme-toggle"
-                    class="lineup-topbar-btn lineup-topbar-btn-theme"
+                    class="lineup-topbar-btn lineup-topbar-btn-theme lineup-topbar-tool--overflow-hidden"
                     title="Switch to dark mode"
                     aria-label="Switch to dark mode"
                     aria-pressed="false">
@@ -64,6 +67,21 @@
                     <i class="zmdi zmdi-more-vert"></i>
                 </button>
                 <div class="lineup-topbar-overflow-menu" role="menu">
+                    <a href="{{ route('notifications.index') }}" role="menuitem" class="lineup-topbar-overflow-notify">
+                        <i class="zmdi zmdi-notifications"></i>
+                        <span>Notifications</span>
+                        @if($unreadNotificationCount > 0)
+                        <span class="lineup-topbar-overflow-menu__badge">{{ $unreadNotificationCount > 99 ? '99+' : $unreadNotificationCount }}</span>
+                        @endif
+                    </a>
+                    <button type="button"
+                            role="menuitem"
+                            class="lineup-topbar-overflow-theme"
+                            data-lineup-overflow-theme
+                            aria-label="Switch color mode">
+                        <i class="zmdi zmdi-brightness-2" aria-hidden="true"></i>
+                        <span data-lineup-overflow-theme-label>Dark mode</span>
+                    </button>
                     <a href="{{ $settingsUrl }}" role="menuitem">
                         <i class="zmdi zmdi-settings"></i>
                         <span>Settings</span>

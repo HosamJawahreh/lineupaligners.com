@@ -118,7 +118,7 @@ body.lineup-app.overlay-open .lineup-topbar-btn-menu--drawer .lineup-topbar-menu
         box-shadow: 16px 0 48px rgba(15, 23, 42, 0.22);
     }
 
-    .lineup-sidebar-mobile-head {
+    body.lineup-app.overlay-open .lineup-sidebar-mobile-head {
         display: flex !important;
         align-items: center;
         gap: 12px;
@@ -257,38 +257,64 @@ body.lineup-app.overlay-open .lineup-topbar-btn-menu--drawer .lineup-topbar-menu
     transform: translateY(0);
 }
 
-.lineup-topbar-overflow-menu a {
+.lineup-topbar-overflow-menu a,
+.lineup-topbar-overflow-menu button {
     display: flex;
     align-items: center;
     gap: 10px;
+    width: 100%;
     padding: 10px 12px;
+    border: none;
     border-radius: 8px;
+    background: transparent;
     color: var(--lineup-topbar-text, #0f172a) !important;
     text-decoration: none !important;
     font-size: 14px;
     font-weight: 500;
+    text-align: left;
+    cursor: pointer;
 }
 
-.lineup-topbar-overflow-menu a:hover {
+.lineup-topbar-overflow-menu a:hover,
+.lineup-topbar-overflow-menu button:hover {
     background: var(--lineup-topbar-control-hover, #f8fafc);
 }
 
-.lineup-topbar-overflow-menu a i {
+.lineup-topbar-overflow-menu a i,
+.lineup-topbar-overflow-menu button i {
     font-size: 18px;
     color: var(--lineup-topbar-muted, #64748b);
+    flex-shrink: 0;
+}
+
+.lineup-topbar-overflow-menu__badge {
+    margin-left: auto;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+}
+
+@media (max-width: 767px) {
+    .lineup-topbar-tools-overflow {
+        display: block;
+    }
+
+    .lineup-topbar-tools .lineup-topbar-tool--overflow-hidden,
+    .lineup-topbar-tools .lineup-topbar-btn--overflow-hidden {
+        display: none !important;
+    }
 }
 
 @media (max-width: 575px) {
     body.lineup-app {
         --lineup-topbar-height: 58px;
-    }
-
-    .lineup-topbar-tools-overflow {
-        display: block;
-    }
-
-    .lineup-topbar-tools .lineup-topbar-btn--overflow-hidden {
-        display: none !important;
     }
 
     .lineup-topbar-logo-wrap {
@@ -641,11 +667,13 @@ body.lineup-app.lineup-color-dark .lineup-topbar-overflow-menu {
     border-color: #334155;
 }
 
-body.lineup-app.lineup-color-dark .lineup-topbar-overflow-menu a {
+body.lineup-app.lineup-color-dark .lineup-topbar-overflow-menu a,
+body.lineup-app.lineup-color-dark .lineup-topbar-overflow-menu button {
     color: #f1f5f9 !important;
 }
 
-body.lineup-app.lineup-color-dark .lineup-topbar-overflow-menu a:hover {
+body.lineup-app.lineup-color-dark .lineup-topbar-overflow-menu a:hover,
+body.lineup-app.lineup-color-dark .lineup-topbar-overflow-menu button:hover {
     background: #334155;
 }
 
