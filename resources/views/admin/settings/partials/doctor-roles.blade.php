@@ -56,7 +56,7 @@
                         'prefix' => 'new',
                         'selected' => [],
                         'groups' => $groups,
-                        'permissionsByGroup' => $permissionsByGroup,
+                        'permissions' => $permissions,
                     ])
 
                     <div class="doctor-role-active">
