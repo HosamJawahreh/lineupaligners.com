@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Patient;
+use App\Models\PatientTreatmentPlan;
 use App\Services\CaseWorkflowService;
 use App\Services\LineUpNotifier;
 use Illuminate\Http\RedirectResponse;
@@ -18,6 +19,13 @@ class PatientManufacturingController extends Controller
     public function markManufactured(Request $request, Patient $patient): RedirectResponse
     {
         $this->authorize('markAsManufactured', $patient);
+
+        if ($patient->isDividedStages() && ! $patient->hasActiveRefinement()) {
+            return redirect()
+                ->route('patients.show', $patient)
+                ->with('error', 'Divided-stage cases are marked per stage. Open each approved stage and mark it manufactured with the step range.')
+                ->with('open_tab', 'manufacture-plan');
+        }
 
         if (! $patient->isReadyForManufacturedMark()) {
             return redirect()
@@ -43,5 +51,58 @@ class PatientManufacturingController extends Controller
         }
 
         return $redirect;
+    }
+
+    public function markStageManufactured(Request $request, Patient $patient): RedirectResponse
+    {
+        $this->authorize('markAsManufactured', $patient);
+
+        $validated = $request->validate([
+            'stage_number' => ['required', 'integer', 'min:1', 'max:99'],
+            'manufactured_step_from' => ['required', 'integer', 'min:1', 'max:999'],
+            'manufactured_step_to' => ['required', 'integer', 'min:1', 'max:999', 'gte:manufactured_step_from'],
+        ]);
+
+        $stageNumber = (int) $validated['stage_number'];
+
+        if (! $patient->isStageReadyForManufacturedMark($stageNumber)) {
+            return redirect()
+                ->route('patients.show', $patient)
+                ->with('error', "Stage {$stageNumber} is not ready to mark as manufactured.")
+                ->with('open_tab', 'manufacture-plan')
+                ->with('mfg_active_stage', $stageNumber);
+        }
+
+        $plan = $patient->currentTreatmentPlanForStage($stageNumber);
+
+        if (! $plan instanceof PatientTreatmentPlan) {
+            abort(404);
+        }
+
+        $plan->update([
+            'manufactured_at' => now(),
+            'manufactured_by' => auth()->id(),
+            'manufactured_step_from' => (int) $validated['manufactured_step_from'],
+            'manufactured_step_to' => (int) $validated['manufactured_step_to'],
+        ]);
+
+        $patient->refresh();
+        $completedCycle = $this->workflow->afterStageMarkedManufactured($patient, $plan->fresh(), (int) auth()->id());
+
+        $patient->load('doctor.user');
+
+        if ($completedCycle) {
+            $this->notifier->caseMarkedManufactured($patient, auth()->user());
+            $message = 'All stages manufactured. Case cycle complete — modifications are closed and refinement is available.';
+        } else {
+            $range = $plan->manufacturedStepRangeLabel();
+            $message = "Stage {$stageNumber} ({$range}) marked manufactured.";
+        }
+
+        return redirect()
+            ->route('patients.show', $patient)
+            ->with('success', $message)
+            ->with('open_tab', 'manufacture-plan')
+            ->with('mfg_active_stage', $stageNumber);
     }
 }

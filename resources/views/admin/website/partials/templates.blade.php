@@ -10,11 +10,11 @@
             </div>
         </div>
         <div class="wm-feature-card__fields">
-            <select name="features[__INDEX__][icon]" class="form-control wm-input">
-                @foreach($iconOptions as $icon)
-                <option value="{{ $icon }}">{{ $icon }}</option>
-                @endforeach
-            </select>
+            @include('admin.website.partials.icon-select', [
+                'name' => 'features[__INDEX__][icon]',
+                'iconOptions' => $iconOptions,
+                'smilizIconOptions' => $smilizIconOptions ?? [],
+            ])
             <input type="text" name="features[__INDEX__][title]" class="form-control wm-input" placeholder="Service title">
             <input type="text" name="features[__INDEX__][description]" class="form-control wm-input" placeholder="Short description">
             <div class="row">

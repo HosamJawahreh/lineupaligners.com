@@ -60,14 +60,10 @@ class PatientTreatmentPlanController extends Controller
 
         $validated = $request->validate([
             'stage_number' => ['required', 'integer', 'min:1', 'max:99'],
-            'step_from' => ['required', 'integer', 'min:1', 'max:999'],
-            'step_to' => ['required', 'integer', 'min:1', 'max:999', 'gte:step_from'],
             'plan_url' => ['required', 'url', 'max:2048'],
         ]);
 
         $stageNumber = (int) $validated['stage_number'];
-        $stepFrom = (int) $validated['step_from'];
-        $stepTo = (int) $validated['step_to'];
 
         if ($redirect = $this->guardAdminUpload($patient, $stageNumber)) {
             return $redirect;
@@ -86,7 +82,7 @@ class PatientTreatmentPlanController extends Controller
             );
         }
 
-        DB::transaction(function () use ($patient, $validated, $stageNumber, $stepFrom, $stepTo) {
+        DB::transaction(function () use ($patient, $validated, $stageNumber) {
             $activeModification = $patient->currentModification($stageNumber);
 
             if ($activeModification !== null && $patient->activeRefinementId() === null) {
@@ -100,8 +96,8 @@ class PatientTreatmentPlanController extends Controller
                 $patient,
                 $validated['plan_url'],
                 $stageNumber,
-                $stepFrom,
-                $stepTo,
+                null,
+                null,
                 $patient->activeRefinementId()
             );
             $this->workflow->afterPlanUploaded($patient);
@@ -110,11 +106,9 @@ class PatientTreatmentPlanController extends Controller
         $patient->load('doctor.user');
         app(LineUpNotifier::class)->planUploaded($patient, auth()->user(), $stageNumber);
 
-        $range = $stepFrom === $stepTo ? "step {$stepFrom}" : "steps {$stepFrom}–{$stepTo}";
-
         return $this->redirectToTab(
             $patient,
-            "Stage {$stageNumber} ({$range}) submitted for doctor review.",
+            "Stage {$stageNumber} submitted for doctor review.",
             'success',
             $stageNumber
         );

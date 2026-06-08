@@ -87,6 +87,16 @@
         });
     }
 
+    function formNeedsConfirm(form) {
+        return form.matches('.case-modification-card__form')
+            || form.id === 'case-refinement-form'
+            || form.hasAttribute('data-case-confirm');
+    }
+
+    function confirmWasPassed(form) {
+        return form.dataset.caseConfirmPassed === '1';
+    }
+
     function bindForm(form) {
         form.addEventListener('submit', function (e) {
             if (form.dataset.scanUploading === '1') {
@@ -95,6 +105,10 @@
             }
 
             if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+                return;
+            }
+
+            if (formNeedsConfirm(form) && !confirmWasPassed(form)) {
                 return;
             }
 

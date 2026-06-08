@@ -8,7 +8,7 @@ use Illuminate\Http\UploadedFile;
 
 class Scan3dFile implements ValidationRule
 {
-    private const EXTENSIONS = ['stl', 'obj', 'ply'];
+    private const EXTENSIONS = ['stl', 'obj', 'ply', 'zip'];
 
     public function __construct(
         private readonly int $maxKilobytes = 102400
@@ -22,7 +22,7 @@ class Scan3dFile implements ValidationRule
 
         $ext = strtolower($value->getClientOriginalExtension() ?: '');
         if (! in_array($ext, self::EXTENSIONS, true)) {
-            $fail('The :attribute must be an STL, OBJ, or PLY file.');
+            $fail('The :attribute must be an STL, OBJ, PLY, or ZIP file.');
 
             return;
         }

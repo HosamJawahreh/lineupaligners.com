@@ -54,11 +54,12 @@
                         'compact' => true,
                     ])
                     <div class="wm-feature-card__fields">
-                        <select name="features[{{ $i }}][icon]" class="form-control wm-input">
-                            @foreach($iconOptions as $icon)
-                            <option value="{{ $icon }}" @selected(($feature['icon'] ?? '') === $icon)>{{ $icon }}</option>
-                            @endforeach
-                        </select>
+                        @include('admin.website.partials.icon-select', [
+                            'name' => "features[{$i}][icon]",
+                            'selected' => $feature['icon'] ?? '',
+                            'iconOptions' => $iconOptions,
+                            'smilizIconOptions' => $smilizIconOptions ?? [],
+                        ])
                         <input type="text" name="features[{{ $i }}][title]" class="form-control wm-input" value="{{ $feature['title'] ?? '' }}" placeholder="Card title">
                         <input type="text" name="features[{{ $i }}][description]" class="form-control wm-input" value="{{ $feature['description'] ?? '' }}" placeholder="Short description">
                         <div class="row">

@@ -44,12 +44,36 @@
                 </ul>
             </div>
 
+            @php
+                $activeFilterCount = collect($filters)
+                    ->except(['status', 'sort', 'dir', 'per_page'])
+                    ->filter(fn ($value) => filled($value))
+                    ->count();
+            @endphp
+
             <form method="GET" action="{{ route('patients.index') }}" class="cases-filters" id="cases-filter-form">
                 <input type="hidden" name="status" value="{{ $filters['status'] }}">
                 <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
                 <input type="hidden" name="dir" value="{{ $filters['dir'] }}">
 
-                <div class="cases-filters-row">
+                <div class="cases-filters-mobile-bar">
+                    <button type="button"
+                            class="cases-filters-toggle"
+                            id="cases-filters-toggle"
+                            aria-expanded="false"
+                            aria-controls="cases-filters-panel">
+                        <i class="zmdi zmdi-filter-list" aria-hidden="true"></i>
+                        <span>Filters</span>
+                        @if($activeFilterCount > 0)
+                        <span class="cases-filters-toggle__count">{{ $activeFilterCount }}</span>
+                        @endif
+                    </button>
+                    @if($activeFilterCount > 0)
+                    <span class="cases-filters-active-hint">{{ $activeFilterCount }} active filter{{ $activeFilterCount === 1 ? '' : 's' }}</span>
+                    @endif
+                </div>
+
+                <div class="cases-filters-row" id="cases-filters-panel">
                     <div class="cases-field cases-field-search">
                         <i class="zmdi zmdi-search" aria-hidden="true"></i>
                         <input type="text" name="patient" class="form-control" value="{{ $filters['patient'] }}" placeholder="Patient Name">
@@ -267,6 +291,15 @@ $(function () {
     }
     if (window.LineUpInitCasesActions) {
         window.LineUpInitCasesActions();
+    }
+
+    var $filterForm = $('#cases-filter-form');
+    var $filterToggle = $('#cases-filters-toggle');
+    if ($filterToggle.length) {
+        $filterToggle.on('click', function () {
+            var open = $filterForm.toggleClass('is-open').hasClass('is-open');
+            $filterToggle.attr('aria-expanded', open ? 'true' : 'false');
+        });
     }
 });
 </script>

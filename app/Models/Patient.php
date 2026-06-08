@@ -174,8 +174,22 @@ class Patient extends Model
 
     public function hasCompletedManufacturing(): bool
     {
-        return $this->manufactured_at !== null
-            || $this->workflowStageKey() === 'manufactured';
+        if ($this->hasActiveRefinement()) {
+            return false;
+        }
+
+        if ($this->manufactured_at !== null || $this->workflowStageKey() === 'manufactured') {
+            return true;
+        }
+
+        if ($this->isDividedStages()) {
+            $stages = $this->originalCycleStageTreatmentPlans();
+
+            return $stages->isNotEmpty()
+                && $stages->every(fn (PatientTreatmentPlan $plan) => $plan->isManufactured());
+        }
+
+        return false;
     }
 
     public function isManufactured(): bool
@@ -212,10 +226,7 @@ class Patient extends Model
         }
 
         if ($this->isDividedStages()) {
-            $stages = $this->originalCycleStageTreatmentPlans();
-
-            return $stages->isNotEmpty()
-                && $stages->every(fn (PatientTreatmentPlan $plan) => $plan->isApproved());
+            return false;
         }
 
         if ($this->workflowStageKey() !== 'approved') {
@@ -225,6 +236,73 @@ class Patient extends Model
         $plan = $this->originalCycleFullTreatmentPlan();
 
         return $plan !== null && $plan->isApproved();
+    }
+
+    public function suggestedManufacturedStepFrom(int $stageNumber): int
+    {
+        if ($stageNumber <= 1) {
+            return 1;
+        }
+
+        $previous = $this->currentTreatmentPlanForStage($stageNumber - 1);
+
+        if ($previous !== null && $previous->manufactured_step_to !== null) {
+            return (int) $previous->manufactured_step_to + 1;
+        }
+
+        return 1;
+    }
+
+    public function isStageReadyForManufacturedMark(int $stageNumber): bool
+    {
+        if (! $this->isDividedStages() || $this->hasActiveRefinement() || $this->hasCompletedManufacturing()) {
+            return false;
+        }
+
+        if ($this->hasActiveModificationFor($stageNumber)) {
+            return false;
+        }
+
+        if ($stageNumber > 1) {
+            $previous = $this->currentTreatmentPlanForStage($stageNumber - 1);
+
+            if ($previous === null || ! $previous->isManufactured()) {
+                return false;
+            }
+        }
+
+        $plan = $this->currentTreatmentPlanForStage($stageNumber);
+
+        return $plan !== null
+            && $plan->is_current
+            && $plan->refinement_id === null
+            && $plan->isApproved()
+            && ! $plan->isManufactured();
+    }
+
+    /**
+     * @return array{done: int, total: int, percent: int}|null
+     */
+    public function dividedManufacturingProgress(): ?array
+    {
+        if (! $this->isDividedStages() || $this->hasActiveRefinement()) {
+            return null;
+        }
+
+        $stages = $this->originalCycleStageTreatmentPlans();
+        $total = $stages->count();
+
+        if ($total === 0) {
+            return null;
+        }
+
+        $done = $stages->filter(fn (PatientTreatmentPlan $plan) => $plan->isManufactured())->count();
+
+        return [
+            'done' => $done,
+            'total' => $total,
+            'percent' => (int) round(($done / $total) * 100),
+        ];
     }
 
     public function canRequestRefinement(): bool
@@ -1186,7 +1264,7 @@ class Patient extends Model
                     }
                 } elseif ($planOverlay === 'rejected' && $index === $currentIndex) {
                     $state = 'rejected';
-                    $label = 'Plan rejected';
+                    $label = 'Modification ordered';
                 } elseif ($index < $currentIndex) {
                     $state = 'completed';
                     $label = 'Doctor approved';
@@ -1194,7 +1272,11 @@ class Patient extends Model
             }
 
             if ($key === 'approved') {
-                if ($this->isReadyForManufacturedMark() && $index === $currentIndex) {
+                $mfgProgress = $this->dividedManufacturingProgress();
+                if ($mfgProgress && $mfgProgress['done'] > 0 && $mfgProgress['done'] < $mfgProgress['total'] && $index === $currentIndex) {
+                    $state = 'current';
+                    $label = 'Manufacturing '.$mfgProgress['done'].'/'.$mfgProgress['total'].' stages';
+                } elseif ($this->isReadyForManufacturedMark() && $index === $currentIndex) {
                     $state = 'current';
                     $label = 'Ready to mark manufactured';
                 } elseif ($internalKey === 'manufactured' && $index === $currentIndex) {

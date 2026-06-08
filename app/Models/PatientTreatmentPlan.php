@@ -27,18 +27,48 @@ class PatientTreatmentPlan extends Model
         'uploaded_by',
         'version',
         'is_current',
+        'manufactured_at',
+        'manufactured_by',
+        'manufactured_step_from',
+        'manufactured_step_to',
     ];
 
     protected function casts(): array
     {
         return [
             'reviewed_at' => 'datetime',
+            'manufactured_at' => 'datetime',
             'is_current' => 'boolean',
             'stage_number' => 'integer',
             'step_from' => 'integer',
             'step_to' => 'integer',
+            'manufactured_step_from' => 'integer',
+            'manufactured_step_to' => 'integer',
             'version' => 'integer',
         ];
+    }
+
+    public function manufacturedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'manufactured_by');
+    }
+
+    public function isManufactured(): bool
+    {
+        return $this->manufactured_at !== null;
+    }
+
+    public function manufacturedStepRangeLabel(): string
+    {
+        if ($this->manufactured_step_from === null || $this->manufactured_step_to === null) {
+            return '';
+        }
+
+        if ($this->manufactured_step_from === $this->manufactured_step_to) {
+            return 'Step '.$this->manufactured_step_from;
+        }
+
+        return 'Steps '.$this->manufactured_step_from.'–'.$this->manufactured_step_to;
     }
 
     public function hasStepRange(): bool
@@ -68,8 +98,9 @@ class PatientTreatmentPlan extends Model
         }
 
         $label = $prefix.'Stage '.$this->stage_number;
-        if ($this->hasStepRange()) {
-            $label .= ' · '.$this->stepRangeLabel();
+
+        if ($this->isManufactured() && $this->manufacturedStepRangeLabel() !== '') {
+            $label .= ' · '.$this->manufacturedStepRangeLabel().' manufactured';
         }
 
         return $label;

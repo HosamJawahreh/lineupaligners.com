@@ -9,6 +9,7 @@ use App\Services\CasePhotoStorage;
 use App\Services\CaseWorkflowService;
 use App\Services\LineUpNotifier;
 use App\Support\PhpUploadLimits;
+use App\Support\ScanZipExtractor;
 use App\Support\ScanFileStorage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,6 +37,8 @@ class PatientCaseRefinementController extends Controller
                 'error'
             );
         }
+
+        ScanZipExtractor::normalizeRequestFiles($request, ['upper_jaw_scan', 'lower_jaw_scan']);
 
         if (PhpUploadLimits::requestPayloadUnparsed($request)) {
             return $this->redirectToTab(

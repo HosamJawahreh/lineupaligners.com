@@ -19,6 +19,33 @@ class CaseWorkflowService
         ]);
     }
 
+    public function afterStageMarkedManufactured(
+        Patient $patient,
+        PatientTreatmentPlan $plan,
+        int $adminUserId
+    ): bool {
+        if ($patient->isDividedStages() && ! $patient->hasActiveRefinement()) {
+            $stages = $patient->originalCycleStageTreatmentPlans();
+
+            if ($stages->isNotEmpty() && $stages->every(fn (PatientTreatmentPlan $stagePlan) => $stagePlan->isManufactured())) {
+                $this->afterMarkedManufactured($patient->fresh(), $adminUserId);
+
+                return true;
+            }
+
+            $patient->update([
+                'case_workflow_stage' => 'approved',
+                'status' => Patient::STATUS_ACTIVE,
+            ]);
+
+            return false;
+        }
+
+        $this->afterMarkedManufactured($patient, $adminUserId);
+
+        return true;
+    }
+
     public function afterModificationRequested(Patient $patient): void
     {
         $patient->update([

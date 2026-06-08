@@ -714,6 +714,16 @@ body.lineup-app.lineup-color-dark .cases-filters {
     border-bottom-color: var(--lineup-border) !important;
 }
 
+body.lineup-app.lineup-color-dark .cases-filters-toggle {
+    background: var(--lineup-input-bg) !important;
+    border-color: var(--lineup-input-border) !important;
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-filters-active-hint {
+    color: var(--lineup-text-muted) !important;
+}
+
 body.lineup-app.lineup-color-dark .cases-filters .form-control,
 body.lineup-app.lineup-color-dark .cases-filters select.form-control {
     color: var(--lineup-input-text) !important;

@@ -101,8 +101,23 @@
 .patient-case-form .scan-upload-box {
     background: #f8f9fa;
     border: 2px dashed #dce3ea;
-    border-radius: 0;
+    border-radius: 8px;
     padding: 18px 20px;
+}
+
+.patient-case-form .scan-upload-box__visual {
+    display: flex;
+    justify-content: center;
+    margin: 4px 0 10px;
+    opacity: 0.85;
+}
+
+.patient-case-form .scan-upload-box__visual img {
+    max-width: 100%;
+    width: 160px;
+    height: 100px;
+    object-fit: contain;
+    border-radius: 6px;
 }
 
 .patient-case-form .scan-upload-box:hover {

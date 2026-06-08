@@ -14,6 +14,12 @@
             icon: 'warning',
             confirmButtonText: 'Mark manufactured',
         },
+        '.mfg-plan__mark-form--stage': {
+            title: 'Mark stage manufactured?',
+            text: 'Confirm the manufacturing step range for this stage. The case cycle completes once every stage is marked manufactured.',
+            icon: 'warning',
+            confirmButtonText: 'Mark stage manufactured',
+        },
         '.mfg-plan__form': {
             title: 'Submit treatment plan?',
             text: 'Send this plan to the doctor for review. They will approve or reject before manufacturing proceeds.',
@@ -122,9 +128,9 @@
 
     function warnMissingComment($comment) {
         if (window.AppAlert && typeof window.AppAlert.warning === 'function') {
-            window.AppAlert.warning('Please add a comment explaining what LineUp should fix before rejecting.');
+            window.AppAlert.warning('Please add modification notes explaining what LineUp should change.');
         } else {
-            window.alert('Please add a comment explaining what LineUp should fix before rejecting.');
+            window.alert('Please add modification notes explaining what LineUp should change.');
         }
 
         $comment.focus();
@@ -196,6 +202,7 @@
         var selector = [
             '.case-summary-card__action-form',
             '.mfg-plan__mark-form',
+            '.mfg-plan__mark-form--stage',
             '.mfg-plan__form',
             '.mfg-plan__add-stage-form',
             '[data-mfg-review-form]',

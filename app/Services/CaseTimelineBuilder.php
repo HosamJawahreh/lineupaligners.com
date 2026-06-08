@@ -30,6 +30,7 @@ class CaseTimelineBuilder
         $patient->loadMissing([
             'treatmentPlans.uploader',
             'treatmentPlans.reviewer',
+            'treatmentPlans.manufacturedByUser',
             'caseModifications.requester',
             'manufacturedByUser',
             'doctor',
@@ -46,6 +47,9 @@ class CaseTimelineBuilder
             $events->push($this->planUploadedEvent($plan));
             if ($plan->reviewed_at) {
                 $events->push($this->planReviewedEvent($plan));
+            }
+            if ($plan->manufactured_at && $plan->stage_number !== null) {
+                $events->push($this->stageManufacturedEvent($plan));
             }
         }
 
@@ -244,6 +248,32 @@ class CaseTimelineBuilder
     /**
      * @return array<string, mixed>
      */
+    protected function stageManufacturedEvent(PatientTreatmentPlan $plan): array
+    {
+        $badges = [
+            ['label' => $plan->stageLabel(), 'variant' => 'stage'],
+            ['label' => 'Manufactured', 'variant' => 'success'],
+        ];
+
+        if ($plan->manufacturedStepRangeLabel() !== '') {
+            $badges[] = ['label' => $plan->manufacturedStepRangeLabel(), 'variant' => 'neutral'];
+        }
+
+        return $this->event(
+            id: 'stage-mfg-'.$plan->id,
+            type: 'stage_manufactured',
+            at: $plan->manufactured_at,
+            title: 'Stage '.$plan->stage_number.' manufactured',
+            summary: $plan->manufacturedStepRangeLabel() ?: $plan->stageLabel(),
+            body: null,
+            actorName: $plan->manufacturedByUser?->displayName(),
+            actorRole: 'LineUp Admin',
+            tone: 'emerald',
+            icon: 'zmdi-check-circle',
+            badges: $badges,
+        );
+    }
+
     protected function manufacturedEvent(Patient $patient): array
     {
         $isCurrent = $patient->isManufactured();

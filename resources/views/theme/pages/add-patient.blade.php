@@ -10,7 +10,7 @@
 @section('title', $isEdit ? 'Edit Case' : 'New Case')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-form.css') }}?v=2">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-form.css') }}?v=4">
 @endpush
 
 @section('content')
@@ -168,10 +168,13 @@
                             </p>
                         </div>
                         <div class="col-md-6 col-sm-12">
-                            <div class="form-group scan-upload-box">
+                            <div class="form-group scan-upload-box scan-upload-box--upper">
                                 <label for="upper_jaw_scan">Upper 3D Model <span class="text-success small">optional</span></label>
-                                <input type="file" name="upper_jaw_scan" id="upper_jaw_scan" accept=".stl,.obj,.ply,model/stl,model/obj,application/octet-stream">
-                                <small class="text-muted d-block m-t-5">STL, OBJ or PLY — max 100MB</small>
+                                <div class="scan-upload-box__visual" aria-hidden="true">
+                                    <img src="{{ asset('assets/images/placeholders/uppper-paceholder.jpeg') }}" alt="" width="160" height="100">
+                                </div>
+                                <input type="file" name="upper_jaw_scan" id="upper_jaw_scan" accept=".stl,.obj,.ply,.zip,model/stl,model/obj,application/octet-stream,application/zip">
+                                <small class="text-muted d-block m-t-5">STL, OBJ, PLY, or ZIP — max 100MB</small>
                                 @if($isEdit && $patient->upper_jaw_scan)
                                 <div class="scan-current-file">
                                     <a href="{{ $patient->upperJawScanDownloadUrl() }}" download>{{ $patient->scanDisplayName($patient->upper_jaw_scan, 'upper_jaw_scan') }}</a>
@@ -184,10 +187,13 @@
                             </div>
                         </div>
                         <div class="col-md-6 col-sm-12">
-                            <div class="form-group scan-upload-box">
+                            <div class="form-group scan-upload-box scan-upload-box--lower">
                                 <label for="lower_jaw_scan">Lower 3D Model <span class="text-success small">optional</span></label>
-                                <input type="file" name="lower_jaw_scan" id="lower_jaw_scan" accept=".stl,.obj,.ply,model/stl,model/obj,application/octet-stream">
-                                <small class="text-muted d-block m-t-5">STL, OBJ or PLY — max 100MB</small>
+                                <div class="scan-upload-box__visual" aria-hidden="true">
+                                    <img src="{{ asset('assets/images/placeholders/lower-paceholder.jpeg') }}" alt="" width="160" height="100">
+                                </div>
+                                <input type="file" name="lower_jaw_scan" id="lower_jaw_scan" accept=".stl,.obj,.ply,.zip,model/stl,model/obj,application/octet-stream,application/zip">
+                                <small class="text-muted d-block m-t-5">STL, OBJ, PLY, or ZIP — max 100MB</small>
                                 @if($isEdit && $patient->lower_jaw_scan)
                                 <div class="scan-current-file">
                                     <a href="{{ $patient->lowerJawScanDownloadUrl() }}" download>{{ $patient->scanDisplayName($patient->lower_jaw_scan, 'lower_jaw_scan') }}</a>

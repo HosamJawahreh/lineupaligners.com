@@ -1,6 +1,5 @@
 @php
     $suggestedStage = (int) ($suggestedStage ?? 1);
-    $suggestedStepFrom = (int) ($suggestedStepFrom ?? 1);
     $canAdd = (bool) ($canAdd ?? false);
     $blockedReason = $blockedReason ?? null;
     $showBlocked = ! $canAdd && ($canUploadTreatmentPlan ?? false) && $blockedReason;
@@ -16,7 +15,7 @@
         <div class="mfg-plan__add-stage-head-text">
             <p class="mfg-plan__add-stage-kicker">Next in sequence</p>
             <h4 class="mfg-plan__add-stage-title" id="mfg-add-stage-title">Add stage {{ $suggestedStage }}</h4>
-            <p class="mfg-plan__add-stage-lead">Define the step range and paste the LineUp viewer link. The doctor will review this stage before you can add another.</p>
+            <p class="mfg-plan__add-stage-lead">Paste the LineUp viewer link for this stage. The doctor will review it before you can add the next stage. Manufacturing step numbers are entered when you mark each stage as manufactured.</p>
         </div>
     </header>
 
@@ -24,54 +23,7 @@
           action="{{ route('patients.treatment-plan.stage.store', $patient) }}"
           class="mfg-plan__add-stage-form">
         @csrf
-
-        <div class="mfg-plan__add-stage-fields">
-            <div class="mfg-plan__add-stage-field mfg-plan__add-stage-field--stage">
-                <label for="mfg-stage-number">Stage</label>
-                <div class="mfg-plan__add-stage-input-wrap">
-                    <span class="mfg-plan__add-stage-input-prefix" aria-hidden="true">#</span>
-                    <input type="number"
-                           id="mfg-stage-number"
-                           name="stage_number"
-                           min="1"
-                           max="99"
-                           value="{{ old('stage_number', $suggestedStage) }}"
-                           required
-                           readonly
-                           class="mfg-plan__add-stage-input mfg-plan__add-stage-input--readonly">
-                </div>
-            </div>
-
-            <div class="mfg-plan__add-stage-range">
-                <div class="mfg-plan__add-stage-field">
-                    <label for="mfg-step-from">Steps from</label>
-                    <input type="number"
-                           id="mfg-step-from"
-                           name="step_from"
-                           min="1"
-                           max="999"
-                           value="{{ old('step_from', $suggestedStepFrom) }}"
-                           required
-                           class="mfg-plan__add-stage-input"
-                           data-mfg-step-from>
-                </div>
-                <span class="mfg-plan__add-stage-range-sep" aria-hidden="true">
-                    <i class="zmdi zmdi-arrow-right"></i>
-                </span>
-                <div class="mfg-plan__add-stage-field">
-                    <label for="mfg-step-to">Steps to</label>
-                    <input type="number"
-                           id="mfg-step-to"
-                           name="step_to"
-                           min="1"
-                           max="999"
-                           value="{{ old('step_to', $suggestedStepFrom) }}"
-                           required
-                           class="mfg-plan__add-stage-input"
-                           data-mfg-step-to>
-                </div>
-            </div>
-        </div>
+        <input type="hidden" name="stage_number" value="{{ old('stage_number', $suggestedStage) }}">
 
         <div class="mfg-plan__add-stage-field mfg-plan__add-stage-field--url">
             <label for="mfg-stage-url">Treatment plan canvas link</label>
@@ -87,13 +39,13 @@
                        required
                        class="mfg-plan__add-stage-input">
             </div>
-            <span class="mfg-plan__add-stage-hint">Use the share link from the LineUp treatment plan viewer for this step range.</span>
+            <span class="mfg-plan__add-stage-hint">Use the share link from the LineUp treatment plan viewer for stage {{ $suggestedStage }}.</span>
         </div>
 
         <footer class="mfg-plan__add-stage-foot">
             <button type="submit" class="mfg-plan__add-stage-submit">
                 <i class="zmdi zmdi-cloud-upload" aria-hidden="true"></i>
-                Save stage &amp; send for review
+                Save stage {{ $suggestedStage }} &amp; send for review
             </button>
         </footer>
     </form>

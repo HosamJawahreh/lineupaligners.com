@@ -7,6 +7,7 @@ use App\Models\PatientCaseModification;
 use App\Rules\Scan3dFile;
 use App\Services\CasePhotoStorage;
 use App\Support\PhpUploadLimits;
+use App\Support\ScanZipExtractor;
 use App\Services\CaseWorkflowService;
 use App\Services\LineUpNotifier;
 use Illuminate\Http\RedirectResponse;
@@ -29,6 +30,8 @@ class PatientCaseModificationController extends Controller
         $this->authorize('requestModification', $patient);
 
         $stageNumber = $this->resolveModificationStageNumber($patient);
+
+        ScanZipExtractor::normalizeRequestFiles($request, ['upper_jaw_scan', 'lower_jaw_scan']);
 
         if (PhpUploadLimits::requestPayloadUnparsed($request)) {
             return $this->redirectToTab(

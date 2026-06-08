@@ -1,4 +1,4 @@
-@if(($canMarkManufactured ?? false) && $patient->isReadyForManufacturedMark())
+@if(($canMarkManufactured ?? false) && $patient->isReadyForManufacturedMark() && ! $patient->isDividedStages())
 <div class="mfg-plan__mod-banner mfg-plan__mod-banner--manufactured mfg-plan__mod-banner--under-canvas" role="status">
     <i class="zmdi zmdi-check-circle" aria-hidden="true"></i>
     <div>

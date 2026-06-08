@@ -168,26 +168,26 @@
         showContext($selects.first().val());
     }
 
-    function initStepRangeFields($root) {
-        $root.find('#mfg-step-from, #mfg-step-to').on('change input', function () {
-            var $from = $root.find('#mfg-step-from');
-            var $to = $root.find('#mfg-step-to');
-            if (!$from.length || !$to.length) {
+    function initManufacturingStepFields($root) {
+        $root.find('[data-mfg-manufacturing-step-from]').each(function () {
+            var $from = $(this);
+            var $form = $from.closest('form');
+            var $to = $form.find('[data-mfg-manufacturing-step-to]').first();
+
+            if (!$to.length) {
                 return;
             }
-            var fromVal = parseInt($from.val(), 10) || 1;
-            var toVal = parseInt($to.val(), 10) || fromVal;
-            if (toVal < fromVal) {
-                $to.val(fromVal);
-            }
-        });
 
-        $root.find('#mfg-step-from').on('change', function () {
-            var $from = $(this);
-            var $to = $root.find('#mfg-step-to');
-            if ($to.length && (!$to.val() || parseInt($to.val(), 10) < parseInt($from.val(), 10))) {
-                $to.val($from.val());
+            function syncTo() {
+                var fromVal = parseInt($from.val(), 10) || 1;
+                var toVal = parseInt($to.val(), 10) || fromVal;
+                if (toVal < fromVal) {
+                    $to.val(fromVal);
+                }
             }
+
+            $from.on('change input', syncTo);
+            $to.on('change input', syncTo);
         });
     }
 
@@ -201,7 +201,7 @@
         initStagePicker($root);
         initVersionPicker($root);
         initCycleVersionPicker(document);
-        initStepRangeFields($root);
+        initManufacturingStepFields($root);
 
     }
 

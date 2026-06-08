@@ -135,6 +135,8 @@ Route::middleware('auth')->group(function () {
             ->name('patients.treatment-plan.review');
         Route::post('patients/{patient}/mark-manufactured', [PatientManufacturingController::class, 'markManufactured'])
             ->name('patients.mark-manufactured');
+        Route::post('patients/{patient}/mark-stage-manufactured', [PatientManufacturingController::class, 'markStageManufactured'])
+            ->name('patients.mark-stage-manufactured');
         Route::post('patients/{patient}/modifications', [PatientCaseModificationController::class, 'store'])
             ->name('patients.modifications.store');
         Route::get('patients/{patient}/modifications/{modification}/scans/{scan}', [PatientCaseModificationController::class, 'downloadScan'])

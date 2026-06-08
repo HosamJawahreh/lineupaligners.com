@@ -286,9 +286,14 @@
         align-items: flex-start;
     }
 
+    .mfg-plan__canvas-wrap {
+        height: min(520px, 62vh);
+        min-height: 280px;
+    }
+
     .mfg-plan__canvas-wrap--with-actions {
-        height: min(420px, 52vh);
-        min-height: 240px;
+        height: min(480px, 58vh);
+        min-height: 260px;
     }
 
     .mfg-plan__card-head {

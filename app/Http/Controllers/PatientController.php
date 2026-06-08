@@ -11,6 +11,7 @@ use App\Services\CaseTimelineBuilder;
 use App\Services\LineUpNotifier;
 use App\Services\PatientCaseUpdateMailer;
 use App\Support\PhpUploadLimits;
+use App\Support\ScanZipExtractor;
 use App\Models\User;
 use App\Models\PatientPhoto;
 use App\Models\Setting;
@@ -106,6 +107,7 @@ class PatientController extends Controller
     {
         $this->authorize('create', Patient::class);
 
+        $this->normalizeScanUploads($request);
         $validated = $this->validatePatient($request);
         $this->assertScanRequirement($request);
         $data = $this->patientFields($validated);
@@ -359,6 +361,7 @@ class PatientController extends Controller
     {
         $this->authorize('update', $patient);
 
+        $this->normalizeScanUploads($request);
         $validated = $this->validatePatient($request, $patient);
         $this->assertScanRequirement($request, $patient);
         $data = $this->patientFields($validated);
@@ -381,6 +384,11 @@ class PatientController extends Controller
         $patient->delete();
 
         return redirect()->route('patients.index')->with('success', 'Patient removed successfully.');
+    }
+
+    private function normalizeScanUploads(Request $request): void
+    {
+        ScanZipExtractor::normalizeRequestFiles($request, ['upper_jaw_scan', 'lower_jaw_scan']);
     }
 
     private function validatePatient(Request $request, ?Patient $patient = null): array

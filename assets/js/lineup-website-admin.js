@@ -250,6 +250,15 @@
         });
     }
 
+    function initSaveUx() {
+        if ($('.alert-success, .alert.alert-success').length) {
+            var savebar = document.getElementById('website-save-actions');
+            if (savebar) {
+                savebar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    }
+
     $(function () {
         initSidebar();
         initRepeatable();
@@ -259,6 +268,7 @@
         initMainMenuManager();
         initNavigationLinks();
         initDirtyFormGuard();
+        initSaveUx();
     });
 
     function initDirtyFormGuard() {

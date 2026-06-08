@@ -97,17 +97,6 @@
                 <form method="post" action="{{ route('patients.treatment-plan.stage.store', $patient) }}" class="mfg-plan__form">
                     @csrf
                     <input type="hidden" name="stage_number" value="{{ $stageNum }}">
-                    @php $stagePlan = $patient->currentTreatmentPlanForStage($stageNum); @endphp
-                    <div class="mfg-plan__form-row">
-                        <div class="mfg-plan__field mfg-plan__field--narrow">
-                            <label for="mfg-ctx-mod-from-{{ $ctxKey }}">Steps from</label>
-                            <input type="number" id="mfg-ctx-mod-from-{{ $ctxKey }}" name="step_from" min="1" max="999" value="{{ $stagePlan->step_from ?? 1 }}" required>
-                        </div>
-                        <div class="mfg-plan__field mfg-plan__field--narrow">
-                            <label for="mfg-ctx-mod-to-{{ $ctxKey }}">Steps to</label>
-                            <input type="number" id="mfg-ctx-mod-to-{{ $ctxKey }}" name="step_to" min="1" max="999" value="{{ $stagePlan->step_to ?? 1 }}" required>
-                        </div>
-                    </div>
                     <div class="mfg-plan__field">
                         <label for="mfg-ctx-mod-url-{{ $ctxKey }}">Revised canvas link</label>
                         <input type="url" id="mfg-ctx-mod-url-{{ $ctxKey }}" name="plan_url" placeholder="https://…" required>
@@ -136,7 +125,6 @@
             if ($stageNumbers->isEmpty()) {
                 $suggestedStage = 1;
             }
-            $suggestedStepFrom = (int) (old('step_from', $stagePlans->max('step_to') ? $stagePlans->max('step_to') + 1 : 1));
             $canAddNewStage = $isActiveCtx && ($canUploadTreatmentPlan ?? false) && $patient->canAdminAddNewDividedStage();
             $reviewStage = $isActiveCtx ? $patient->doctorReviewStageNumber() : null;
             $addStageBlockedReason = null;
@@ -154,7 +142,7 @@
             <i class="zmdi zmdi-assignment-o" aria-hidden="true"></i>
             <p>No stage plans uploaded yet for {{ $ctx['label'] ?? 'this cycle' }}.</p>
             @if($isActiveCtx && ($canUploadTreatmentPlan ?? false))
-            <span class="mfg-plan__empty-hint">Start with stage 1 — define the step range and canvas link below.</span>
+            <span class="mfg-plan__empty-hint">Start with stage 1 — paste the canvas link below.</span>
             @endif
         </div>
         @if($isActiveCtx)
@@ -164,7 +152,6 @@
             'canAdd' => $canAddNewStage,
             'blockedReason' => $addStageBlockedReason,
             'suggestedStage' => $suggestedStage,
-            'suggestedStepFrom' => $suggestedStepFrom,
         ])
         @endif
         @else
@@ -188,8 +175,8 @@
                         aria-controls="mfg-stage-panel-{{ $ctxKey }}-{{ $plan->stage_number }}"
                         id="mfg-stage-tab-{{ $ctxKey }}-{{ $plan->stage_number }}">
                     <span class="mfg-plan__stage-btn-num">Stage {{ $plan->stage_number }}</span>
-                    @if($plan->hasStepRange())
-                    <span class="mfg-plan__stage-btn-range">{{ $plan->stepRangeLabel() }}</span>
+                    @if($plan->isManufactured() && $plan->manufacturedStepRangeLabel() !== '')
+                    <span class="mfg-plan__stage-btn-range">{{ $plan->manufacturedStepRangeLabel() }} mfg</span>
                     @endif
                     <span class="mfg-plan__stage-btn-status mfg-plan__status mfg-plan__status--{{ $plan->review_status }}">{{ $plan->reviewStatusLabel() }}</span>
                 </button>
@@ -225,6 +212,14 @@
                     'inStagePicker' => true,
                 ])
 
+                @if($isActiveCtx && $currentStagePlan && $ctxType === 'original')
+                @include('theme.pages.partials.case-manufacture-plan-stage-manufactured', [
+                    'patient' => $patient,
+                    'plan' => $currentStagePlan,
+                    'canMarkManufactured' => $canMarkManufactured ?? false,
+                ])
+                @endif
+
                 @if($isActiveCtx && $canUploadThisStage && $currentStagePlan?->isRejected())
                 <section class="mfg-plan__panel mfg-plan__panel--admin mfg-plan__panel--revision">
                     <h4 class="mfg-plan__panel-title"><i class="zmdi zmdi-refresh"></i> Submit revised plan (stage {{ $stageNum }})</h4>
@@ -232,16 +227,6 @@
                     <form method="post" action="{{ route('patients.treatment-plan.stage.store', $patient) }}" class="mfg-plan__form mfg-plan__form--revise">
                         @csrf
                         <input type="hidden" name="stage_number" value="{{ $stageNum }}">
-                        <div class="mfg-plan__form-row">
-                            <div class="mfg-plan__field mfg-plan__field--narrow">
-                                <label for="mfg-revise-from-{{ $ctxKey }}-{{ $stageNum }}">Steps from</label>
-                                <input type="number" id="mfg-revise-from-{{ $ctxKey }}-{{ $stageNum }}" name="step_from" min="1" max="999" value="{{ $currentStagePlan->step_from ?? 1 }}" required>
-                            </div>
-                            <div class="mfg-plan__field mfg-plan__field--narrow">
-                                <label for="mfg-revise-to-{{ $ctxKey }}-{{ $stageNum }}">Steps to</label>
-                                <input type="number" id="mfg-revise-to-{{ $ctxKey }}-{{ $stageNum }}" name="step_to" min="1" max="999" value="{{ $currentStagePlan->step_to ?? 1 }}" required>
-                            </div>
-                        </div>
                         <div class="mfg-plan__field">
                             <label for="mfg-revise-url-{{ $ctxKey }}-{{ $stageNum }}">Revised canvas link</label>
                             <input type="url" id="mfg-revise-url-{{ $ctxKey }}-{{ $stageNum }}" name="plan_url" placeholder="https://…" required>
@@ -256,16 +241,6 @@
                     <form method="post" action="{{ route('patients.treatment-plan.stage.store', $patient) }}" class="mfg-plan__form">
                         @csrf
                         <input type="hidden" name="stage_number" value="{{ $stageNum }}">
-                        <div class="mfg-plan__form-row">
-                            <div class="mfg-plan__field mfg-plan__field--narrow">
-                                <label for="mfg-mod-pending-from-{{ $ctxKey }}-{{ $stageNum }}">Steps from</label>
-                                <input type="number" id="mfg-mod-pending-from-{{ $ctxKey }}-{{ $stageNum }}" name="step_from" min="1" max="999" value="{{ $currentStagePlan->step_from ?? 1 }}" required>
-                            </div>
-                            <div class="mfg-plan__field mfg-plan__field--narrow">
-                                <label for="mfg-mod-pending-to-{{ $ctxKey }}-{{ $stageNum }}">Steps to</label>
-                                <input type="number" id="mfg-mod-pending-to-{{ $ctxKey }}-{{ $stageNum }}" name="step_to" min="1" max="999" value="{{ $currentStagePlan->step_to ?? 1 }}" required>
-                            </div>
-                        </div>
                         <div class="mfg-plan__field">
                             <label for="mfg-mod-pending-url-{{ $ctxKey }}-{{ $stageNum }}">Revised canvas link</label>
                             <input type="url" id="mfg-mod-pending-url-{{ $ctxKey }}-{{ $stageNum }}" name="plan_url" placeholder="https://…" required>
@@ -276,13 +251,26 @@
                 @elseif($isActiveCtx && $canUploadTreatmentPlan && $currentStagePlan?->isPending())
                 <p class="mfg-plan__locked-note"><i class="zmdi zmdi-lock"></i> Awaiting doctor review — upload is disabled until this stage is rejected.</p>
                 @elseif($isActiveCtx && $canUploadTreatmentPlan && $currentStagePlan?->isApproved() && ! $patient->hasActiveModificationFor($stageNum))
-                <p class="mfg-plan__locked-note mfg-plan__locked-note--ok"><i class="zmdi zmdi-check-circle"></i> This stage is approved. No further upload is needed until the doctor requests a modification.</p>
+                <p class="mfg-plan__locked-note mfg-plan__locked-note--ok"><i class="zmdi zmdi-check-circle"></i> This stage is approved. Mark it manufactured above when ready, or wait for the doctor to request a modification.</p>
                 @endif
             </div>
             @endforeach
         </div>
 
-        @if($isActiveCtx && ($patient->hasCompletedManufacturing() || (($canMarkManufactured ?? false) && $patient->isReadyForManufacturedMark())))
+        @php $mfgProgress = $patient->dividedManufacturingProgress(); @endphp
+        @if($isActiveCtx && $mfgProgress && ($mfgProgress['done'] > 0 || $patient->hasCompletedManufacturing()))
+        <div class="mfg-plan__mfg-progress" role="status" aria-label="Manufacturing progress">
+            <div class="mfg-plan__mfg-progress-head">
+                <span>Manufacturing progress</span>
+                <strong>{{ $mfgProgress['done'] }} / {{ $mfgProgress['total'] }} stages</strong>
+            </div>
+            <div class="mfg-plan__mfg-progress-bar" aria-hidden="true">
+                <span class="mfg-plan__mfg-progress-fill" style="width: {{ $mfgProgress['percent'] }}%"></span>
+            </div>
+        </div>
+        @endif
+
+        @if($isActiveCtx && $patient->hasCompletedManufacturing())
         @include('theme.pages.partials.case-manufacture-plan-manufactured-banner', [
             'patient' => $patient,
             'canMarkManufactured' => $canMarkManufactured ?? false,
@@ -296,7 +284,6 @@
             'canAdd' => $canAddNewStage,
             'blockedReason' => $addStageBlockedReason,
             'suggestedStage' => $suggestedStage,
-            'suggestedStepFrom' => $suggestedStepFrom,
         ])
         @endif
         @endif

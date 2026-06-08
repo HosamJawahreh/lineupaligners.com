@@ -22,7 +22,7 @@
         </div>
         @if($isDivided)
         <p class="mfg-plan__subtitle">
-            Each stage covers a step range (from–to) with its own viewer link. Every stage follows a full approve / modification cycle, like a full case.
+            Each stage has its own treatment plan link. The doctor reviews stages in order; manufacturing step numbers are recorded when you mark each stage as manufactured.
         </p>
         @endif
     </header>

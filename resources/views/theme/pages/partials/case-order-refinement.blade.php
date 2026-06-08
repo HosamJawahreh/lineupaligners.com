@@ -106,7 +106,7 @@
                             <label for="refinement-upper">Upper jaw 3D file <span class="case-modification-card__optional">optional</span></label>
                             <div class="case-modification-card__file-wrap">
                                 <span class="case-modification-card__file-icon" aria-hidden="true"><i class="zmdi zmdi-file"></i></span>
-                                <input type="file" id="refinement-upper" name="upper_jaw_scan" accept=".stl,.obj,.ply">
+                                <input type="file" id="refinement-upper" name="upper_jaw_scan" accept=".stl,.obj,.ply,.zip">
                             </div>
                             <span class="case-modification-card__hint">STL, OBJ, or PLY — upload when you have a new upper scan.</span>
                         </div>
@@ -114,7 +114,7 @@
                             <label for="refinement-lower">Lower jaw 3D file <span class="case-modification-card__optional">optional</span></label>
                             <div class="case-modification-card__file-wrap">
                                 <span class="case-modification-card__file-icon" aria-hidden="true"><i class="zmdi zmdi-file"></i></span>
-                                <input type="file" id="refinement-lower" name="lower_jaw_scan" accept=".stl,.obj,.ply">
+                                <input type="file" id="refinement-lower" name="lower_jaw_scan" accept=".stl,.obj,.ply,.zip">
                             </div>
                             <span class="case-modification-card__hint">STL, OBJ, or PLY — upload when you have a new lower scan.</span>
                         </div>
