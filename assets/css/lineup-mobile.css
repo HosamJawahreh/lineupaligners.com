@@ -193,10 +193,10 @@ body.lineup-app.overlay-open .lineup-topbar-btn-menu--drawer .lineup-topbar-menu
     /* Drawer nav — dashboard-style card items */
     body.lineup-app.overlay-open #leftsidebar.lineup-sidebar .lineup-nav {
         margin: 0;
-        padding: 12px 14px 20px;
+        padding: 10px 12px 16px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
     }
 
     body.lineup-app.overlay-open #leftsidebar.lineup-sidebar .lineup-nav > li {
@@ -207,10 +207,10 @@ body.lineup-app.overlay-open .lineup-topbar-btn-menu--drawer .lineup-topbar-menu
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
-        gap: 12px;
-        min-height: 52px;
-        padding: 10px 12px;
-        font-size: 14px;
+        gap: 10px;
+        min-height: 44px;
+        padding: 8px 10px;
+        font-size: 13px;
         font-weight: 600;
         text-align: left;
         color: #1a1a2e;
@@ -233,10 +233,10 @@ body.lineup-app.overlay-open .lineup-topbar-btn-menu--drawer .lineup-topbar-menu
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 42px;
-        height: 42px;
+        width: 36px;
+        height: 36px;
         margin-bottom: 0;
-        font-size: 22px;
+        font-size: 18px;
         line-height: 1;
         flex-shrink: 0;
         border-radius: 10px;
@@ -397,8 +397,12 @@ body.lineup-app.overlay-open .lineup-topbar-btn-menu--drawer .lineup-topbar-menu
     }
 
     body.lineup-app .lineup-topbar .lineup-topbar-btn-signout {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
+    }
+
+    body.lineup-app .lineup-topbar .lineup-topbar-btn-signout i {
+        font-size: 15px;
     }
 }
 

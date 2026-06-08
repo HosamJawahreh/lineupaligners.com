@@ -7,7 +7,7 @@ body.lineup-app {
     --lineup-skin: #00cfd1;
     --lineup-icon-muted: #6b7280;
     --lineup-icon-nav-size: 33px;
-    --lineup-icon-topbar-size: 28px;
+    --lineup-icon-topbar-size: 22px;
 }
 
 /* Theme skin colors apply to loader, navbar, buttons via color_skins.css */
