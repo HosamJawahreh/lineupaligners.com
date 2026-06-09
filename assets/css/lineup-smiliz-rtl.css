@@ -350,24 +350,6 @@
     margin-left: 0;
 }
 
-/* Footer decorative image */
-.lineup-smiliz-site--rtl .site-footer::after {
-    right: auto;
-    left: 0;
-    background-position: left bottom;
-}
-
-.lineup-smiliz-site--rtl .site-footer .pbmit-footer-text-inner {
-    padding-right: 0;
-    padding-left: clamp(0px, 12vw, 200px);
-}
-
-@media (max-width: 767px) {
-    .lineup-smiliz-site--rtl .site-footer .pbmit-footer-text-inner {
-        padding-left: 0;
-    }
-}
-
 /* Utilities */
 .lineup-smiliz-site--rtl .lineup-skip-link {
     left: auto;

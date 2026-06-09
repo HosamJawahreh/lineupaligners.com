@@ -82,7 +82,7 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/lineup-performance.css') }}?v=1">
 
-    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-overrides.css') }}?v=84">
+    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-overrides.css') }}?v=85">
 
     <link rel="stylesheet" href="{{ asset('assets/css/lineup-brand-system.css') }}?v=3">
 
@@ -92,7 +92,7 @@
 
     @if(($websiteDir ?? 'ltr') === 'rtl')
 
-    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-rtl.css') }}?v=5">
+    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-rtl.css') }}?v=6">
 
     @endif
 

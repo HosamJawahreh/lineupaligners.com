@@ -127,7 +127,7 @@
                     <i class="zmdi zmdi-time" aria-hidden="true"></i>
                     <p>A modification is in progress. LineUp will upload a revised plan for you to review. After you approve it, the case continues toward manufacturing — refinement is only available after LineUp marks the case as manufactured.</p>
                 </div>
-                @elseif($hasWorkflowPermission && ! $canRequestNow && $reviewStage && ! $patient->hasActiveRefinement())
+                @elseif($hasWorkflowPermission && ! $canRequestNow && $reviewStage)
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
                     <p>A treatment plan is pending your approval on the <strong>Treatment Plan</strong> tab. You can request a modification here before approving when the case is eligible.</p>
@@ -144,12 +144,7 @@
                 </div>
                 @endif
             @else
-                @if($patient->hasActiveRefinement())
-                <div class="case-modification__notice case-modification__notice--info">
-                    <i class="zmdi zmdi-lock" aria-hidden="true"></i>
-                    <p>Modifications are closed while a <strong>refinement cycle</strong> is in progress. Review the refinement plan on the <strong>Treatment Plan</strong> tab. After the doctor approves it, use <strong>Order Refinement</strong> for the next cycle when needed.</p>
-                </div>
-                @elseif($awaitingPlan)
+                @if($awaitingPlan)
                 <div class="case-modification__notice case-modification__notice--pending">
                     <i class="zmdi zmdi-time" aria-hidden="true"></i>
                     <p>A modification is in progress. Upload the revised plan on the <strong>Treatment Plan</strong> tab. The assigned doctor will review it when ready.</p>

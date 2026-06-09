@@ -824,33 +824,16 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
     filter: none;
 }
 
-/* Footer — flat white (match header) with Smiliz tooth illustration bottom-right */
+/* Footer — flat white (match header) */
 .lineup-smiliz-site .site-footer,
 .lineup-smiliz-site .site-footer.pbmit-bg-color-white {
     position: relative;
     background-color: #ffffff !important;
-    overflow: hidden;
 }
 
-.lineup-smiliz-site .site-footer::before {
-    display: none;
-}
-
+.lineup-smiliz-site .site-footer::before,
 .lineup-smiliz-site .site-footer::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    width: 244px;
-    height: 262px;
-    max-width: min(244px, 42vw);
-    max-height: min(262px, 38vw);
-    background-image: url(../smiliz/images/bg/footer-bg.png);
-    background-repeat: no-repeat;
-    background-position: right bottom;
-    background-size: contain;
-    pointer-events: none;
-    z-index: 0;
+    display: none !important;
 }
 
 .lineup-smiliz-site .site-footer .pbmit-footer-big-area-wrapper,
@@ -859,28 +842,6 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 .lineup-smiliz-site .site-footer .footer-wrap,
 .lineup-smiliz-site .site-footer .pbmit-footer-big-area {
     background: transparent !important;
-}
-
-.lineup-smiliz-site .site-footer .pbmit-footer-text-area {
-    position: relative;
-    z-index: 1;
-}
-
-.lineup-smiliz-site .site-footer .pbmit-footer-text-inner {
-    padding-right: clamp(0px, 12vw, 200px);
-}
-
-@media (max-width: 767px) {
-    .lineup-smiliz-site .site-footer::after {
-        width: 160px;
-        height: 172px;
-        opacity: 0.85;
-    }
-
-    .lineup-smiliz-site .site-footer .pbmit-footer-text-inner {
-        padding-right: 0;
-        padding-bottom: 120px;
-    }
 }
 
 .lineup-smiliz-site .pbmit-slider-one .pbmit-slider-subtitle {

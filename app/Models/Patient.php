@@ -638,16 +638,12 @@ class Patient extends Model
     }
 
     /**
-     * Doctor may request modification on the current pending stage (before approve)
-     * or on an approved stage to start a new modification cycle.
+     * Doctor may request modification while the active case cycle is not yet manufactured:
+     * from the first treatment plan upload (pending or approved) until LineUp marks manufactured.
      */
     public function canRequestModification(?int $stageNumber = null): bool
     {
         if ($this->hasCompletedManufacturing()) {
-            return false;
-        }
-
-        if ($this->hasActiveRefinement()) {
             return false;
         }
 
