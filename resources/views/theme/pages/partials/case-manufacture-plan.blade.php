@@ -20,11 +20,6 @@
             @endif
             <span class="mfg-plan__type-badge">{{ $patient->caseTypeLabel() }}</span>
         </div>
-        @if($isDivided)
-        <p class="mfg-plan__subtitle">
-            Each stage has its own treatment plan link. The doctor reviews stages in order; manufacturing step numbers are recorded when you mark each stage as manufactured.
-        </p>
-        @endif
     </header>
 
     @if($contexts === [])

@@ -31,27 +31,21 @@ class PatientCaseModificationController extends Controller
 
         $request->request->remove('stage_number');
 
-        $stageNumber = $this->resolveModificationStageNumber($patient);
-
         ScanZipExtractor::normalizeRequestFiles($request, ['upper_jaw_scan', 'lower_jaw_scan']);
 
         if (PhpUploadLimits::requestPayloadUnparsed($request)) {
             return $this->redirectToTab(
                 $patient,
                 PhpUploadLimits::uploadTooLargeMessage(),
-                'error',
-                $stageNumber
+                'error'
             );
         }
 
-        if (! $patient->canRequestModification($stageNumber)) {
+        if (! $patient->canRequestModification()) {
             return $this->redirectToTab(
                 $patient,
-                $patient->isDividedStages()
-                    ? 'You can request a modification on the current pending stage before approval, or on an approved stage when no modification is already in progress.'
-                    : 'You can request a modification on the current pending plan before approval, or on an approved plan when no modification is already in progress.',
-                'error',
-                $stageNumber
+                'You can request a modification on the current pending plan before approval, or on an approved plan when no modification is already in progress.',
+                'error'
             );
         }
 
@@ -67,27 +61,23 @@ class PatientCaseModificationController extends Controller
             'photos.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:'.CasePhotoStorage::MAX_KB],
         ]);
 
-        $plan = $patient->isDividedStages()
-            ? $patient->currentTreatmentPlanForStage($stageNumber)
-            : $patient->currentFullTreatmentPlan();
+        $plan = $patient->currentFullTreatmentPlan();
 
-        DB::transaction(function () use ($patient, $request, $validated, $stageNumber, $plan) {
+        DB::transaction(function () use ($patient, $request, $validated, $plan) {
             PatientCaseModification::query()
                 ->where('patient_id', $patient->id)
                 ->where('is_current', true)
-                ->when($stageNumber === null, fn ($q) => $q->whereNull('stage_number'))
-                ->when($stageNumber !== null, fn ($q) => $q->where('stage_number', $stageNumber))
+                ->whereNull('stage_number')
                 ->update(['is_current' => false]);
 
             $version = (int) PatientCaseModification::query()
                 ->where('patient_id', $patient->id)
-                ->when($stageNumber === null, fn ($q) => $q->whereNull('stage_number'))
-                ->when($stageNumber !== null, fn ($q) => $q->where('stage_number', $stageNumber))
+                ->whereNull('stage_number')
                 ->max('version') + 1;
 
             $modification = PatientCaseModification::create([
                 'patient_id' => $patient->id,
-                'stage_number' => $stageNumber,
+                'stage_number' => null,
                 'version' => max(1, $version),
                 'is_current' => true,
                 'notes' => trim((string) ($validated['notes'] ?? '')),
@@ -110,13 +100,10 @@ class PatientCaseModificationController extends Controller
 
         app(LineUpNotifier::class)->modificationRequested($patient, auth()->user());
 
-        $scope = $stageNumber !== null ? "stage {$stageNumber}" : 'this case';
-
         return $this->redirectToTab(
             $patient,
-            "Modification request submitted for {$scope}. LineUp will upload a revised plan for your review.",
-            'success',
-            $stageNumber
+            'Modification request submitted. LineUp will upload a revised plan for your review.',
+            'success'
         );
     }
 
@@ -180,28 +167,14 @@ class PatientCaseModificationController extends Controller
         ]);
     }
 
-    protected function resolveModificationStageNumber(Patient $patient): ?int
-    {
-        return null;
-    }
-
     protected function redirectToTab(
         Patient $patient,
         string $message,
-        string $type = 'success',
-        ?int $activeStage = null
+        string $type = 'success'
     ): RedirectResponse {
-        $redirect = redirect()
+        return redirect()
             ->route('patients.show', $patient)
-            ->with($type, $message);
-
-        if ($patient->isDividedStages() && $activeStage !== null) {
-            $redirect->with('open_tab', 'manufacture-plan')
-                ->with('mfg_active_stage', $activeStage);
-        } else {
-            $redirect->with('open_tab', 'modification');
-        }
-
-        return $redirect;
+            ->with($type, $message)
+            ->with('open_tab', 'modification');
     }
 }

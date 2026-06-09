@@ -87,7 +87,7 @@ class CaseWorkflowService
             if ($reviewedPlan->refinement_id) {
                 $this->closeActiveRefinementsForScope($patient);
             } else {
-                $this->closeActiveModificationsForScope($patient, $reviewedPlan->stage_number);
+                $this->closeActiveModificationsForScope($patient, null);
             }
         }
 
