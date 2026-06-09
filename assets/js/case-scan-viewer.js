@@ -1457,8 +1457,50 @@ if (root && canvas) {
         entry.object.position.set(0, 0, 0);
     }
 
-    /** Min score to trust pre-registered upper/lower pairs (same as Trimesh / scanner export). */
-    const REGISTERED_BITE_MIN_SCORE = 0;
+    /**
+     * Upper/lower exported together (iTero, 3Shape, Medit, etc.) share scanner coordinates.
+     * Detect that relationship before any heuristic re-orientation.
+     */
+    function isPreRegisteredPair(upper, lower) {
+        resetArchToFileState(upper);
+        resetArchToFileState(lower);
+        lower.wrapper.updateMatrixWorld(true);
+        upper.wrapper.updateMatrixWorld(true);
+
+        const reg = measureRegisteredBite(upper, lower);
+
+        if (reg.upperAbove === false) {
+            return false;
+        }
+
+        if (reg.overlap >= 0.22) {
+            return true;
+        }
+
+        if (reg.score >= 12 && reg.overlap >= 0.1) {
+            return true;
+        }
+
+        const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
+        const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
+        const lowerCenter = lowerBox.getCenter(new THREE.Vector3());
+        const upperCenter = upperBox.getCenter(new THREE.Vector3());
+
+        if (upperCenter.y <= lowerCenter.y) {
+            return false;
+        }
+
+        const xzOffset = Math.hypot(upperCenter.x - lowerCenter.x, upperCenter.z - lowerCenter.z);
+        const archSpan = Math.max(
+            lowerBox.max.x - lowerBox.min.x,
+            upperBox.max.x - upperBox.min.x,
+            lowerBox.max.z - lowerBox.min.z,
+            upperBox.max.z - upperBox.min.z,
+            1
+        );
+
+        return xzOffset <= archSpan * 0.16 && reg.overlap >= 0.06;
+    }
 
     function getBoxOverlapOnAxes(boxA, boxB, axis1, axis2) {
         const overlap1 = Math.max(
@@ -1736,7 +1778,10 @@ if (root && canvas) {
         biteGroup.updateMatrixWorld(true);
     }
 
-    /** Trimesh-style: preserve scanner registration, rotate the pair as one group. */
+    /**
+     * Clinical bite from scanner export: keep upper/lower registration exactly as captured.
+     * Only rotate the pair as one unit for a front-facing presentation — never force occlusion.
+     */
     function stackRegisteredBite(upper, lower) {
         resetArchToFileState(upper);
         resetArchToFileState(lower);
@@ -1745,11 +1790,9 @@ if (root && canvas) {
 
         alignRegisteredBiteUpAxis(upper, lower);
         correctRegisteredBitePitch(upper, lower);
-        forceCloseRegisteredGap(upper, lower);
         recenterBiteGroupLocally();
 
         refineBiteGroupFrontYaw(upper, lower);
-        forceCloseRegisteredGap(upper, lower);
         recenterBiteGroupLocally();
     }
 
@@ -2275,11 +2318,17 @@ if (root && canvas) {
             upperBox.getSize(new THREE.Vector3()).y,
             40
         );
-        const maxPenetration = archHeight * 0.012;
-        const targetGap = 0;
+        const maxPenetration = archHeight * 0.006;
+        const openBiteThreshold = archHeight * 0.04;
 
-        if (gap > targetGap + 0.05) {
-            upper.wrapper.position.y -= gap - targetGap;
+        // Preserve open bites and real inter-arch spacing from the scan.
+        if (gap > openBiteThreshold) {
+            return;
+        }
+
+        if (gap > 0.05) {
+            const settle = Math.min(gap, archHeight * 0.015);
+            upper.wrapper.position.y -= settle;
         } else if (gap < -maxPenetration) {
             upper.wrapper.position.y -= gap + maxPenetration;
         }
@@ -2319,7 +2368,7 @@ if (root && canvas) {
 
         let score = 0;
         score += horizontal * 10;
-        score += xzOverlap * 8;
+        score += xzOverlap * 14;
         score += lowerFacing * 3 + upperFacing * 3;
         score += frontalScore * 0.6;
 
@@ -2329,10 +2378,12 @@ if (root && canvas) {
             score -= Math.abs(stackRatio - 0.72) * 6;
         }
 
-        if (gap >= -archHeight * 0.02 && gap <= archHeight * 0.06) {
+        if (gap >= -archHeight * 0.02 && gap <= archHeight * 0.08) {
             score += 5;
-        } else if (gap > archHeight * 0.06) {
-            score -= gap * 4;
+        } else if (gap > archHeight * 0.08 && gap <= archHeight * 0.2) {
+            score += 2;
+        } else if (gap > archHeight * 0.2) {
+            score -= (gap - archHeight * 0.2) * 2;
         } else {
             score -= Math.abs(gap) * 12;
         }
@@ -2437,9 +2488,7 @@ if (root && canvas) {
         ensureMeshNormals(lower.object);
         ensureMeshNormals(upper.object);
 
-        const registered = measureRegisteredBite(upper, lower);
-
-        if (registered.overlap >= 0.18 || registered.score >= 10) {
+        if (isPreRegisteredPair(upper, lower)) {
             stackRegisteredBite(upper, lower);
         } else {
             stackAutoOrientedBite(upper, lower);
