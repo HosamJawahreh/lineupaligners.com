@@ -149,7 +149,12 @@ class Patient extends Model
      */
     public function refinementIdPendingManufacture(): ?int
     {
-        if ($this->hasCompletedManufacturing() || ! Schema::hasTable('patient_case_refinements')) {
+        if (! Schema::hasTable('patient_case_refinements')) {
+            return null;
+        }
+
+        // Do not call hasCompletedManufacturing() — it uses hasActiveRefinement() which calls this method.
+        if ($this->manufactured_at !== null || $this->workflowStageKey() === 'manufactured') {
             return null;
         }
 
