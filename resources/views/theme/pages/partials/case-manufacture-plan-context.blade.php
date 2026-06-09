@@ -23,7 +23,7 @@
             @endif
         </div>
     </div>
-    @elseif($isActiveCtx && $ctxType === 'modification')
+    @elseif($isActiveCtx && $ctxType === 'original' && $patient->hasActiveModificationFor(null))
     <div class="mfg-plan__mod-banner" role="status">
         <i class="zmdi zmdi-refresh-sync" aria-hidden="true"></i>
         <div>
@@ -33,77 +33,7 @@
     </div>
     @endif
 
-    @if($ctxType === 'modification')
-        @php
-            $mod = $ctx['modification'] ?? null;
-            $planUrl = $ctx['plan_url'] ?? null;
-            $linkedPlan = $ctx['treatment_plan'] ?? null;
-            $reviewStatus = $ctx['review_status'] ?? 'pending';
-            $statusClass = match ($reviewStatus) {
-                'approved' => 'is-approved',
-                'rejected' => 'is-rejected',
-                default => 'is-pending',
-            };
-        @endphp
-        @if(filled($planUrl))
-        <article class="mfg-plan__card {{ $statusClass }}">
-            <header class="mfg-plan__card-head">
-                <div>
-                    <h4 class="mfg-plan__card-title">{{ $ctx['label'] ?? 'Modification plan' }}</h4>
-                    <span class="mfg-plan__status mfg-plan__status--{{ $reviewStatus }}">{{ ucfirst($reviewStatus) }}</span>
-                </div>
-            </header>
-            @if($linkedPlan && $isActiveCtx && ($canReviewTreatmentPlan ?? false) && $linkedPlan->isPending() && $linkedPlan->is_current)
-            @include('theme.pages.partials.case-manufacture-plan-doctor-actions', [
-                'plan' => $linkedPlan,
-                'patient' => $patient,
-                'canReview' => $canReviewTreatmentPlan ?? false,
-                'isHistorical' => false,
-            ])
-            @endif
-            <div class="mfg-plan__canvas-wrap @if($linkedPlan && $isActiveCtx && ($canReviewTreatmentPlan ?? false) && $linkedPlan->isPending() && $linkedPlan->is_current) mfg-plan__canvas-wrap--with-actions @endif">
-                <iframe src="{{ $planUrl }}"
-                        title="{{ $ctx['label'] ?? 'Modification' }} treatment plan"
-                        class="mfg-plan__canvas"
-                        loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade"
-                        allowfullscreen></iframe>
-            </div>
-        </article>
-        @elseif($isActiveCtx)
-        <div class="mfg-plan__empty">
-            <i class="zmdi zmdi-time" aria-hidden="true"></i>
-            <p>Awaiting revised plan upload for {{ $ctx['label'] ?? 'this modification' }}.</p>
-            @if($canUploadTreatmentPlan ?? false)
-            <span class="mfg-plan__empty-hint">Paste the canvas link below when ready.</span>
-            @endif
-        </div>
-        @else
-        <div class="mfg-plan__empty">
-            <i class="zmdi zmdi-assignment" aria-hidden="true"></i>
-            <p>No revised plan was uploaded for {{ $ctx['label'] ?? 'this modification' }}.</p>
-        </div>
-        @endif
-
-        @if($isActiveCtx && ($canUploadTreatmentPlan ?? false) && $mod)
-            @php $canUploadMod = $patient->canAdminUploadFullTreatmentPlan(); @endphp
-            @if($canUploadMod)
-            <section class="mfg-plan__panel mfg-plan__panel--admin mfg-plan__panel--revision">
-                <h4 class="mfg-plan__panel-title"><i class="zmdi zmdi-link"></i> Upload revised plan after modification</h4>
-                <p class="mfg-plan__panel-desc">The doctor requested changes. Upload the updated canvas link for review.</p>
-                <form method="post" action="{{ route('patients.treatment-plan.store', $patient) }}" class="mfg-plan__form">
-                    @csrf
-                    <div class="mfg-plan__field">
-                        <label for="mfg-ctx-mod-url-full-{{ $ctxKey }}">Treatment plan canvas link</label>
-                        <input type="url" id="mfg-ctx-mod-url-full-{{ $ctxKey }}" name="plan_url" placeholder="https://viewer.lineup.com/…" required>
-                    </div>
-                    <button type="submit" class="mfg-plan__btn mfg-plan__btn--primary">Submit revised plan for review</button>
-                </form>
-            </section>
-            @endif
-        @endif
-    @else
-        @php
+    @php
             $visibleFullPlans = $ctx['visible_full_plans'] ?? collect();
             $fullPlan = $ctx['full_plan'] ?? null;
             $canUploadFull = $isActiveCtx && ($canAdminUploadFullPlan ?? false) && ($canUploadTreatmentPlan ?? false);
@@ -185,5 +115,4 @@
             'canMarkManufactured' => $canMarkManufactured ?? false,
         ])
         @endif
-    @endif
 </div>

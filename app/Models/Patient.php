@@ -901,7 +901,9 @@ class Patient extends Model
     }
 
     /**
-     * Treatment plan contexts for the version switcher (original, modifications, refinements).
+     * Treatment plan contexts for the version switcher (original case plan and refinement cycles).
+     *
+     * Modifications revise the same treatment plan in place — they do not get their own context.
      *
      * @return list<array<string, mixed>>
      */
@@ -920,7 +922,7 @@ class Patient extends Model
             'Original case plan',
             'original',
             $latestOriginalAt ? \Carbon\Carbon::parse($latestOriginalAt) : ($this->created_at ?? now()),
-            ! $this->hasActiveRefinement() && ! $this->hasActiveModificationForAny(),
+            ! $this->hasActiveRefinement(),
             [
                 'visible_full_plans' => $originalFullPlans,
                 'full_plan' => $this->originalCycleFullTreatmentPlan(),
@@ -928,40 +930,6 @@ class Patient extends Model
                 'stage_numbers' => $originalStageNumbers,
             ]
         );
-
-        if (Schema::hasTable('patient_case_modifications')) {
-            foreach ($this->caseModifications()->with('treatmentPlan')->orderBy('version')->get() as $mod) {
-                if (! $mod->is_current && ! $mod->hasRevisedPlan()) {
-                    continue;
-                }
-
-                $linkedPlan = $mod->treatmentPlan;
-                $planUrl = $mod->hasRevisedPlan()
-                    ? $mod->revised_plan_url
-                    : ($linkedPlan?->plan_url);
-                $reviewStatus = $mod->is_current && $linkedPlan?->is_current
-                    ? $linkedPlan->review_status
-                    : ($mod->hasRevisedPlan() ? 'approved' : 'pending');
-
-                $contexts[] = $this->buildTreatmentPlanContext(
-                    'mod-'.$mod->id,
-                    $mod->scopeLabel(),
-                    'modification',
-                    $mod->hasRevisedPlan()
-                        ? ($mod->updated_at ?? $mod->created_at ?? now())
-                        : ($mod->created_at ?? now()),
-                    $mod->is_current,
-                    [
-                        'modification_id' => $mod->id,
-                        'modification' => $mod,
-                        'plan_url' => $planUrl,
-                        'review_status' => $reviewStatus,
-                        'treatment_plan' => $mod->is_current ? $linkedPlan : null,
-                        'stage_number' => $mod->stage_number,
-                    ]
-                );
-            }
-        }
 
         if (Schema::hasTable('patient_case_refinements')) {
             foreach ($this->caseRefinements()->orderBy('version')->get() as $ref) {
