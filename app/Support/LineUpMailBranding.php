@@ -144,10 +144,10 @@ class LineUpMailBranding
         $detail = trim($detail);
 
         if ($patientName !== '' && stripos($detail, $patientName) === false) {
-            return self::subjectPrefix($patientName.' — '.$detail);
+            return $patientName.' — '.$detail;
         }
 
-        return self::subjectPrefix($detail);
+        return $detail;
     }
 
     public static function absoluteUrl(?string $url): ?string
