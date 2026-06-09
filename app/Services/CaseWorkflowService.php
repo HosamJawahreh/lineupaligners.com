@@ -219,6 +219,15 @@ class CaseWorkflowService
 
                 return;
             }
+
+            if ($plan->isPending()) {
+                $patient->update([
+                    'case_workflow_stage' => 'waiting_plan',
+                    'status' => 'pending',
+                ]);
+
+                return;
+            }
         }
 
         $plan = $patient->currentFullTreatmentPlan();

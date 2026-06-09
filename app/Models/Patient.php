@@ -919,7 +919,7 @@ class Patient extends Model
 
         $contexts[] = $this->buildTreatmentPlanContext(
             'original',
-            'Original case plan',
+            'Version #1',
             'original',
             $latestOriginalAt ? \Carbon\Carbon::parse($latestOriginalAt) : ($this->created_at ?? now()),
             ! $this->hasActiveRefinement(),
@@ -1186,6 +1186,12 @@ class Patient extends Model
 
     public function planReviewOverlay(): ?string
     {
+        $fullPlan = $this->currentFullTreatmentPlan();
+
+        if ($fullPlan) {
+            return $fullPlan->review_status;
+        }
+
         if ($this->isDividedStages()) {
             $stages = $this->currentStageTreatmentPlans();
             if ($stages->isEmpty()) {
@@ -1201,12 +1207,7 @@ class Patient extends Model
             return 'pending';
         }
 
-        $plan = $this->currentFullTreatmentPlan();
-        if (! $plan) {
-            return null;
-        }
-
-        return $plan->review_status;
+        return null;
     }
 
     public function workflowStageKey(): string
@@ -1228,6 +1229,10 @@ class Patient extends Model
         $overlay = $this->planReviewOverlay();
 
         if ($internal === 'waiting_plan' && in_array($overlay, ['pending', 'rejected'], true)) {
+            return 'case_status';
+        }
+
+        if ($internal === 'modification' && $overlay === 'pending') {
             return 'case_status';
         }
 
