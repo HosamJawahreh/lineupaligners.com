@@ -160,7 +160,13 @@
                     <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
                     <p>
                         @if($patient->hasActiveModificationForAny())
-                            Refinement opens after the current modification is complete and LineUp marks the case as <strong>Manufactured</strong>.
+                            @if($patient->isDividedStages())
+                                Refinement opens after the current modification is complete and LineUp marks manufacturing <strong>stage 1</strong> as complete.
+                            @else
+                                Refinement opens after the current modification is complete and LineUp marks the case as <strong>Manufactured</strong>.
+                            @endif
+                        @elseif($patient->isDividedStages() && $patient->manufacturingStageRecord(1) === null)
+                            Refinement is available after LineUp marks manufacturing <strong>stage 1</strong> complete on the Treatment Plan tab.
                         @elseif(! $patient->hasCompletedManufacturing())
                             Refinement is available only after LineUp marks the case as <strong>Manufactured</strong> on the Treatment Plan tab.
                         @else

@@ -45,6 +45,12 @@ class CaseWorkflowService
 
     public function afterModificationRequested(Patient $patient): void
     {
+        // Modifications apply to Version #1 only — close any refinement cycle that was re-opened in error.
+        PatientCaseRefinement::query()
+            ->where('patient_id', $patient->id)
+            ->where('is_current', true)
+            ->update(['is_current' => false]);
+
         $patient->update([
             'case_workflow_stage' => 'modification',
             'status' => 'pending',
@@ -111,6 +117,16 @@ class CaseWorkflowService
     public function syncFromPlans(Patient $patient): void
     {
         $patient->refresh();
+
+        if ($patient->hasActiveModificationForAny()) {
+            if ($patient->isDividedStages()) {
+                $this->syncDividedStages($patient);
+            } else {
+                $this->syncFullCase($patient);
+            }
+
+            return;
+        }
 
         if ($patient->hasActiveRefinement()) {
             $this->syncRefinementCycle($patient);

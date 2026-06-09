@@ -137,6 +137,11 @@ class Patient extends Model
 
     public function activeRefinementId(): ?int
     {
+        // Modifications always revise Version #1 — never scope to a refinement cycle.
+        if ($this->hasActiveModificationForAny()) {
+            return null;
+        }
+
         if ($current = $this->currentRefinement()) {
             return $current->id;
         }
@@ -180,6 +185,10 @@ class Patient extends Model
             return;
         }
 
+        if ($this->hasActiveModificationForAny()) {
+            return;
+        }
+
         $pendingId = $this->refinementIdPendingManufacture();
 
         if ($pendingId === null) {
@@ -212,6 +221,10 @@ class Patient extends Model
     /** Treatment plans for the active case or refinement cycle. */
     public function treatmentPlansQuery()
     {
+        if ($this->hasActiveModificationForAny()) {
+            return $this->originalCycleTreatmentPlansQuery();
+        }
+
         $refinementId = $this->activeRefinementId();
 
         if ($refinementId) {
@@ -439,6 +452,18 @@ class Patient extends Model
         return $last !== null ? (int) $last : null;
     }
 
+    /** Latest manufacturing batch recorded for divided-stage cases (shared-plan step ranges). */
+    public function lastRecordedManufacturingStageNumber(): ?int
+    {
+        if (! $this->isDividedStages()) {
+            return null;
+        }
+
+        $max = $this->manufacturingStagesForScope()->max('stage_number');
+
+        return $max !== null ? (int) $max : null;
+    }
+
     public function nextStageReadyForManufacturedMark(): ?int
     {
         if (! $this->isDividedStages()) {
@@ -451,6 +476,12 @@ class Patient extends Model
             if ($this->isStageReadyForManufacturedMark($stageNumber)) {
                 return $stageNumber;
             }
+        }
+
+        $nextBatch = $this->nextManufacturingStageNumber();
+
+        if ($this->isStageReadyForManufacturedMark($nextBatch)) {
+            return $nextBatch;
         }
 
         return null;
@@ -468,6 +499,10 @@ class Patient extends Model
 
         if ($this->hasActiveModificationForAny()) {
             return false;
+        }
+
+        if ($this->isDividedStages()) {
+            return $this->manufacturingStageRecord(1) !== null;
         }
 
         return $this->hasCompletedManufacturing();
@@ -774,9 +809,15 @@ class Patient extends Model
 
     public function shouldShowRefinementInProgressBar(): bool
     {
-        return $this->hasCompletedManufacturing()
-            || $this->hasActiveRefinement()
-            || $this->hasRefinementHistory();
+        if ($this->hasActiveRefinement() || $this->hasRefinementHistory()) {
+            return true;
+        }
+
+        if ($this->hasCompletedManufacturing()) {
+            return true;
+        }
+
+        return $this->isDividedStages() && $this->manufacturingStageRecord(1) !== null;
     }
 
     /**
@@ -789,11 +830,15 @@ class Patient extends Model
             return false;
         }
 
+        if ($this->hasActiveRefinement()) {
+            return false;
+        }
+
         if ($this->hasActiveModificationFor($stageNumber)) {
             return false;
         }
 
-        $plan = $this->currentFullTreatmentPlan();
+        $plan = $this->originalCycleFullTreatmentPlan() ?? $this->currentFullTreatmentPlan();
 
         if ($plan === null || ! $plan->is_current) {
             return false;
@@ -825,6 +870,14 @@ class Patient extends Model
     {
         $candidates = $this->caseScanSetCandidates();
         $keys = array_column($candidates, 'key');
+
+        if ($modification = $this->currentModification(null)) {
+            $modKey = 'mod-'.$modification->id;
+
+            if (in_array($modKey, $keys, true)) {
+                return $modKey;
+            }
+        }
 
         if ($refinement = $this->currentRefinement()) {
             $activeKey = 'ref-'.$refinement->id;
@@ -1077,6 +1130,10 @@ class Patient extends Model
 
     public function defaultTreatmentPlanContextKey(): string
     {
+        if ($this->hasActiveModificationFor(null)) {
+            return 'original';
+        }
+
         $contexts = $this->treatmentPlanContextsForViewer();
 
         if ($refinementId = $this->activeRefinementId()) {
@@ -1132,7 +1189,8 @@ class Patient extends Model
             'Version #1',
             'original',
             $latestOriginalAt ? \Carbon\Carbon::parse($latestOriginalAt) : ($this->created_at ?? now()),
-            ! $this->hasActiveRefinement() && ! $this->hasRefinementTreatmentPlanHistory(),
+            $this->hasActiveModificationFor(null)
+                || (! $this->hasActiveRefinement() && ! $this->hasRefinementTreatmentPlanHistory()),
             [
                 'visible_full_plans' => $originalFullPlans,
                 'full_plan' => $this->originalCycleFullTreatmentPlan(),
@@ -1397,7 +1455,9 @@ class Patient extends Model
 
     public function planReviewOverlay(): ?string
     {
-        $fullPlan = $this->currentFullTreatmentPlan();
+        $fullPlan = $this->hasActiveModificationForAny()
+            ? $this->originalCycleFullTreatmentPlan()
+            : $this->currentFullTreatmentPlan();
 
         if ($fullPlan) {
             return $fullPlan->review_status;
@@ -1443,8 +1503,12 @@ class Patient extends Model
             return 'case_status';
         }
 
-        if ($internal === 'modification' && $overlay === 'pending') {
-            return 'case_status';
+        if ($this->hasActiveModificationForAny() || $internal === 'modification') {
+            if ($internal === 'modification' && $overlay === 'pending') {
+                return 'case_status';
+            }
+
+            return 'modification';
         }
 
         if ($this->hasActiveRefinement()) {
@@ -1549,26 +1613,20 @@ class Patient extends Model
             }
 
             if ($key === 'approved') {
-                $mfgProgress = $this->dividedManufacturingProgress();
-                $readyMfgStage = $this->nextStageReadyForManufacturedMark();
-                $lastMfgStage = $this->lastManufacturedStageNumber();
+                $isDividedMfg = $this->isDividedStages() && ! $this->hasActiveRefinement();
+                $readyMfgStage = $isDividedMfg ? $this->nextStageReadyForManufacturedMark() : null;
+                $lastRecordedStage = $isDividedMfg ? $this->lastRecordedManufacturingStageNumber() : null;
 
                 if ($index === $currentIndex && $this->hasCompletedManufacturing()) {
                     $state = 'current';
                     $label = 'Treatment plan Manufactured';
-                } elseif ($mfgProgress && $mfgProgress['done'] > 0 && $mfgProgress['done'] < $mfgProgress['total'] && $index === $currentIndex) {
-                    $state = 'current';
-                    if ($readyMfgStage !== null) {
-                        $label = 'Ready to mark Stage '.$readyMfgStage.' manufactured';
-                    } elseif ($lastMfgStage !== null) {
-                        $label = 'Stage '.$lastMfgStage.' has been manufactured';
-                    } else {
-                        $label = 'Manufacturing '.$mfgProgress['done'].'/'.$mfgProgress['total'].' stages';
-                    }
-                } elseif ($readyMfgStage !== null && $index === $currentIndex) {
+                } elseif ($isDividedMfg && $index === $currentIndex && $readyMfgStage !== null) {
                     $state = 'current';
                     $label = 'Ready to mark Stage '.$readyMfgStage.' manufactured';
-                } elseif ($this->isReadyForManufacturedMark() && $index === $currentIndex) {
+                } elseif ($isDividedMfg && $index === $currentIndex && $lastRecordedStage !== null) {
+                    $state = 'current';
+                    $label = 'Stage '.$lastRecordedStage.' Manufactured';
+                } elseif ($this->isReadyForManufacturedMark() && $index === $currentIndex && ! $isDividedMfg) {
                     $state = 'current';
                     $label = 'Ready to mark manufactured';
                 } elseif ($internalKey === 'manufactured' && $index === $currentIndex) {

@@ -49,11 +49,15 @@ class PatientCaseRefinementController extends Controller
         }
 
         if (! $patient->canRequestRefinement()) {
+            $blockedMessage = $patient->hasActiveRefinement()
+                ? 'A refinement is already in progress for this case.'
+                : ($patient->isDividedStages()
+                    ? 'Refinement is available after LineUp marks manufacturing stage 1 complete, with no modification in progress.'
+                    : 'Refinement is available only after LineUp marks the case as Manufactured, with no modification in progress.');
+
             return $this->redirectToTab(
                 $patient,
-                $patient->hasActiveRefinement()
-                    ? 'A refinement is already in progress for this case.'
-                    : 'Refinement is available only after LineUp marks the case as Manufactured, with no modification in progress.',
+                $blockedMessage,
                 'error'
             );
         }
