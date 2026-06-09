@@ -7,9 +7,19 @@
         return window.matchMedia('(max-width: ' + MOBILE_MAX + 'px)').matches;
     }
 
-    function setFiltersOpen($form, $toggle, open) {
+    function setFiltersOpen($form, $toggle, $panel, open) {
         $form.toggleClass('is-open', open);
         $toggle.attr('aria-expanded', open ? 'true' : 'false');
+
+        if (isMobileFilters()) {
+            if (open) {
+                $panel.removeAttr('hidden');
+            } else {
+                $panel.attr('hidden', 'hidden');
+            }
+        } else {
+            $panel.removeAttr('hidden');
+        }
     }
 
     window.LineUpInitCasesFilters = function () {
@@ -17,17 +27,19 @@
         var $toggle = $('#cases-filters-toggle');
         var $panel = $('#cases-filters-panel');
 
-        if (!$form.length || !$toggle.length || !$panel.length) {
+        if (!$form.length || !$toggle.length || !$panel.length || $form.data('lineup-filters-init')) {
             return;
         }
 
+        $form.data('lineup-filters-init', true);
+
         function syncForViewport() {
             if (!isMobileFilters()) {
-                setFiltersOpen($form, $toggle, true);
+                setFiltersOpen($form, $toggle, $panel, true);
                 return;
             }
 
-            setFiltersOpen($form, $toggle, $form.hasClass('is-open'));
+            setFiltersOpen($form, $toggle, $panel, $form.data('mobile-filters-open') === true);
         }
 
         $toggle.on('click', function () {
@@ -35,17 +47,22 @@
                 return;
             }
 
-            setFiltersOpen($form, $toggle, !$form.hasClass('is-open'));
+            var open = !$form.hasClass('is-open');
+            $form.data('mobile-filters-open', open);
+            setFiltersOpen($form, $toggle, $panel, open);
         });
 
         $(document).on('keydown.lineupCasesFilters', function (event) {
             if (event.key === 'Escape' && isMobileFilters() && $form.hasClass('is-open')) {
-                setFiltersOpen($form, $toggle, false);
+                $form.data('mobile-filters-open', false);
+                setFiltersOpen($form, $toggle, $panel, false);
                 $toggle.trigger('focus');
             }
         });
 
         $(window).on('resize.lineupCasesFilters', syncForViewport);
+
+        $form.data('mobile-filters-open', false);
         syncForViewport();
     };
 

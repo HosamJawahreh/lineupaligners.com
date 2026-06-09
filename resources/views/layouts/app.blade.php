@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-datatable/dataTables.bootstrap4.min.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-dashboard.css') }}?v=4">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-topbar.css') }}?v=5">
-<link rel="stylesheet" href="{{ asset('assets/css/cases-dashboard.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/cases-dashboard.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-buttons.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-datatables.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-loader.css') }}?v=3">
@@ -46,7 +46,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=12">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-performance.css') }}?v=1">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=25">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=26">
 </head>
 <body class="lineup-app {{ $bodyThemeClass ?? 'theme-cyan' }} {{ $bodyColorClass }} {{ $bodyMenuClasses ?? '' }} @yield('body-class')"
       data-default-color-mode="{{ $dashboardColorMode }}"

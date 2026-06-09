@@ -11,7 +11,7 @@
 @endphp
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/cases-dashboard.css') }}?v=2">
+<link rel="stylesheet" href="{{ asset('assets/css/cases-dashboard.css') }}?v=3">
 @endpush
 
 @section('content')
@@ -51,7 +51,7 @@
                     ->count();
             @endphp
 
-            <form method="GET" action="{{ route('patients.index') }}" class="cases-filters @if($activeFilterCount > 0) is-open @endif" id="cases-filter-form">
+            <form method="GET" action="{{ route('patients.index') }}" class="cases-filters" id="cases-filter-form">
                 <input type="hidden" name="status" value="{{ $filters['status'] }}">
                 <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
                 <input type="hidden" name="dir" value="{{ $filters['dir'] }}">
@@ -60,7 +60,7 @@
                     <button type="button"
                             class="cases-filters-toggle"
                             id="cases-filters-toggle"
-                            aria-expanded="{{ $activeFilterCount > 0 ? 'true' : 'false' }}"
+                            aria-expanded="false"
                             aria-controls="cases-filters-panel">
                         <span class="cases-filters-toggle__lead">
                             <span class="cases-filters-toggle__icon" aria-hidden="true">
@@ -85,7 +85,7 @@
                         </span>
                     </button>
 
-                    <div class="cases-filters-drawer" id="cases-filters-panel">
+                    <div class="cases-filters-drawer" id="cases-filters-panel" hidden>
                 <div class="cases-filters-row">
                     <div class="cases-field cases-field-search">
                         <i class="zmdi zmdi-search" aria-hidden="true"></i>
@@ -294,7 +294,7 @@
 
 @push('scripts')
 <script src="{{ asset('assets/js/cases-actions.js') }}"></script>
-<script src="{{ asset('assets/js/cases-filters.js') }}?v=2"></script>
+<script src="{{ asset('assets/js/cases-filters.js') }}?v=3"></script>
 <script>
 $(function () {
     $('.cases-delete-form').on('submit', function (e) {

@@ -826,14 +826,18 @@
     }
 
     .cases-filters-drawer {
-        display: none;
+        display: none !important;
         padding: 0 12px 14px;
         border-top: 1px solid #eef2f7;
-        animation: casesFiltersDrawerIn 0.22s ease;
+    }
+
+    .cases-filters-drawer[hidden] {
+        display: none !important;
     }
 
     .cases-filters.is-open .cases-filters-drawer {
-        display: block;
+        display: block !important;
+        animation: casesFiltersDrawerIn 0.22s ease;
     }
 
     .cases-filters.is-open .cases-filters-row {
@@ -922,7 +926,8 @@
         display: none !important;
     }
 
-    .cases-filters-drawer {
+    .cases-filters-drawer,
+    .cases-filters-drawer[hidden] {
         display: block !important;
         padding: 0;
         border: none;

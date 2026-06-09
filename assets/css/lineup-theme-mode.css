@@ -807,10 +807,57 @@ body.lineup-app.lineup-color-dark .cases-filters {
     border-bottom-color: var(--lineup-border) !important;
 }
 
+body.lineup-app.lineup-color-dark .cases-filters-toolbar {
+    border-color: var(--lineup-border) !important;
+    background: linear-gradient(180deg, var(--lineup-surface-elevated) 0%, var(--lineup-surface-muted) 100%) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28) !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-filters.is-open .cases-filters-toolbar {
+    border-color: color-mix(in srgb, var(--lineup-skin) 36%, var(--lineup-border)) !important;
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.38),
+        0 0 0 1px color-mix(in srgb, var(--lineup-skin) 16%, transparent) !important;
+}
+
 body.lineup-app.lineup-color-dark .cases-filters-toggle {
-    background: var(--lineup-input-bg) !important;
-    border-color: var(--lineup-input-border) !important;
+    background: transparent !important;
+    border: none !important;
     color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-filters-toggle:hover,
+body.lineup-app.lineup-color-dark .cases-filters-toggle:focus-visible {
+    background: var(--lineup-surface-hover) !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-filters-toggle__label {
+    color: var(--lineup-text) !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-filters-toggle__meta {
+    color: var(--lineup-text-muted) !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-filters-toggle__icon {
+    background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--lineup-skin) 20%, var(--lineup-surface-muted)),
+        var(--lineup-surface-hover)
+    ) !important;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lineup-skin) 26%, transparent) !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-filters-toggle__chevron {
+    color: var(--lineup-text-subtle) !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-filters.is-open .cases-filters-toggle__chevron {
+    color: var(--lineup-skin) !important;
+}
+
+body.lineup-app.lineup-color-dark .cases-filters-drawer {
+    border-top-color: var(--lineup-border) !important;
 }
 
 body.lineup-app.lineup-color-dark .cases-filters-active-hint {
