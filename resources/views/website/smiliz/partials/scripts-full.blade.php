@@ -46,7 +46,7 @@
 
 <script src="{{ asset('assets/js/lineup-website-loader.js') }}?v=3" defer></script>
 
-<script src="{{ asset('assets/js/lineup-smiliz-forms.js') }}?v=4" defer></script>
+<script src="{{ asset('assets/js/lineup-smiliz-forms.js') }}?v=5" defer></script>
 
 <script src="{{ asset('assets/js/lineup-smiliz-a11y.js') }}?v=1" defer></script>
 

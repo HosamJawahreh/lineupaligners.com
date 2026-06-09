@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\WebsiteContactInquiry;
 use App\Support\LineUpMailBranding;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -16,17 +15,23 @@ class WebsiteInquiryConfirmationMail extends Mailable
     use Queueable, SerializesModels;
 
     public function __construct(
-        public WebsiteContactInquiry $inquiry,
+        public string $inquirerName,
+        public string $inquiryMessage,
     ) {}
 
     public function envelope(): Envelope
     {
+        $replyTo = LineUpMailBranding::replyToAddress();
+
         return new Envelope(
             from: new Address(
                 LineUpMailBranding::fromAddress(),
                 LineUpMailBranding::fromName(),
             ),
             subject: LineUpMailBranding::subjectPrefix('We received your message'),
+            replyTo: $replyTo
+                ? [new Address($replyTo, LineUpMailBranding::fromName())]
+                : [],
         );
     }
 
@@ -35,8 +40,9 @@ class WebsiteInquiryConfirmationMail extends Mailable
         return new Content(
             markdown: 'mail.website-inquiry-confirmation',
             with: [
-                'inquirerName' => $this->inquiry->name,
-                'inquiryMessage' => $this->inquiry->message,
+                'inquirerName' => $this->inquirerName,
+                'inquiryMessage' => $this->inquiryMessage,
+                'clinicName' => LineUpMailBranding::fromName(),
             ],
         );
     }

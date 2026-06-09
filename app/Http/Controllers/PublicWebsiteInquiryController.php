@@ -7,6 +7,7 @@ use App\Mail\WebsiteInquiryMail;
 use App\Models\Setting;
 use App\Models\WebsiteContactInquiry;
 use App\Services\WebsiteContent;
+use App\Support\LineUpMailBranding;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -60,10 +61,12 @@ class PublicWebsiteInquiryController extends Controller
         try {
             $inquiry->save();
         } catch (\Throwable $e) {
-            Log::warning('Website inquiry save failed: '.$e->getMessage(), [
+            Log::error('Website inquiry save failed: '.$e->getMessage(), [
                 'email' => $inquiryAttributes['email'],
                 'form_type' => $formType,
             ]);
+
+            return response()->json(['message' => __('website.inquiry_error')], 500);
         }
 
         $mailPayload = [
@@ -84,32 +87,67 @@ class PublicWebsiteInquiryController extends Controller
             'id' => $inquiry->id,
             'email' => $inquiryAttributes['email'],
             'form_type' => $formType,
-            'saved' => $inquiry->exists,
         ]);
 
-        if (filled($recipient)) {
-            try {
-                Mail::to($recipient)->send(new WebsiteInquiryMail(
-                    inquiry: $mailPayload,
-                    ipAddress: (string) $request->ip(),
-                    locale: app()->getLocale(),
-                ));
-            } catch (\Throwable $e) {
-                Log::warning('Website inquiry mail failed: '.$e->getMessage());
-            }
-        }
-
-        if ($formType !== 'newsletter') {
-            try {
-                Mail::to($inquiryAttributes['email'])->send(new WebsiteInquiryConfirmationMail($inquiry));
-            } catch (\Throwable $e) {
-                Log::warning('Website inquiry confirmation mail failed: '.$e->getMessage());
-            }
-        }
+        $this->dispatchInquiryMail(
+            mailPayload: $mailPayload,
+            recipient: $recipient,
+            clientEmail: $inquiryAttributes['email'],
+            inquirerName: $inquiryAttributes['name'],
+            formType: $formType,
+            locale: app()->getLocale(),
+            ipAddress: (string) $request->ip(),
+        );
 
         return response()->json([
             'ok' => true,
             'message' => __('website.inquiry_success'),
         ]);
+    }
+
+    /**
+     * @param  array{name: string, email: string, phone?: string|null, subject?: string|null, message: string, form_type?: string|null}  $mailPayload
+     */
+    protected function dispatchInquiryMail(
+        array $mailPayload,
+        string $recipient,
+        string $clientEmail,
+        string $inquirerName,
+        string $formType,
+        string $locale,
+        string $ipAddress,
+    ): void {
+        dispatch(function () use ($mailPayload, $recipient, $clientEmail, $inquirerName, $formType, $locale, $ipAddress) {
+            LineUpMailBranding::applyGlobalConfig();
+
+            if (filled($recipient)) {
+                try {
+                    Mail::to($recipient)->send(new WebsiteInquiryMail(
+                        inquiry: $mailPayload,
+                        ipAddress: $ipAddress,
+                        locale: $locale,
+                    ));
+                } catch (\Throwable $e) {
+                    Log::warning('Website inquiry mail failed: '.$e->getMessage(), [
+                        'recipient' => $recipient,
+                        'form_type' => $formType,
+                    ]);
+                }
+            }
+
+            if ($formType !== 'newsletter') {
+                try {
+                    Mail::to($clientEmail)->send(new WebsiteInquiryConfirmationMail(
+                        inquirerName: $inquirerName,
+                        inquiryMessage: (string) $mailPayload['message'],
+                    ));
+                } catch (\Throwable $e) {
+                    Log::warning('Website inquiry confirmation mail failed: '.$e->getMessage(), [
+                        'email' => $clientEmail,
+                        'form_type' => $formType,
+                    ]);
+                }
+            }
+        })->afterResponse();
     }
 }

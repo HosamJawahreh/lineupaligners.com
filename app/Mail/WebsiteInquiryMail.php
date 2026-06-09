@@ -28,6 +28,10 @@ class WebsiteInquiryMail extends Mailable
         $subject = trim((string) ($this->inquiry['subject'] ?? ''));
 
         return new Envelope(
+            from: new Address(
+                LineUpMailBranding::fromAddress(),
+                LineUpMailBranding::fromName(),
+            ),
             subject: LineUpMailBranding::subjectPrefix($subject !== '' ? $subject : 'New website inquiry'),
             replyTo: [
                 new Address(

@@ -101,6 +101,8 @@
         $('#contact-form, form.contact-form[data-lineup-inquiry-form="1"]').each(function () {
             var $form = $(this);
             $form.attr('action', cfg.inquiryUrl || $form.attr('action') || '/website/inquiry');
+            // Remove legacy Smiliz handler that posts to send.php and can cause duplicate/failed requests.
+            $form.off('submit');
             $form.off('submit.lineup').on('submit.lineup', function (e) {
                 e.preventDefault();
                 e.stopImmediatePropagation();
