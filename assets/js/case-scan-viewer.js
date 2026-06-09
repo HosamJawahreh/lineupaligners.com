@@ -181,7 +181,10 @@ if (root && canvas) {
         }
 
         if (!layoutSnapshot) {
-            layoutMeshes();
+            const needsRefinement = layoutMeshes({ fast: true });
+            if (needsRefinement) {
+                refineBiteLayoutAsync();
+            }
             return;
         }
 
@@ -1796,6 +1799,39 @@ if (root && canvas) {
         recenterBiteGroupLocally();
     }
 
+    /** Fast stack for first paint — avoids 64× heavy mesh scoring on large STLs. */
+    function stackAutoOrientedBiteFast(upper, lower) {
+        resetBiteGroupOrientation();
+        detachFromBiteGroup(upper);
+        detachFromBiteGroup(lower);
+        resetArchToFileState(upper);
+        resetArchToFileState(lower);
+
+        normalizeToYUp(lower.object, lower.wrapper);
+        normalizeToYUp(upper.object, upper.wrapper);
+        resolveArchOcclusalFlip(lower.object, lower.wrapper, 'lower');
+        resolveArchOcclusalFlip(upper.object, upper.wrapper, 'upper');
+
+        const tryYaw = (rotY) => {
+            applyArchRotation(lower.object, lower.wrapper, 0, rotY);
+            applyArchRotation(upper.object, upper.wrapper, Math.PI, rotY);
+            alignBiteOcclusal(upper, lower, true);
+            return getClinicalFrontScore(upper, lower);
+        };
+
+        const score0 = tryYaw(0);
+        const score180 = tryYaw(Math.PI);
+
+        if (score180 > score0) {
+            tryYaw(Math.PI);
+        } else {
+            tryYaw(0);
+        }
+
+        ensureBiteGroupPair(upper, lower);
+        recenterBiteGroupLocally();
+    }
+
     function stackAutoOrientedBite(upper, lower) {
         resetBiteGroupOrientation();
         detachFromBiteGroup(upper);
@@ -2481,15 +2517,25 @@ if (root && canvas) {
         return bestRotation;
     }
 
-    function stackUpperLowerMeshes(upper, lower) {
+    /**
+     * @returns {boolean} true when a background bite refinement pass should run
+     */
+    function stackUpperLowerMeshes(upper, lower, options = {}) {
+        const fast = options.fast !== false;
+
         resetArchToFileState(upper);
         resetArchToFileState(lower);
 
         ensureMeshNormals(lower.object);
         ensureMeshNormals(upper.object);
 
+        let needsRefinement = false;
+
         if (isPreRegisteredPair(upper, lower)) {
             stackRegisteredBite(upper, lower);
+        } else if (fast) {
+            stackAutoOrientedBiteFast(upper, lower);
+            needsRefinement = true;
         } else {
             stackAutoOrientedBite(upper, lower);
             ensureBiteGroupPair(upper, lower);
@@ -2499,6 +2545,48 @@ if (root && canvas) {
         const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
         lower.size = lowerBox.getSize(new THREE.Vector3());
         upper.size = upperBox.getSize(new THREE.Vector3());
+
+        return needsRefinement;
+    }
+
+    let biteRefinementToken = 0;
+
+    function refineBiteLayoutAsync() {
+        const upper = meshesById.get('upper');
+        const lower = meshesById.get('lower');
+
+        if (!upper || !lower || !upper.wrapper.visible || !lower.wrapper.visible) {
+            return;
+        }
+
+        if (isPreRegisteredPair(upper, lower)) {
+            return;
+        }
+
+        const token = ++biteRefinementToken;
+
+        const run = () => {
+            if (token !== biteRefinementToken) {
+                return;
+            }
+
+            try {
+                stackUpperLowerMeshes(upper, lower, { fast: false });
+                modelGroup.position.set(0, 0, 0);
+                centerModelGroup();
+                applyInitialCameraView();
+                captureLayoutSnapshot();
+                refreshAxesIfVisible();
+            } catch (err) {
+                console.error('case-scan-viewer: bite refinement failed', err);
+            }
+        };
+
+        if (typeof requestIdleCallback === 'function') {
+            requestIdleCallback(run, { timeout: 2500 });
+        } else {
+            setTimeout(run, 0);
+        }
     }
 
     function applyInitialCameraView() {
@@ -2517,18 +2605,22 @@ if (root && canvas) {
         fitCameraToModels();
     }
 
-    function layoutMeshes() {
+    /**
+     * @returns {boolean} true when bite refinement should run in the background
+     */
+    function layoutMeshes(options = {}) {
         const entries = Array.from(meshesById.values());
         if (!entries.length) {
-            return;
+            return false;
         }
+
+        let needsRefinement = false;
 
         if (entries.length < 2) {
             entries.forEach((entry) => {
                 entry.wrapper.position.set(0, 0, 0);
                 ensureMeshNormals(entry.object);
-                centerObjectInWrapper(entry.object);
-                findBestFacingRotation(entry.object, entry.wrapper);
+                normalizeToYUp(entry.object, entry.wrapper);
             });
         } else {
             entries.forEach((entry) => {
@@ -2540,7 +2632,7 @@ if (root && canvas) {
             const lower = meshesById.get('lower');
 
             if (upper && lower) {
-                stackUpperLowerMeshes(upper, lower);
+                needsRefinement = stackUpperLowerMeshes(upper, lower, options);
             } else {
                 let offset = 0;
                 entries.forEach((entry) => {
@@ -2556,6 +2648,8 @@ if (root && canvas) {
         applyInitialCameraView();
         captureLayoutSnapshot();
         refreshAxesIfVisible();
+
+        return needsRefinement;
     }
 
     function loadObjWithMaterials(url, onLoaded, onError) {
@@ -2672,6 +2766,7 @@ if (root && canvas) {
     }
 
     function clearAllMeshes() {
+        biteRefinementToken += 1;
         meshesById.forEach((entry) => {
             if (entry.wrapper.parent) {
                 entry.wrapper.parent.remove(entry.wrapper);
@@ -2847,19 +2942,32 @@ if (root && canvas) {
             return;
         }
 
-        layoutMeshes();
-        if (viewerState.wireframe) {
-            applyWireframe();
+        let needsRefinement = false;
+
+        try {
+            needsRefinement = layoutMeshes({ fast: true });
+            if (viewerState.wireframe) {
+                applyWireframe();
+            }
+            if (viewerState.flatShading) {
+                applyFlatShading();
+            }
+        } catch (err) {
+            console.error('case-scan-viewer: layout failed', err);
+            setOverlay('error', 'Could not display 3D models.');
+            return;
+        } finally {
+            setOverlay('none');
         }
-        if (viewerState.flatShading) {
-            applyFlatShading();
-        }
-        setOverlay('none');
 
         afterLayout(() => {
             resize();
             applyInitialCameraView();
         });
+
+        if (needsRefinement) {
+            refineBiteLayoutAsync();
+        }
 
         if (results.some((r) => r.status === 'rejected')) {
             errorText.textContent = 'Some models could not be loaded.';
