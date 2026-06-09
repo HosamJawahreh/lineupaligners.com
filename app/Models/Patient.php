@@ -804,7 +804,21 @@ class Patient extends Model
             return false;
         }
 
-        return $this->hasActiveModificationForAny() || $this->hasModificationHistory();
+        if ($this->hasActiveRefinement()) {
+            return $this->hasActiveModificationForAny() || $this->hasModificationHistory();
+        }
+
+        return $this->hasTreatmentPlanInActiveCycle()
+            || $this->hasActiveModificationForAny()
+            || $this->hasModificationHistory();
+    }
+
+    /** A current treatment plan exists in the active case cycle (not yet manufactured). */
+    public function hasTreatmentPlanInActiveCycle(): bool
+    {
+        $plan = $this->originalCycleFullTreatmentPlan() ?? $this->currentFullTreatmentPlan();
+
+        return $plan !== null && $plan->is_current;
     }
 
     public function shouldShowRefinementInProgressBar(): bool
@@ -821,8 +835,8 @@ class Patient extends Model
     }
 
     /**
-     * Doctor may request modification while the active case cycle is not yet manufactured:
-     * from the first treatment plan upload (pending or approved) until LineUp marks manufactured.
+     * Doctor may request modification throughout the active case cycle:
+     * from the first treatment plan upload until LineUp marks manufactured (pending, rejected, or approved).
      */
     public function canRequestModification(?int $stageNumber = null): bool
     {
@@ -844,11 +858,7 @@ class Patient extends Model
             return false;
         }
 
-        if ($plan->isPending()) {
-            return true;
-        }
-
-        return $plan->isApproved();
+        return $plan->isPending() || $plan->isRejected() || $plan->isApproved();
     }
 
     /**
@@ -1582,14 +1592,20 @@ class Patient extends Model
             }
 
             if ($key === 'modification') {
-                if ($index === $currentIndex) {
+                $hadModification = $this->hasActiveModificationForAny() || $this->hasModificationHistory();
+
+                if ($index === $currentIndex && $hadModification) {
                     $state = 'current';
                     $variant = 'modification';
-                    $label = 'Awaiting new plan';
-                } elseif ($index < $currentIndex) {
+                    $label = $inModification ? 'Awaiting new plan' : 'Modification in progress';
+                } elseif ($index < $currentIndex && $hadModification) {
                     $state = 'completed';
                     $label = 'Modification done';
                     $variant = 'modification';
+                } elseif ($index < $currentIndex) {
+                    $state = 'skipped';
+                    $label = 'No modification';
+                    $variant = 'no-mod';
                 }
             }
 

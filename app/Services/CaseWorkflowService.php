@@ -222,24 +222,17 @@ class CaseWorkflowService
     {
         if ($patient->hasActiveModificationFor(null)) {
             $plan = $patient->currentFullTreatmentPlan();
+            $status = match (true) {
+                $plan?->isRejected() => 'rejected',
+                default => 'pending',
+            };
 
-            if (! $plan || $plan->isApproved()) {
-                $patient->update([
-                    'case_workflow_stage' => 'modification',
-                    'status' => 'pending',
-                ]);
+            $patient->update([
+                'case_workflow_stage' => 'modification',
+                'status' => $status,
+            ]);
 
-                return;
-            }
-
-            if ($plan->isPending()) {
-                $patient->update([
-                    'case_workflow_stage' => 'waiting_plan',
-                    'status' => 'pending',
-                ]);
-
-                return;
-            }
+            return;
         }
 
         $plan = $patient->currentFullTreatmentPlan();

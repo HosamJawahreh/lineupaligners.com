@@ -44,7 +44,7 @@ class PatientCaseModificationController extends Controller
         if (! $patient->canRequestModification()) {
             return $this->redirectToTab(
                 $patient,
-                'You can request a modification on the current pending plan before approval, or on an approved plan when no modification is already in progress.',
+                'You can request a modification any time after a treatment plan is uploaded and before the case is manufactured, when no modification is already in progress.',
                 'error'
             );
         }

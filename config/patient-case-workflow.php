@@ -3,7 +3,7 @@
 return [
     /**
      * Case study progress bar. Manufactured is shown on Approved.
-     * Modification appears only when a modification was requested or completed.
+     * Modification appears once a treatment plan is uploaded until the case is manufactured.
      */
     'progress_steps' => [
         ['key' => 'created', 'label' => 'Case Created'],

@@ -11,7 +11,7 @@
     <header class="case-modification__head">
         <h3 class="case-modification__title">Request Modification</h3>
         <p class="case-modification__subtitle">
-            Request plan changes after a treatment plan is uploaded and before the case is manufactured. Upload scans, photos, and notes here — view them under <strong>3D Scans &amp; Photos</strong> and the revised plan under <strong>Treatment Plan</strong>.
+            Request plan changes any time after a treatment plan is uploaded and before the case is manufactured — whether the plan is awaiting your review, rejected, or already approved. Upload scans, photos, and notes here; view them under <strong>3D Scans &amp; Photos</strong> and the revised plan under <strong>Treatment Plan</strong>.
         </p>
     </header>
 
@@ -138,7 +138,7 @@
                 @else
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-                    <p>No modification can be started right now. A plan must be uploaded and awaiting your review, or already approved.</p>
+                    <p>No modification can be started right now. LineUp must upload a treatment plan first, and no other modification may be in progress.</p>
                 </div>
                 @endif
             @else
