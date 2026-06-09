@@ -192,7 +192,6 @@ class PatientController extends Controller
                 ->values()
                 ->all(),
             'modificationRecords' => $patient->modificationRecords(),
-            'refinementRecords' => $patient->refinementRecords(),
             'caseTimeline' => app(CaseTimelineBuilder::class)->build($patient),
             'modificationTimeline' => app(CaseTimelineBuilder::class)->buildModificationHistory($patient),
             'refinementTimeline' => app(CaseTimelineBuilder::class)->buildRefinementHistory($patient),

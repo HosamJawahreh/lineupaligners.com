@@ -308,13 +308,4 @@
         <span class="case-scan-empty-state__hint">3D scans are optional — upload upper, lower, or both when editing the case.</span>
     </div>
     @endif
-
-    @if($patient && ($refinementRecords ?? collect())->isNotEmpty())
-    <hr class="case-scan-section__divider" role="presentation" aria-hidden="true">
-    @include('theme.pages.partials.case-refinement-records', [
-        'patient' => $patient,
-        'refinementRecords' => $refinementRecords,
-        'navKey' => 'scan-refinement-records',
-    ])
-    @endif
 </section>

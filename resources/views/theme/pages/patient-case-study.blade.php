@@ -215,7 +215,6 @@
                         'caseScanSets' => $caseScanSets ?? [],
                         'defaultScanSetKey' => $defaultScanSetKey ?? 'original',
                         'casePhotosBySet' => $casePhotosBySet ?? [],
-                        'refinementRecords' => $refinementRecords ?? collect(),
                     ])
                 @elseif($tab['id'] === 'manufacture-plan')
                     @include('theme.pages.partials.case-manufacture-plan', [
