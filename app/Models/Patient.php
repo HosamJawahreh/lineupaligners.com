@@ -613,13 +613,32 @@ class Patient extends Model
     public function canAdminUploadFullTreatmentPlan(): bool
     {
         if ($this->hasActiveRefinement()) {
+            if ($this->hasActiveModificationFor(null)) {
+                return true;
+            }
+
             $current = $this->currentFullTreatmentPlan();
 
-            return $current === null || $current->isApproved();
+            return $current === null || $current->isRejected();
         }
 
         if ($this->hasActiveModificationFor(null)) {
             return true;
+        }
+
+        $current = $this->currentFullTreatmentPlan();
+
+        return $current === null || $current->isRejected();
+    }
+
+    public function awaitingRefinementTreatmentPlanUpload(): bool
+    {
+        if (! $this->hasActiveRefinement()) {
+            return false;
+        }
+
+        if ($this->hasActiveModificationFor(null)) {
+            return false;
         }
 
         $current = $this->currentFullTreatmentPlan();
@@ -855,6 +874,28 @@ class Patient extends Model
     public function defaultTreatmentPlanContextKey(): string
     {
         $contexts = $this->treatmentPlanContextsForViewer();
+
+        if ($refinementId = $this->activeRefinementId()) {
+            $refinementKey = 'ref-'.$refinementId;
+
+            foreach ($contexts as $context) {
+                if (($context['key'] ?? '') !== $refinementKey) {
+                    continue;
+                }
+
+                $fullPlan = $context['full_plan'] ?? null;
+
+                if ($fullPlan === null || $fullPlan->isRejected()) {
+                    return $refinementKey;
+                }
+            }
+        }
+
+        foreach ($contexts as $context) {
+            if (! empty($context['is_active'])) {
+                return $context['key'];
+            }
+        }
 
         return $contexts[0]['key'] ?? 'original';
     }

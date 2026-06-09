@@ -17,7 +17,10 @@
         <i class="zmdi zmdi-swap-vertical" aria-hidden="true"></i>
         <div>
             <strong>Refinement case in progress</strong>
-            <p>The doctor ordered a refinement (returning patient). Upload new plan link(s) below. Previous manufactured plans remain available in the plan switcher and 3D Scans &amp; Photos.</p>
+            <p>The doctor ordered a refinement (returning patient). Upload a new treatment plan canvas link for this refinement cycle when ready — previous manufactured plans stay in the plan switcher and 3D Scans &amp; Photos.</p>
+            @if($patient->awaitingRefinementTreatmentPlanUpload() && ($canUploadTreatmentPlan ?? false))
+            <p class="mfg-plan__mod-banner-hint"><strong>No refinement plan yet.</strong> Use the upload form below to add one.</p>
+            @endif
         </div>
     </div>
     @elseif($isActiveCtx && $ctxType === 'modification')
@@ -136,12 +139,17 @@
                 || $fullPlan->isRejected()
                 || $patient->hasActiveModificationFor(null)
             );
+            $isRefinementUpload = $ctxType === 'refinement' && $patient->hasActiveRefinement();
         @endphp
         @if($canSubmitFullPlan)
         <section class="mfg-plan__panel mfg-plan__panel--admin mfg-plan__panel--revision">
             <h4 class="mfg-plan__panel-title">
                 <i class="zmdi zmdi-link"></i>
-                @if($fullPlan && $patient->hasActiveModificationFor(null) && $fullPlan->isPending())
+                @if($isRefinementUpload && $fullPlan === null)
+                    Upload refinement treatment plan
+                @elseif($isRefinementUpload && $fullPlan?->isRejected())
+                    Submit revised refinement plan
+                @elseif($fullPlan && $patient->hasActiveModificationFor(null) && $fullPlan->isPending())
                     Upload revised plan after modification
                 @elseif($fullPlan && $patient->hasActiveModificationFor(null))
                     Upload plan after modification
@@ -151,6 +159,9 @@
                     Upload treatment plan
                 @endif
             </h4>
+            @if($isRefinementUpload && $fullPlan === null)
+            <p class="mfg-plan__panel-desc">Optional — add a canvas link for this refinement cycle when LineUp has prepared the plan.</p>
+            @endif
             <form method="post" action="{{ route('patients.treatment-plan.store', $patient) }}" class="mfg-plan__form">
                 @csrf
                 <div class="mfg-plan__field">

@@ -280,8 +280,17 @@ class PatientTreatmentPlanController extends Controller
         }
 
         if ($current->isApproved()) {
-            if ($patient->hasActiveModificationFor($stageNumber) || $patient->hasActiveRefinement()) {
+            if ($patient->hasActiveModificationFor($stageNumber)) {
                 return null;
+            }
+
+            if ($patient->hasActiveRefinement() && $current->refinement_id) {
+                return $this->redirectToTab(
+                    $patient,
+                    'This refinement plan is already approved. The doctor must request a modification before you can upload a revised plan.',
+                    'error',
+                    $stageNumber
+                );
             }
 
             return $this->redirectToTab(
