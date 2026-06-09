@@ -71,9 +71,10 @@ class PatientCaseRefinementController extends Controller
         ]);
 
         $anchorPlan = $patient->originalCycleFullTreatmentPlan();
+        $storedPhotoCount = 0;
 
         try {
-            $refinement = DB::transaction(function () use ($patient, $validated, $anchorPlan) {
+            $refinement = DB::transaction(function () use ($patient, $request, $validated, $anchorPlan, &$storedPhotoCount) {
                 PatientCaseRefinement::query()
                     ->where('patient_id', $patient->id)
                     ->where('is_current', true)
@@ -92,14 +93,14 @@ class PatientCaseRefinementController extends Controller
                     'treatment_plan_id' => $anchorPlan?->id,
                 ]);
 
+                $this->attachScanIfPresent($request, 'upper_jaw_scan', $refinement, 'upper_jaw_scan');
+                $this->attachScanIfPresent($request, 'lower_jaw_scan', $refinement, 'lower_jaw_scan');
+                $storedPhotoCount = app(CasePhotoStorage::class)->storeFromRequest($request, $patient, null, $refinement);
+
                 $this->workflow->afterRefinementRequested($patient->fresh());
 
                 return $refinement;
             });
-
-            $this->attachScanIfPresent($request, 'upper_jaw_scan', $refinement, 'upper_jaw_scan');
-            $this->attachScanIfPresent($request, 'lower_jaw_scan', $refinement, 'lower_jaw_scan');
-            app(CasePhotoStorage::class)->storeFromRequest($request, $patient, null, $refinement);
         } catch (\Throwable $e) {
             report($e);
 
@@ -122,7 +123,7 @@ class PatientCaseRefinementController extends Controller
 
         app(LineUpNotifier::class)->refinementRequested($patient, auth()->user());
 
-        $hasAttachments = $request->hasFile('photos')
+        $hasAttachments = $storedPhotoCount > 0
             || $request->hasFile('upper_jaw_scan')
             || $request->hasFile('lower_jaw_scan');
 

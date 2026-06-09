@@ -19,7 +19,7 @@
         <span class="mfg-plan__stage-nav-label">Refinement</span>
         <div class="mfg-plan__stage-nav-buttons" role="tablist">
             @foreach($records as $ref)
-            @php $refPlan = $ref->treatmentPlans->firstWhere('is_current', true) ?? $ref->treatmentPlans->sortByDesc('version')->first(); @endphp
+            @php $refPlan = $ref->displayTreatmentPlan(); @endphp
             <button type="button"
                     role="tab"
                     class="mfg-plan__stage-btn @if((int) $ref->version === $defaultVersion) is-active @endif"
@@ -44,7 +44,7 @@
 
     <div class="@if($hasMultiple) case-cycle-records__panels @endif" @if($hasMultiple) data-cycle-version-panels="{{ $navKey }}" @endif>
         @foreach($records as $ref)
-        @php $refPlan = $ref->treatmentPlans->firstWhere('is_current', true) ?? $ref->treatmentPlans->sortByDesc('version')->first(); @endphp
+        @php $refPlan = $ref->displayTreatmentPlan(); @endphp
         <article class="case-cycle-record @if($hasMultiple) case-cycle-records__panel @if((int) $ref->version === $defaultVersion) is-active @endif @endif"
                  @if($hasMultiple)
                  id="cycle-panel-{{ $navKey }}-{{ $ref->version }}"
@@ -108,20 +108,12 @@
             @endif
 
             @if($refPlan)
-            <div class="case-cycle-record__block">
-                <h5 class="case-cycle-record__label">Treatment plan · {{ $refPlan->reviewStatusLabel() }}</h5>
-                <p class="case-cycle-record__hint">This refinement cycle plan is also on the <strong>Treatment Plan</strong> tab while active.</p>
-                <div class="case-cycle-record__canvas-wrap">
-                    <iframe src="{{ $refPlan->plan_url }}"
-                            title="Refinement #{{ $ref->version }} treatment plan"
-                            class="case-cycle-record__canvas"
-                            loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade"
-                            allowfullscreen></iframe>
-                </div>
-            </div>
+            <p class="case-cycle-record__hint case-cycle-record__hint--plan">
+                <i class="zmdi zmdi-assignment-check" aria-hidden="true"></i>
+                Treatment plan · {{ $refPlan->reviewStatusLabel() }} — review on the <strong>Treatment Plan</strong> tab.
+            </p>
             @elseif($ref->is_current)
-            <p class="case-cycle-record__pending"><i class="zmdi zmdi-time"></i> LineUp will upload the treatment plan on the Treatment Plan tab.</p>
+            <p class="case-cycle-record__pending"><i class="zmdi zmdi-time"></i> LineUp will upload the treatment plan on the <strong>Treatment Plan</strong> tab.</p>
             @endif
         </article>
         @endforeach

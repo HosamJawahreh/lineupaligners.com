@@ -14,10 +14,25 @@ class CasePhotoStorage
 {
     public const MAX_KB = 102400;
 
-    public function storeFromRequest(Request $request, Patient $patient, ?PatientCaseModification $modification = null, ?PatientCaseRefinement $refinement = null): void
+    public function storeFromRequest(Request $request, Patient $patient, ?PatientCaseModification $modification = null, ?PatientCaseRefinement $refinement = null): int
     {
-        if (! $request->hasFile('photos')) {
-            return;
+        $uploads = $request->file('photos');
+
+        if ($uploads === null) {
+            return 0;
+        }
+
+        if (! is_array($uploads)) {
+            $uploads = [$uploads];
+        }
+
+        $uploads = array_values(array_filter(
+            $uploads,
+            fn ($file) => $file instanceof UploadedFile && $file->isValid()
+        ));
+
+        if ($uploads === []) {
+            return 0;
         }
 
         $sort = (int) PatientPhoto::query()
@@ -28,12 +43,9 @@ class CasePhotoStorage
             ->max('sort_order');
 
         $subdir = $this->storageSubdir($patient, $modification, $refinement);
+        $stored = 0;
 
-        foreach ($request->file('photos') as $file) {
-            if (! $file instanceof UploadedFile || ! $file->isValid()) {
-                continue;
-            }
-
+        foreach ($uploads as $file) {
             $path = $file->store($subdir, 'public');
             $patient->photos()->create([
                 'modification_id' => $modification?->id,
@@ -42,11 +54,14 @@ class CasePhotoStorage
                 'original_name' => $file->getClientOriginalName(),
                 'sort_order' => ++$sort,
             ]);
+            $stored++;
         }
 
         if (! $modification && ! $refinement) {
             $this->syncPrimaryPhoto($patient);
         }
+
+        return $stored;
     }
 
     public function syncPrimaryPhoto(Patient $patient): void

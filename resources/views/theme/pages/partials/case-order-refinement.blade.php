@@ -103,6 +103,12 @@
                             <div class="case-modification-card__uploads case-modification-card__uploads--compact">
                                 <div class="case-modification-card__upload-block case-modification-card__upload-block--photos">
                                     @include('theme.pages.partials.case-photos-upload', ['uploadId' => 'refinement-photos'])
+                                    @error('photos')
+                                    <span class="case-modification-card__field-error" role="alert">{{ $message }}</span>
+                                    @enderror
+                                    @error('photos.*')
+                                    <span class="case-modification-card__field-error" role="alert">{{ $message }}</span>
+                                    @enderror
                                 </div>
                                 @include('theme.pages.partials.case-jaw-scan-fields', [
                                     'upperInputId' => 'refinement-upper',
@@ -186,10 +192,13 @@
         </div>
 
         <aside class="case-refinement__aside" aria-label="Refinement history">
-            @include('theme.pages.partials.case-refinement-records', [
-                'patient' => $patient,
-                'refinementRecords' => $refinementRecords ?? collect(),
-                'navKey' => 'refinement-aside',
+            @include('theme.pages.partials.case-cycle-timeline-panel', [
+                'cycleTimeline' => $refinementTimeline ?? ['events' => [], 'grouped' => []],
+                'panelTitle' => 'Refinement history',
+                'panelSubtitle' => 'Ordered cycles, plan uploads, and doctor reviews.',
+                'emptyTitle' => 'No refinements yet',
+                'emptyMessage' => 'Ordered refinements and plan updates will appear here.',
+                'timelineIdPrefix' => 'ref-history',
             ])
         </aside>
     </div>

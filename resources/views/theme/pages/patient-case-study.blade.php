@@ -239,7 +239,6 @@
                         'canRequestRefinement' => $canRequestRefinement ?? false,
                         'refinementsEnabled' => $refinementsEnabled ?? true,
                         'activeRefinement' => $activeRefinement ?? null,
-                        'refinementRecords' => $refinementRecords ?? collect(),
                         'refinementTimeline' => $refinementTimeline ?? ['events' => [], 'grouped' => []],
                         'scanUploadLimitsOk' => $scanUploadLimitsOk ?? true,
                         'scanUploadLimitsLabel' => $scanUploadLimitsLabel ?? '',
@@ -288,7 +287,7 @@
 <script src="{{ asset('assets/js/patient-case-study.js') }}?v=7"></script>
 <script src="{{ asset('assets/js/case-action-confirm.js') }}?v=8"></script>
 <script src="{{ asset('assets/js/case-manufacture-plan.js') }}?v=8"></script>
-<script src="{{ asset('assets/js/case-photos-upload.js') }}?v=2"></script>
+<script src="{{ asset('assets/js/case-photos-upload.js') }}?v=3"></script>
 @if(!empty($caseScanSets))
 <script>window.caseScanSetsMeta = @json($caseScanSets);</script>
 @endif

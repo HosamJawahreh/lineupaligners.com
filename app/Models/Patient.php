@@ -140,6 +140,18 @@ class Patient extends Model
         return $this->currentRefinement()?->id;
     }
 
+    public function hasRefinementTreatmentPlanHistory(): bool
+    {
+        if (! Schema::hasTable('patient_case_refinements')) {
+            return false;
+        }
+
+        return $this->treatmentPlans()
+            ->whereNotNull('refinement_id')
+            ->whereNull('stage_number')
+            ->exists();
+    }
+
     /** Treatment plans for the active case or refinement cycle. */
     public function treatmentPlansQuery()
     {
@@ -1028,6 +1040,12 @@ class Patient extends Model
         }
 
         foreach ($contexts as $context) {
+            if (($context['type'] ?? '') === 'refinement' && ($context['full_plan'] ?? null) !== null) {
+                return $context['key'];
+            }
+        }
+
+        foreach ($contexts as $context) {
             if (! empty($context['is_active'])) {
                 return $context['key'];
             }
@@ -1058,7 +1076,7 @@ class Patient extends Model
             'Version #1',
             'original',
             $latestOriginalAt ? \Carbon\Carbon::parse($latestOriginalAt) : ($this->created_at ?? now()),
-            ! $this->hasActiveRefinement(),
+            ! $this->hasActiveRefinement() && ! $this->hasRefinementTreatmentPlanHistory(),
             [
                 'visible_full_plans' => $originalFullPlans,
                 'full_plan' => $this->originalCycleFullTreatmentPlan(),
@@ -1095,8 +1113,7 @@ class Patient extends Model
                         'refinement_id' => $ref->id,
                         'refinement' => $ref,
                         'visible_full_plans' => $refFullPlans,
-                        'full_plan' => $refFullPlans->firstWhere('is_current', true)
-                            ?? $refFullPlans->sortByDesc('version')->first(),
+                        'full_plan' => $ref->displayTreatmentPlan(),
                         'stage_plans' => $refStagePlans,
                         'stage_numbers' => $refStageNumbers,
                     ]

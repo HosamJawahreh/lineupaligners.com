@@ -71,12 +71,29 @@ class PatientCaseRefinement extends Model
     public function statusLabel(): string
     {
         if ($this->is_current) {
-            $hasPlan = $this->treatmentPlans()->where('is_current', true)->exists();
+            $plan = $this->displayTreatmentPlan();
 
-            return $hasPlan ? 'Awaiting doctor review' : 'Awaiting treatment plan';
+            return $plan !== null ? 'Awaiting doctor review' : 'Awaiting treatment plan';
         }
 
         return 'Completed';
+    }
+
+    /** Latest treatment plan uploaded for this refinement cycle (never the pre-refinement anchor plan). */
+    public function displayTreatmentPlan(): ?PatientTreatmentPlan
+    {
+        $plans = $this->treatmentPlans()
+            ->orderByDesc('version')
+            ->orderByDesc('id')
+            ->get();
+
+        if ($plans->isEmpty()) {
+            return null;
+        }
+
+        return $plans->firstWhere('review_status', PatientTreatmentPlan::STATUS_APPROVED)
+            ?? $plans->firstWhere('is_current', true)
+            ?? $plans->first();
     }
 
     public function scopeLabel(): string

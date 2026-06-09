@@ -60,11 +60,16 @@
         var $block = $zone.closest('.case-photos-upload-block');
         var $input = $zone.find('[data-photos-input]');
         var $preview = $block.find('[data-photos-preview]');
+        var $form = $block.closest('form');
         var compact = $block.is('[data-photos-compact]');
         var files = [];
 
         if (!$input.length || !$preview.length) {
             return;
+        }
+
+        function syncToInput() {
+            syncInputFiles($input[0], files);
         }
 
         function addFiles(fileList) {
@@ -76,7 +81,7 @@
                 files.push(file);
             });
 
-            syncInputFiles($input[0], files);
+            syncToInput();
             renderPreview($preview, files, compact);
         }
 
@@ -104,9 +109,14 @@
             }
         });
 
+        // Clear before the picker opens so the same file can be chosen again.
+        // Do not clear on change — that wipes synced files before submit.
+        $input.on('click', function () {
+            this.value = '';
+        });
+
         $input.on('change', function () {
             addFiles(this.files);
-            this.value = '';
         });
 
         $preview.on('click', '.case-photo-preview-item__remove', function (e) {
@@ -119,9 +129,15 @@
             }
 
             files.splice(index, 1);
-            syncInputFiles($input[0], files);
+            syncToInput();
             renderPreview($preview, files, compact);
         });
+
+        if ($form.length) {
+            $form[0].addEventListener('submit', function () {
+                syncToInput();
+            }, true);
+        }
     }
 
     $(function () {
