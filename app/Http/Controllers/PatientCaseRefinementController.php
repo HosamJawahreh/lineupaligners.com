@@ -70,9 +70,7 @@ class PatientCaseRefinementController extends Controller
             'photos.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:'.CasePhotoStorage::MAX_KB],
         ]);
 
-        $anchorPlan = $patient->isDividedStages()
-            ? $patient->originalCycleStageTreatmentPlans()->sortByDesc('stage_number')->first()
-            : $patient->originalCycleFullTreatmentPlan();
+        $anchorPlan = $patient->originalCycleFullTreatmentPlan();
 
         try {
             $refinement = DB::transaction(function () use ($patient, $validated, $anchorPlan) {

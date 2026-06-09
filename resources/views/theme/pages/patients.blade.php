@@ -199,7 +199,7 @@
                             </td>
                             <td>
                                 <div class="cases-actions justify-content-end">
-                                    @if($isAdmin && $patient->isReadyForManufacturedMark())
+                                    @if($isAdmin && $patient->adminCanMarkManufacturedNow())
                                     <form method="POST" action="{{ route('patients.mark-manufactured', $patient) }}" class="d-inline">
                                         @csrf
                                         <input type="hidden" name="from_index" value="1">

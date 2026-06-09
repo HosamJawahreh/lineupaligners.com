@@ -3,10 +3,8 @@
     $hasWorkflowPermission = $canRequestModification ?? false;
     $canRequestNow = $patient->canRequestModificationNow();
     $canRequest = $hasWorkflowPermission && $canRequestNow;
-    $awaitingPlan = $isDivided
-        ? $patient->hasActiveModificationForAny()
-        : $patient->hasModificationAwaitingPlan(null);
-    $reviewStage = $isDivided ? $patient->doctorReviewStageNumber() : null;
+    $awaitingPlan = $patient->hasModificationAwaitingPlan(null);
+    $reviewStage = null;
 @endphp
 
 <div class="case-modification" id="case-modification-request">

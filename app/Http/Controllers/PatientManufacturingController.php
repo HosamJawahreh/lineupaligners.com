@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Patient;
+use App\Models\PatientManufacturingStage;
 use App\Models\PatientTreatmentPlan;
 use App\Services\CaseWorkflowService;
 use App\Services\LineUpNotifier;
@@ -19,13 +20,6 @@ class PatientManufacturingController extends Controller
     public function markManufactured(Request $request, Patient $patient): RedirectResponse
     {
         $this->authorize('markAsManufactured', $patient);
-
-        if ($patient->isDividedStages() && ! $patient->hasActiveRefinement()) {
-            return redirect()
-                ->route('patients.show', $patient)
-                ->with('error', 'Divided-stage cases are marked per stage. Open each approved stage and mark it manufactured with the step range.')
-                ->with('open_tab', 'manufacture-plan');
-        }
 
         if (! $patient->isReadyForManufacturedMark()) {
             return redirect()
@@ -73,31 +67,29 @@ class PatientManufacturingController extends Controller
                 ->with('mfg_active_stage', $stageNumber);
         }
 
-        $plan = $patient->currentTreatmentPlanForStage($stageNumber);
-
-        if (! $plan instanceof PatientTreatmentPlan) {
-            abort(404);
-        }
-
-        $plan->update([
-            'manufactured_at' => now(),
-            'manufactured_by' => auth()->id(),
+        PatientManufacturingStage::create([
+            'patient_id' => $patient->id,
+            'refinement_id' => $patient->activeRefinementId(),
+            'stage_number' => $stageNumber,
             'manufactured_step_from' => (int) $validated['manufactured_step_from'],
             'manufactured_step_to' => (int) $validated['manufactured_step_to'],
+            'manufactured_at' => now(),
+            'manufactured_by' => auth()->id(),
         ]);
 
         $patient->refresh();
-        $completedCycle = $this->workflow->afterStageMarkedManufactured($patient, $plan->fresh(), (int) auth()->id());
+        $this->workflow->afterStageMarkedManufactured(
+            $patient,
+            $patient->currentFullTreatmentPlan() ?? $patient->originalCycleFullTreatmentPlan(),
+            (int) auth()->id()
+        );
 
         $patient->load('doctor.user');
-
-        if ($completedCycle) {
-            $this->notifier->caseMarkedManufactured($patient, auth()->user());
-            $message = 'All stages manufactured. Case cycle complete — modifications are closed and refinement is available.';
-        } else {
-            $range = $plan->manufacturedStepRangeLabel();
-            $message = "Stage {$stageNumber} ({$range}) marked manufactured.";
-        }
+        $stage = $patient->manufacturingStageRecord($stageNumber);
+        $range = $stage?->stepRangeLabel() ?? '';
+        $message = $range !== ''
+            ? "Manufacturing stage {$stageNumber} ({$range}) recorded."
+            : "Manufacturing stage {$stageNumber} recorded.";
 
         return redirect()
             ->route('patients.show', $patient)

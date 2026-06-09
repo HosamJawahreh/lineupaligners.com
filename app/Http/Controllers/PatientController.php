@@ -207,7 +207,7 @@ class PatientController extends Controller
             'canUploadTreatmentPlan' => auth()->user()->can('uploadTreatmentPlan', $patient),
             'canReviewTreatmentPlan' => auth()->user()->can('reviewTreatmentPlan', $patient),
             'canMarkManufactured' => auth()->user()->can('markAsManufactured', $patient)
-                && $patient->isReadyForManufacturedMark(),
+                && $patient->adminCanMarkManufacturedNow(),
             'treatmentPlanContexts' => $patient->treatmentPlanContextsForViewer(),
             'defaultTreatmentPlanContextKey' => $patient->defaultTreatmentPlanContextKey(),
             'canAdminUploadFullPlan' => $patient->canAdminUploadFullTreatmentPlan(),

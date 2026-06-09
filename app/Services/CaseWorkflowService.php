@@ -11,6 +11,11 @@ class CaseWorkflowService
 {
     public function afterMarkedManufactured(Patient $patient, int $adminUserId): void
     {
+        PatientCaseRefinement::query()
+            ->where('patient_id', $patient->id)
+            ->where('is_current', true)
+            ->update(['is_current' => false]);
+
         $patient->update([
             'case_workflow_stage' => 'manufactured',
             'status' => Patient::STATUS_ACTIVE,
@@ -21,18 +26,10 @@ class CaseWorkflowService
 
     public function afterStageMarkedManufactured(
         Patient $patient,
-        PatientTreatmentPlan $plan,
+        ?PatientTreatmentPlan $plan,
         int $adminUserId
     ): bool {
         if ($patient->isDividedStages() && ! $patient->hasActiveRefinement()) {
-            $stages = $patient->originalCycleStageTreatmentPlans();
-
-            if ($stages->isNotEmpty() && $stages->every(fn (PatientTreatmentPlan $stagePlan) => $stagePlan->isManufactured())) {
-                $this->afterMarkedManufactured($patient->fresh(), $adminUserId);
-
-                return true;
-            }
-
             $patient->update([
                 'case_workflow_stage' => 'approved',
                 'status' => Patient::STATUS_ACTIVE,
@@ -256,57 +253,6 @@ class CaseWorkflowService
 
     protected function syncDividedStages(Patient $patient): void
     {
-        if ($patient->hasActiveModificationForAny()) {
-            $pendingAfterMod = $patient->currentStageTreatmentPlans()
-                ->contains(fn (PatientTreatmentPlan $plan) => $plan->isPending());
-
-            if (! $pendingAfterMod) {
-                $patient->update([
-                    'case_workflow_stage' => 'modification',
-                    'status' => 'pending',
-                ]);
-
-                return;
-            }
-        }
-
-        $stages = $patient->currentStageTreatmentPlans();
-
-        if ($stages->isEmpty()) {
-            return;
-        }
-
-        if ($stages->every(fn (PatientTreatmentPlan $plan) => $plan->isApproved())
-            && ! $patient->hasActiveModificationForAny()) {
-            if ($patient->isAwaitingNextDividedStageAfterSingleApproval()) {
-                $patient->update([
-                    'case_workflow_stage' => 'waiting_plan',
-                    'status' => Patient::STATUS_ACTIVE,
-                ]);
-
-                return;
-            }
-
-            $patient->update([
-                'case_workflow_stage' => 'approved',
-                'status' => Patient::STATUS_ACTIVE,
-            ]);
-
-            return;
-        }
-
-        if ($stages->contains(fn (PatientTreatmentPlan $plan) => $plan->isRejected())) {
-            $patient->update([
-                'case_workflow_stage' => 'waiting_plan',
-                'status' => 'rejected',
-            ]);
-
-            return;
-        }
-
-        $patient->update([
-            'case_workflow_stage' => 'waiting_plan',
-            'status' => 'pending',
-        ]);
+        $this->syncFullCase($patient);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Patient;
 use App\Models\PatientCaseModification;
 use App\Models\PatientCaseRefinement;
+use App\Models\PatientManufacturingStage;
 use App\Models\PatientTreatmentPlan;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
@@ -50,6 +51,13 @@ class CaseTimelineBuilder
             }
             if ($plan->manufactured_at && $plan->stage_number !== null) {
                 $events->push($this->stageManufacturedEvent($plan));
+            }
+        }
+
+        if (Schema::hasTable('patient_manufacturing_stages')) {
+            $patient->loadMissing(['manufacturingStages.manufacturedByUser']);
+            foreach ($patient->manufacturingStages->sortBy('stage_number') as $stage) {
+                $events->push($this->manufacturingStageEvent($stage));
             }
         }
 
@@ -349,6 +357,29 @@ class CaseTimelineBuilder
             summary: $plan->manufacturedStepRangeLabel() ?: $plan->stageLabel(),
             body: null,
             actorName: $plan->manufacturedByUser?->displayName(),
+            actorRole: 'LineUp Admin',
+            tone: 'emerald',
+            icon: 'zmdi-check-circle',
+            badges: $badges,
+        );
+    }
+
+    protected function manufacturingStageEvent(PatientManufacturingStage $stage): array
+    {
+        $badges = [
+            ['label' => 'Stage '.$stage->stage_number, 'variant' => 'stage'],
+            ['label' => 'Manufactured', 'variant' => 'success'],
+            ['label' => $stage->stepRangeLabel(), 'variant' => 'neutral'],
+        ];
+
+        return $this->event(
+            id: 'mfg-stage-'.$stage->id,
+            type: 'stage_manufactured',
+            at: $stage->manufactured_at,
+            title: 'Manufacturing stage '.$stage->stage_number.' recorded',
+            summary: $stage->stepRangeLabel(),
+            body: null,
+            actorName: $stage->manufacturedByUser?->displayName(),
             actorRole: 'LineUp Admin',
             tone: 'emerald',
             icon: 'zmdi-check-circle',

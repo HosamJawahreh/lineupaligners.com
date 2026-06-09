@@ -116,6 +116,11 @@ class Patient extends Model
         return $this->hasMany(PatientCaseRefinement::class)->orderByDesc('created_at');
     }
 
+    public function manufacturingStages(): HasMany
+    {
+        return $this->hasMany(PatientManufacturingStage::class)->orderBy('stage_number');
+    }
+
     public function currentRefinement(): ?PatientCaseRefinement
     {
         if (! Schema::hasTable('patient_case_refinements')) {
@@ -180,18 +185,7 @@ class Patient extends Model
             return false;
         }
 
-        if ($this->manufactured_at !== null || $this->workflowStageKey() === 'manufactured') {
-            return true;
-        }
-
-        if ($this->isDividedStages()) {
-            $stages = $this->originalCycleStageTreatmentPlans();
-
-            return $stages->isNotEmpty()
-                && $stages->every(fn (PatientTreatmentPlan $plan) => $plan->isManufactured());
-        }
-
-        return false;
+        return $this->manufactured_at !== null || $this->workflowStageKey() === 'manufactured';
     }
 
     public function isManufactured(): bool
@@ -215,29 +209,43 @@ class Patient extends Model
         }
 
         if ($this->hasActiveRefinement()) {
-            if ($this->isDividedStages()) {
-                $stages = $this->currentStageTreatmentPlans();
-
-                return $stages->isNotEmpty()
-                    && $stages->every(fn (PatientTreatmentPlan $plan) => $plan->isApproved());
-            }
-
-            $plan = $this->currentFullTreatmentPlan();
+            $plan = $this->currentFullTreatmentPlan()
+                ?? $this->originalCycleFullTreatmentPlan();
 
             return $plan !== null && $plan->isApproved();
         }
 
         if ($this->isDividedStages()) {
-            return false;
+            if ($this->hasActiveModificationForAny()) {
+                return false;
+            }
+
+            $plan = $this->originalCycleFullTreatmentPlan() ?? $this->currentFullTreatmentPlan();
+
+            if ($plan === null || ! $plan->isApproved()) {
+                return false;
+            }
+
+            return $this->manufacturingStagesForScope()->isNotEmpty();
         }
 
-        if ($this->workflowStageKey() !== 'approved') {
-            return false;
-        }
-
-        $plan = $this->originalCycleFullTreatmentPlan();
+        $plan = $this->originalCycleFullTreatmentPlan() ?? $this->currentFullTreatmentPlan();
 
         return $plan !== null && $plan->isApproved();
+    }
+
+    /** Whether admin may show manufacturing actions (full case or any eligible stage). */
+    public function adminCanMarkManufacturedNow(): bool
+    {
+        if ($this->isReadyForManufacturedMark()) {
+            return true;
+        }
+
+        if (! $this->isDividedStages()) {
+            return false;
+        }
+
+        return $this->isStageReadyForManufacturedMark($this->nextManufacturingStageNumber());
     }
 
     public function suggestedManufacturedStepFrom(int $stageNumber): int
@@ -246,40 +254,86 @@ class Patient extends Model
             return 1;
         }
 
-        $previous = $this->currentTreatmentPlanForStage($stageNumber - 1);
+        $previous = $this->manufacturingStageRecord($stageNumber - 1);
 
-        if ($previous !== null && $previous->manufactured_step_to !== null) {
+        if ($previous !== null) {
             return (int) $previous->manufactured_step_to + 1;
         }
 
         return 1;
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, PatientManufacturingStage>
+     */
+    public function manufacturingStagesForScope()
+    {
+        if (! Schema::hasTable('patient_manufacturing_stages')) {
+            return collect();
+        }
+
+        $refinementId = $this->activeRefinementId();
+        $query = $this->manufacturingStages();
+
+        if ($refinementId) {
+            return $query->where('refinement_id', $refinementId)->orderBy('stage_number')->get();
+        }
+
+        return $query->whereNull('refinement_id')->orderBy('stage_number')->get();
+    }
+
+    public function manufacturingStageRecord(int $stageNumber): ?PatientManufacturingStage
+    {
+        if (! Schema::hasTable('patient_manufacturing_stages')) {
+            return null;
+        }
+
+        $refinementId = $this->activeRefinementId();
+        $query = $this->manufacturingStages()->where('stage_number', $stageNumber);
+
+        if ($refinementId) {
+            return $query->where('refinement_id', $refinementId)->first();
+        }
+
+        return $query->whereNull('refinement_id')->first();
+    }
+
+    public function nextManufacturingStageNumber(): int
+    {
+        $max = $this->manufacturingStagesForScope()->max('stage_number');
+
+        return $max ? ((int) $max + 1) : 1;
+    }
+
     public function isStageReadyForManufacturedMark(int $stageNumber): bool
     {
-        if (! $this->isDividedStages() || $this->hasActiveRefinement() || $this->hasCompletedManufacturing()) {
+        if (! $this->isDividedStages() || $this->hasCompletedManufacturing()) {
             return false;
         }
 
-        if ($this->hasActiveModificationFor($stageNumber)) {
+        if ($this->hasActiveModificationForAny()) {
             return false;
         }
 
-        if ($stageNumber > 1) {
-            $previous = $this->currentTreatmentPlanForStage($stageNumber - 1);
+        $plan = $this->currentFullTreatmentPlan() ?? $this->originalCycleFullTreatmentPlan();
 
-            if ($previous === null || ! $previous->isManufactured()) {
-                return false;
-            }
+        if ($plan === null || ! $plan->isApproved()) {
+            return false;
         }
 
-        $plan = $this->currentTreatmentPlanForStage($stageNumber);
+        if ($this->manufacturingStageRecord($stageNumber) !== null) {
+            return false;
+        }
 
-        return $plan !== null
-            && $plan->is_current
-            && $plan->refinement_id === null
-            && $plan->isApproved()
-            && ! $plan->isManufactured();
+        if ($stageNumber !== $this->nextManufacturingStageNumber()) {
+            return false;
+        }
+
+        if ($stageNumber > 1 && $this->manufacturingStageRecord($stageNumber - 1) === null) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -291,19 +345,16 @@ class Patient extends Model
             return null;
         }
 
-        $stages = $this->originalCycleStageTreatmentPlans();
-        $total = $stages->count();
+        $done = $this->manufacturingStagesForScope()->count();
 
-        if ($total === 0) {
+        if ($done === 0 && ! $this->hasCompletedManufacturing()) {
             return null;
         }
 
-        $done = $stages->filter(fn (PatientTreatmentPlan $plan) => $plan->isManufactured())->count();
-
         return [
             'done' => $done,
-            'total' => $total,
-            'percent' => (int) round(($done / $total) * 100),
+            'total' => $done,
+            'percent' => $this->hasCompletedManufacturing() ? 100 : min(95, $done * 25),
         ];
     }
 
@@ -536,6 +587,10 @@ class Patient extends Model
 
     public function canAdminUploadStageTreatmentPlan(int $stageNumber): bool
     {
+        if ($this->isDividedStages()) {
+            return false;
+        }
+
         if ($this->hasActiveRefinement()) {
             $current = $this->currentTreatmentPlanForStage($stageNumber);
 
@@ -651,24 +706,6 @@ class Patient extends Model
             return false;
         }
 
-        if ($this->isDividedStages()) {
-            if ($stageNumber === null) {
-                return false;
-            }
-
-            $plan = $this->currentTreatmentPlanForStage($stageNumber);
-
-            if ($plan === null || ! $plan->is_current) {
-                return false;
-            }
-
-            if ($plan->isPending() && $this->doctorReviewStageNumber() === $stageNumber) {
-                return true;
-            }
-
-            return $plan->isApproved();
-        }
-
         $plan = $this->currentFullTreatmentPlan();
 
         if ($plan === null || ! $plan->is_current) {
@@ -687,21 +724,8 @@ class Patient extends Model
      *
      * @return \Illuminate\Support\Collection<int, int>
      */
-    public function modificationEligibleStageNumbers()
-    {
-        return $this->currentStageTreatmentPlans()
-            ->filter(fn (PatientTreatmentPlan $plan) => $this->canRequestModification($plan->stage_number))
-            ->pluck('stage_number')
-            ->map(fn ($n) => (int) $n)
-            ->values();
-    }
-
     public function canRequestModificationNow(): bool
     {
-        if ($this->isDividedStages()) {
-            return $this->modificationEligibleStageNumbers()->isNotEmpty();
-        }
-
         return $this->canRequestModification(null);
     }
 

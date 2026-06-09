@@ -182,18 +182,7 @@ class PatientCaseModificationController extends Controller
 
     protected function resolveModificationStageNumber(Patient $patient): ?int
     {
-        if (! $patient->isDividedStages()) {
-            return null;
-        }
-
-        $eligible = $patient->modificationEligibleStageNumbers();
-        $reviewStage = $patient->doctorReviewStageNumber();
-
-        if ($reviewStage !== null && $eligible->contains($reviewStage)) {
-            return $reviewStage;
-        }
-
-        return $eligible->first();
+        return null;
     }
 
     protected function redirectToTab(

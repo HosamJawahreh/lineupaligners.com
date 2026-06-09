@@ -35,7 +35,7 @@ class PatientTreatmentPlanController extends Controller
         DB::transaction(function () use ($patient, $validated, &$isRevisionUpload) {
             $activeModification = $patient->currentModification(null);
 
-            if ($activeModification !== null && $patient->activeRefinementId() === null) {
+            if ($activeModification !== null) {
                 $isRevisionUpload = true;
                 $this->applyModificationPlanRevision($patient, $activeModification, $validated['plan_url'], null);
                 $this->workflow->afterPlanUploaded($patient);
@@ -43,7 +43,14 @@ class PatientTreatmentPlanController extends Controller
                 return;
             }
 
-            $this->createNewTreatmentPlan($patient, $validated['plan_url'], null, null, null, null);
+            $this->createNewTreatmentPlan(
+                $patient,
+                $validated['plan_url'],
+                null,
+                null,
+                null,
+                $patient->activeRefinementId()
+            );
             $this->workflow->afterPlanUploaded($patient);
         });
 
@@ -71,67 +78,10 @@ class PatientTreatmentPlanController extends Controller
             return $this->redirectToTab($patient, 'Stages apply only to divided-stage cases.', 'error');
         }
 
-        $validated = $request->validate([
-            'stage_number' => ['required', 'integer', 'min:1', 'max:99'],
-            'plan_url' => ['required', 'url', 'max:2048'],
-        ]);
-
-        $stageNumber = (int) $validated['stage_number'];
-
-        if ($redirect = $this->guardAdminUpload($patient, $stageNumber)) {
-            return $redirect;
-        }
-
-        $existing = $patient->currentTreatmentPlanForStage($stageNumber);
-
-        if ($existing === null && ! $patient->canAdminAddNewDividedStageForStage($stageNumber)) {
-            $previous = max(1, $stageNumber - 1);
-
-            return $this->redirectToTab(
-                $patient,
-                "Stage {$stageNumber} cannot be added until stage {$previous} is approved and has no modification in progress.",
-                'error',
-                $stageNumber
-            );
-        }
-
-        $isRevisionUpload = false;
-
-        DB::transaction(function () use ($patient, $validated, $stageNumber, &$isRevisionUpload) {
-            $activeModification = $patient->currentModification($stageNumber);
-
-            if ($activeModification !== null && $patient->activeRefinementId() === null) {
-                $isRevisionUpload = true;
-                $this->applyModificationPlanRevision($patient, $activeModification, $validated['plan_url'], $stageNumber);
-                $this->workflow->afterPlanUploaded($patient);
-
-                return;
-            }
-
-            $this->createNewTreatmentPlan(
-                $patient,
-                $validated['plan_url'],
-                $stageNumber,
-                null,
-                null,
-                $patient->activeRefinementId()
-            );
-            $this->workflow->afterPlanUploaded($patient);
-        });
-
-        $patient->load('doctor.user');
-        app(LineUpNotifier::class)->planUploaded($patient, auth()->user(), $stageNumber, $isRevisionUpload);
-
-        $openTab = ($isRevisionUpload || $patient->activeRefinementId())
-            ? 'manufacture-plan'
-            : 'modification';
-
         return $this->redirectToTab(
             $patient,
-            "Stage {$stageNumber} submitted for doctor review.",
-            'success',
-            $stageNumber,
-            $openTab
+            'Divided-stage cases use one shared treatment plan. Upload the plan link on the Treatment Plan tab, then mark manufacturing stages with step ranges after doctor approval.',
+            'error'
         );
     }
 
@@ -163,17 +113,6 @@ class PatientTreatmentPlanController extends Controller
 
         if (! $plan->isPending()) {
             return $this->redirectToTab($patient, 'This plan has already been reviewed.', 'error');
-        }
-
-        if ($patient->isDividedStages() && $plan->stage_number !== null) {
-            if (! $patient->canDoctorReviewStage($plan->stage_number)) {
-                return $this->redirectToTab(
-                    $patient,
-                    'You can approve or reject only the current stage in the sequence. Complete earlier stages first.',
-                    'error',
-                    $plan->stage_number
-                );
-            }
         }
 
         DB::transaction(function () use ($plan, $validated) {
