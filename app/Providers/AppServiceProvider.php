@@ -92,7 +92,7 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with([
                 'appSettings' => $settings,
-                'projectName' => $settings['project_name'] ?? config('app.name'),
+                'projectName' => Setting::projectName(),
                 'logoUrl' => Setting::logoUrl(),
                 'themeSkinColor' => $tokens['primary'],
                 'brandColors' => $tokens,

@@ -13,8 +13,9 @@ class LineUpAlignersSeeder extends Seeder
 {
     public function run(): void
     {
-        Setting::set('project_name', 'LineUp Aligners');
-        Setting::set('clinic_name', 'LineUp Aligners');
+        Setting::set('project_name', 'Lineup Aligner');
+        Setting::set('clinic_name', 'Lineup Aligner');
+        Setting::set('mail_brand_label', 'Lineup Aligner');
         Setting::set('clinic_email', 'contact@lineupaligners.com');
         Setting::set('clinic_phone', '+1 555 0100');
         Setting::set('clinic_address', '123 Medical Center Dr.');

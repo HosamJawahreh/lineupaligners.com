@@ -74,7 +74,39 @@ class Setting extends Model
 
     public static function projectName(): string
     {
-        return static::get('project_name', config('app.name'));
+        return self::normalizeBrandName((string) static::get(
+            'project_name',
+            config('settings.brand_name', config('app.name'))
+        ));
+    }
+
+    public static function clinicName(): string
+    {
+        return self::normalizeBrandName((string) static::get('clinic_name', self::projectName()));
+    }
+
+    public static function normalizeBrandName(string $name): string
+    {
+        $canonical = (string) config('settings.brand_name', 'Lineup Aligner');
+        $trimmed = trim($name);
+
+        if ($trimmed === '') {
+            return $canonical;
+        }
+
+        $legacy = [
+            'LineUp Aligners',
+            'Lineup Aligners',
+            'LineUp Aligner',
+            'Lineupaligners',
+            'lineupaligners',
+        ];
+
+        if (in_array($trimmed, $legacy, true)) {
+            return $canonical;
+        }
+
+        return $trimmed;
     }
 
     public static function dashboardColorMode(): string

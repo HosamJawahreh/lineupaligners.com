@@ -48,7 +48,7 @@ class PatientCaseUpdateMailer
                 patient: $patient,
                 event: $event,
                 sender: $sender,
-                clinicName: LineUpMailBranding::clinicName(),
+                clinicName: LineUpMailBranding::fromName(),
             ));
         } catch (\Throwable $e) {
             Log::warning('Patient case update email failed', [

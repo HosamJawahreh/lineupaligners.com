@@ -11,7 +11,7 @@ class CaseChatContacts
     public function lineupAdmin(string $logoUrl): array
     {
         return [
-            'name' => Setting::get('clinic_name', config('app.name', 'LineUp Aligners')),
+            'name' => Setting::clinicName(),
             'role' => 'LineUp Admin',
             'avatar' => $logoUrl,
         ];

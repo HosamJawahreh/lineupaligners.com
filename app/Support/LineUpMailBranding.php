@@ -27,9 +27,9 @@ class LineUpMailBranding
     public static function data(): array
     {
         $defaults = [
-            'projectName' => (string) config('app.name', 'LineUp Aligners'),
-            'clinicName' => (string) config('settings.defaults.clinic_name', 'LineUp Aligners'),
-            'mailBrandLabel' => 'Lineupaligners',
+            'projectName' => (string) config('settings.brand_name', config('app.name', 'Lineup Aligner')),
+            'clinicName' => (string) config('settings.brand_name', config('settings.defaults.clinic_name', 'Lineup Aligner')),
+            'mailBrandLabel' => (string) config('settings.brand_name', 'Lineup Aligner'),
             'logoUrl' => self::absoluteUrl(Setting::defaultLogoAsset()),
             'websiteUrl' => (string) config('app.url', url('/')),
             'clinicEmail' => (string) config('settings.defaults.clinic_email', ''),
@@ -48,8 +48,11 @@ class LineUpMailBranding
 
             return [
                 'projectName' => Setting::projectName(),
-                'clinicName' => (string) Setting::get('clinic_name', Setting::projectName()),
-                'mailBrandLabel' => (string) Setting::get('mail_brand_label', 'Lineupaligners'),
+                'clinicName' => Setting::clinicName(),
+                'mailBrandLabel' => Setting::normalizeBrandName((string) Setting::get(
+                    'mail_brand_label',
+                    config('settings.brand_name', 'Lineup Aligner')
+                )),
                 'logoUrl' => self::absoluteUrl(Setting::logoUrl()),
                 'websiteUrl' => (string) config('app.url', url('/')),
                 'clinicEmail' => (string) Setting::get('clinic_email', ''),
@@ -102,16 +105,10 @@ class LineUpMailBranding
     public static function fromName(): string
     {
         if (self::settingsAvailable()) {
-            $clinicName = trim((string) Setting::get('clinic_name', ''));
-
-            if (filled($clinicName)) {
-                return $clinicName;
-            }
-
-            return Setting::projectName();
+            return Setting::clinicName();
         }
 
-        return (string) config('mail.from.name', config('app.name'));
+        return Setting::normalizeBrandName((string) config('mail.from.name', config('app.name')));
     }
 
     public static function replyToAddress(): ?string
@@ -139,6 +136,18 @@ class LineUpMailBranding
     public static function subjectPrefix(string $subject): string
     {
         return self::fromName().' — '.$subject;
+    }
+
+    public static function subjectForPatient(string $patientName, string $detail): string
+    {
+        $patientName = trim($patientName);
+        $detail = trim($detail);
+
+        if ($patientName !== '' && stripos($detail, $patientName) === false) {
+            return self::subjectPrefix($patientName.' — '.$detail);
+        }
+
+        return self::subjectPrefix($detail);
     }
 
     public static function absoluteUrl(?string $url): ?string

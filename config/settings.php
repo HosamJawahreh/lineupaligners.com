@@ -1,10 +1,12 @@
 <?php
 
 return [
+    'brand_name' => 'Lineup Aligner',
+
     'defaults' => [
-        'project_name' => 'LineUp Aligners',
+        'project_name' => 'Lineup Aligner',
         'logo' => '',
-        'clinic_name' => 'LineUp Aligners',
+        'clinic_name' => 'Lineup Aligner',
         'clinic_email' => '',
         'clinic_phone' => '',
         'clinic_address' => '',

@@ -158,8 +158,8 @@ class WebsiteContent
             ],
             'sections' => $this->sectionVisibility($stored),
             'seo' => [
-                'meta_title' => $stored['website_meta_title'] ?? Setting::get('project_name', 'LineUp Aligners'),
-                'meta_description' => $stored['website_meta_description'] ?? 'LineUp Aligners — treatment case plans, 3D scans, and manufacturing workflows for doctors and clinics.',
+                'meta_title' => $stored['website_meta_title'] ?? Setting::projectName(),
+                'meta_description' => $stored['website_meta_description'] ?? Setting::projectName().' — treatment case plans, 3D scans, and manufacturing workflows for doctors and clinics.',
                 'titlebar_image' => $stored['website_titlebar_image'] ?? '',
             ],
             'navigation' => $this->navigation($stored),
@@ -1121,7 +1121,7 @@ class WebsiteContent
 
         if ($slides === []) {
             $slides = [[
-                'eyebrow' => $stored['website_hero_eyebrow'] ?? 'LineUp Aligners',
+                'eyebrow' => $stored['website_hero_eyebrow'] ?? Setting::projectName(),
                 'title' => $stored['website_hero_title'] ?? 'Precision clear aligner plans for modern clinics',
                 'cta_label' => $this->normalizePortalLabel($stored['website_hero_cta_label'] ?? null),
                 'image' => 'images/banner-slider-img/slider-01-slide1.jpg',
