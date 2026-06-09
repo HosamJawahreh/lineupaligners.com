@@ -261,16 +261,8 @@
                         @endforeach
                     </ul>
                 </aside>
+                <div class="case-scan-screen-grid" id="case-scan-screen-grid" aria-hidden="true"></div>
                 <canvas id="case-scan-canvas" aria-label="3D models preview"></canvas>
-                <div class="case-scan-legend" aria-hidden="true">
-                    @foreach($scanFiles as $file)
-                    <span class="case-scan-legend__item case-scan-legend__item--{{ $file['id'] }}"
-                          data-scan-id="{{ $file['id'] }}">
-                        <span class="case-scan-legend__dot"></span>
-                        {{ $file['label'] }}
-                    </span>
-                    @endforeach
-                </div>
                 <div class="case-scan-canvas-overlay is-hidden" id="case-scan-loading">
                     <span class="case-scan-spinner"></span>
                     <span id="case-scan-loading-text">Loading models…</span>

@@ -1,6 +1,5 @@
 @php
     $isDivided = $patient->isDividedStages();
-    $eligibleStages = $patient->modificationEligibleStageNumbers();
     $hasWorkflowPermission = $canRequestModification ?? false;
     $canRequestNow = $patient->canRequestModificationNow();
     $canRequest = $hasWorkflowPermission && $canRequestNow;
@@ -8,9 +7,6 @@
         ? $patient->hasActiveModificationForAny()
         : $patient->hasModificationAwaitingPlan(null);
     $reviewStage = $isDivided ? $patient->doctorReviewStageNumber() : null;
-    $autoStage = $isDivided
-        ? ($reviewStage && $eligibleStages->contains($reviewStage) ? $reviewStage : $eligibleStages->first())
-        : null;
 @endphp
 
 <div class="case-modification" id="case-modification-request">
@@ -21,16 +17,37 @@
         </p>
     </header>
 
+    @if(session('success') && (session('open_tab') === 'modification' || request('tab') === 'modification'))
+    <div class="case-modification__notice case-modification__notice--success" role="status">
+        <i class="zmdi zmdi-check-circle" aria-hidden="true"></i>
+        <p>{{ session('success') }}</p>
+    </div>
+    @endif
+
+    @if(session('error') && (session('open_tab') === 'modification' || request('tab') === 'modification'))
+    <div class="case-modification__notice case-modification__notice--error" role="alert">
+        <i class="zmdi zmdi-alert-circle" aria-hidden="true"></i>
+        <p>{{ session('error') }}</p>
+    </div>
+    @endif
+
+    @if($errors->any() && (session('open_tab') === 'modification' || request('tab') === 'modification' || old('notes') !== null))
+    <div class="case-modification__notice case-modification__notice--error" role="alert">
+        <i class="zmdi zmdi-alert-circle" aria-hidden="true"></i>
+        <p>{{ $errors->first('notes') ?: $errors->first() }}</p>
+    </div>
+    @endif
+
     <div class="case-modification__layout">
         <div class="case-modification__main">
             @if($canRequest)
-                @if($isDivided && $awaitingPlan && $eligibleStages->isNotEmpty())
+                @if($awaitingPlan)
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-                    <p>Some stages still have a modification in progress. You can submit a new request below for any stage that is ready.</p>
+                    <p>A modification is already in progress. You can still submit a new request when the current plan cycle allows it.</p>
                 </div>
                 @endif
-                @if(! $isDivided || $eligibleStages->isNotEmpty())
+
                 <section class="case-modification-card" aria-labelledby="case-modification-form-title">
                     <div class="case-modification-card__accent" aria-hidden="true"></div>
 
@@ -42,11 +59,7 @@
                             <p class="case-modification-card__kicker">Plan changes</p>
                             <h4 class="case-modification-card__title" id="case-modification-form-title">Submit modification request</h4>
                             <p class="case-modification-card__lead">
-                                @if($isDivided && $autoStage)
-                                    Modifying <strong>stage {{ $autoStage }}</strong>. Notes are required; scans and photos are optional.
-                                @else
-                                    Notes are required. Upload revised 3D scans and photos if needed — LineUp will prepare an updated plan for your review.
-                                @endif
+                                Notes are required. Upload revised 3D scans and photos if needed — LineUp will prepare an updated plan for your review.
                             </p>
                         </div>
                     </header>
@@ -86,7 +99,11 @@
                                           rows="5"
                                           maxlength="10000"
                                           required
+                                          aria-required="true"
                                           placeholder="Describe what should change in the new treatment plan (tooth movements, attachments, staging, etc.)">{{ old('notes') }}</textarea>
+                                @error('notes')
+                                <span class="case-modification-card__field-error" role="alert">{{ $message }}</span>
+                                @enderror
                                 <span class="case-modification-card__hint">Required — explain the changes LineUp should make to the plan.</span>
                             </div>
                         </div>
@@ -99,12 +116,6 @@
                         </footer>
                     </form>
                 </section>
-                @elseif($isDivided)
-                <div class="case-modification__notice case-modification__notice--info">
-                    <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-                    <p>No stage is ready for a new modification. Review the current stage in Treatment Plan, or wait until LineUp finishes a modification already in progress.</p>
-                </div>
-                @endif
             @elseif($patient->hasCompletedManufacturing())
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-lock" aria-hidden="true"></i>
@@ -114,12 +125,12 @@
                 @if($awaitingPlan)
                 <div class="case-modification__notice case-modification__notice--pending">
                     <i class="zmdi zmdi-time" aria-hidden="true"></i>
-                    <p>A modification is in progress{{ $isDivided ? ' for one or more stages' : '' }}. LineUp will upload a revised plan for you to review. After you approve it, the case continues toward manufacturing — refinement is only available after LineUp marks the case as manufactured.</p>
+                    <p>A modification is in progress. LineUp will upload a revised plan for you to review. After you approve it, the case continues toward manufacturing — refinement is only available after LineUp marks the case as manufactured.</p>
                 </div>
                 @elseif($hasWorkflowPermission && ! $canRequestNow && $reviewStage && ! $patient->hasActiveRefinement())
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-                    <p>Stage {{ $reviewStage }} is pending your approval on the <strong>Treatment Plan</strong> tab. You can also request a modification here before approving when this stage is eligible.</p>
+                    <p>A treatment plan is pending your approval on the <strong>Treatment Plan</strong> tab. You can request a modification here before approving when the case is eligible.</p>
                 </div>
                 @elseif(! $hasWorkflowPermission)
                 <div class="case-modification__notice case-modification__notice--info">
@@ -129,13 +140,7 @@
                 @else
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-                    <p>
-                        @if($isDivided)
-                            No stage is ready for modification right now. Approve the current stage on the Treatment Plan tab first.
-                        @else
-                            No modification can be started right now. A plan must be uploaded and awaiting your review, or already approved.
-                        @endif
-                    </p>
+                    <p>No modification can be started right now. A plan must be uploaded and awaiting your review, or already approved.</p>
                 </div>
                 @endif
             @else

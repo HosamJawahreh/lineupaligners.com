@@ -29,6 +29,8 @@ class PatientCaseModificationController extends Controller
     {
         $this->authorize('requestModification', $patient);
 
+        $request->request->remove('stage_number');
+
         $stageNumber = $this->resolveModificationStageNumber($patient);
 
         ScanZipExtractor::normalizeRequestFiles($request, ['upper_jaw_scan', 'lower_jaw_scan']);
@@ -53,8 +55,12 @@ class PatientCaseModificationController extends Controller
             );
         }
 
+        $request->merge([
+            'notes' => trim((string) $request->input('notes', '')),
+        ]);
+
         $validated = $request->validate([
-            'notes' => ['required', 'string', 'max:10000'],
+            'notes' => ['required', 'string', 'min:1', 'max:10000'],
             'upper_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
             'lower_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
             'photos' => ['nullable', 'array'],

@@ -220,6 +220,7 @@ class SmilizPageRegistry
                     ?? $groups[$groupKey]
                     ?? $groupKey)
                 : ($menuConfig['labels'][$groupKey] ?? $groups[$groupKey] ?? $groupKey);
+            $groupLabel = $this->normalizeMenuLabel($groupKey, $groupLabel, $locale);
 
             $menu[] = [
                 'group' => $groupKey,
@@ -533,7 +534,7 @@ class SmilizPageRegistry
     {
         if ($locale === 'ar') {
             if (filled($page['nav_label_ar'] ?? null)) {
-                return (string) $page['nav_label_ar'];
+                return $this->normalizeMenuLabel($page['key'], (string) $page['nav_label_ar'], $locale);
             }
 
             $labels = config('smiliz-pages-i18n-ar.nav_labels', []);
@@ -543,7 +544,26 @@ class SmilizPageRegistry
             }
         }
 
-        return $page['nav_label'];
+        return $this->normalizeMenuLabel($page['key'], (string) $page['nav_label'], $locale);
+    }
+
+    private function normalizeMenuLabel(string $key, string $label, ?string $locale): string
+    {
+        $label = trim($label);
+
+        if ($key === 'services' || $key === 'service-details') {
+            $legacy = $locale === 'ar'
+                ? ['الخدمات', 'خدمات التقويم الشفاف', 'خدماتنا']
+                : ['Services', 'Our Services', 'Service'];
+
+            if (in_array($label, $legacy, true)) {
+                return $locale === 'ar'
+                    ? (config('smiliz-pages-i18n-ar.groups.services') ?? 'لماذا LineUp')
+                    : (config('smiliz-pages.groups.services') ?? 'Why LineUp');
+            }
+        }
+
+        return $label;
     }
 
     private function localizedGroupLabel(string $groupKey, ?string $locale): ?string

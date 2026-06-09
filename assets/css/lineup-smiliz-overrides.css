@@ -402,6 +402,41 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
     transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.lineup-smiliz-site .lineup-nav-link__icon i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
+    font-style: normal;
+    line-height: 1;
+}
+
+.lineup-smiliz-site .lineup-nav-link__icon i:before {
+    display: block;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.lineup-smiliz-site .lineup-nav-link__icon i[class^="pbmit-base-icon-"]:before,
+.lineup-smiliz-site .lineup-nav-link__icon i[class*=" pbmit-base-icon-"]:before {
+    font-family: "pbminfotech-base-icons" !important;
+}
+
+.lineup-smiliz-site .lineup-nav-link__icon i[class^="pbmit-smiliz-icon-"]:before,
+.lineup-smiliz-site .lineup-nav-link__icon i[class*=" pbmit-smiliz-icon-"]:before {
+    font-family: pbmit_smiliz !important;
+}
+
+.lineup-smiliz-site .lineup-nav-link__icon i[class^="ti-"]:before,
+.lineup-smiliz-site .lineup-nav-link__icon i[class*=" ti-"]:before {
+    font-family: themify !important;
+    speak: never;
+}
+
 .lineup-smiliz-site .lineup-nav-link__icon .pbmit-smiliz-icon {
     font-size: 16px;
 }

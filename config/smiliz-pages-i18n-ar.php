@@ -7,7 +7,7 @@
 return [
     'groups' => [
         'about' => 'عن LineUp',
-        'services' => 'الخدمات',
+        'services' => 'لماذا LineUp',
         'case_study' => 'دراسات الحالة',
         'blog' => 'المدونة',
         'faq' => 'الأسئلة الشائعة',
@@ -20,7 +20,7 @@ return [
         'our-dentist' => 'فريقنا الطبي',
         'dentist-profile' => 'الملف التعريفي للطبيب',
         'appointment' => 'حجز موعد',
-        'service-details' => 'خدمات التقويم الشفاف',
+        'service-details' => 'لماذا LineUp',
         'faq' => 'الأسئلة الشائعة',
         'portfolio-grid-col-4' => 'دراسات الحالة',
         'case-study-style-1' => 'تفاصيل الحالة',

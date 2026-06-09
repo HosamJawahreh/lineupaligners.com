@@ -33,7 +33,7 @@
     @if($errors->any())
     <div class="case-refinement__notice case-refinement__notice--error" role="alert">
         <i class="zmdi zmdi-alert-circle" aria-hidden="true"></i>
-        <p>{{ $errors->first() }}</p>
+        <p>{{ $errors->first('notes') ?: $errors->first() }}</p>
     </div>
     @endif
 
@@ -123,7 +123,11 @@
                                           rows="5"
                                           maxlength="10000"
                                           required
+                                          aria-required="true"
                                           placeholder="Why the patient is returning, what changed clinically, and what LineUp should plan for this refinement…">{{ old('notes') }}</textarea>
+                                @error('notes')
+                                <span class="case-modification-card__field-error" role="alert">{{ $message }}</span>
+                                @enderror
                                 <span class="case-modification-card__hint">Required — explain why the patient is returning and what LineUp should plan.</span>
                             </div>
                         </div>

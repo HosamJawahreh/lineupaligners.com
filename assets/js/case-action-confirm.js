@@ -136,6 +136,20 @@
         $comment.focus();
     }
 
+    function warnMissingNotes($notes, message) {
+        if (window.AppAlert && typeof window.AppAlert.warning === 'function') {
+            window.AppAlert.warning(message);
+        } else {
+            window.alert(message);
+        }
+
+        $notes.focus();
+    }
+
+    function formRequiresNotes($form) {
+        return $form.is('.case-modification-card__form') || $form.is('#case-refinement-form');
+    }
+
     function submitForm($form, $trigger) {
         $form.data('caseConfirmPassed', true);
 
@@ -184,6 +198,19 @@
                 if ($comment.length && !$.trim($comment.val())) {
                     event.preventDefault();
                     warnMissingComment($comment);
+                    return;
+                }
+            }
+
+            if (formRequiresNotes($form)) {
+                var $notes = $form.find('textarea[name="notes"]');
+                var notesMessage = $form.is('#case-refinement-form')
+                    ? 'Please add refinement notes explaining why the patient is returning and what LineUp should plan.'
+                    : 'Please add modification notes explaining what LineUp should change.';
+
+                if ($notes.length && !$.trim($notes.val())) {
+                    event.preventDefault();
+                    warnMissingNotes($notes, notesMessage);
                     return;
                 }
             }

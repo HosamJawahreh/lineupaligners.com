@@ -31,6 +31,7 @@ if (root && canvas) {
     const upperPlaceholderUrl = root.dataset.upperPlaceholder || '';
     const lowerPlaceholderUrl = root.dataset.lowerPlaceholder || '';
     const canvasWrap = document.getElementById('case-scan-canvas-wrap');
+    const screenGridEl = document.getElementById('case-scan-screen-grid');
     const viewerPane = document.getElementById('case-scan-viewer-pane');
     const toolbar = root.querySelector('.case-scan-toolbar');
     const loadingEl = document.getElementById('case-scan-loading');
@@ -43,12 +44,12 @@ if (root && canvas) {
     const EMPTY_SCAN_SET_MESSAGE = 'No 3D scan files in this scan version. Switch scan version or upload scans when editing the case.';
 
     const SCAN_STYLES = {
-        upper: { color: 0xf8fafc, label: 'Upper' },
-        lower: { color: 0xe2e8f0, label: 'Lower' },
+        upper: { color: 0xeceff1, label: 'Upper' },
+        lower: { color: 0xeceff1, label: 'Lower' },
     };
 
     /** >1 pulls camera back so models appear smaller on screen */
-    const CAMERA_DISTANCE_FACTOR = 1.55;
+    const CAMERA_DISTANCE_FACTOR = 1.38;
 
     const BG_COLORS_LIGHT = [0xb8c5d4, 0xe2e8f0, 0xf8fafc, 0x1e293b];
     const BG_COLORS_DARK = [0x0c1117, 0x161b22, 0x1c2330, 0x0f1623];
@@ -85,7 +86,6 @@ if (root && canvas) {
     };
 
     let axesHelper = null;
-    let gridHelper = null;
     let layoutSnapshot = null;
     let autoRotateBeforeMove = false;
     let selectedScanId = null;
@@ -109,7 +109,7 @@ if (root && canvas) {
     const pointerNdc = new THREE.Vector2();
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(getBgColors()[getDefaultBgIndex()]);
+    scene.background = null;
 
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 8000);
     camera.position.set(0, 40, 180);
@@ -117,10 +117,11 @@ if (root && canvas) {
     const renderer = new THREE.WebGLRenderer({
         canvas,
         antialias: true,
-        alpha: false,
+        alpha: true,
         preserveDrawingBuffer: true,
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const controls = new OrbitControls(camera, canvas);
@@ -449,11 +450,11 @@ if (root && canvas) {
     let loadedCount = 0;
 
     function materialFor(scanId) {
-        const style = SCAN_STYLES[scanId] || { color: 0xf8fafc };
-        return new THREE.MeshPhongMaterial({
+        const style = SCAN_STYLES[scanId] || { color: 0xeceff1 };
+        return new THREE.MeshStandardMaterial({
             color: style.color,
-            specular: 0x333333,
-            shininess: 40,
+            metalness: 0.02,
+            roughness: 0.78,
             flatShading: false,
             side: THREE.DoubleSide,
         });
@@ -846,7 +847,7 @@ if (root && canvas) {
             viewerState.bgIndex = getDefaultBgIndex();
         }
         const hex = palette[viewerState.bgIndex];
-        scene.background = new THREE.Color(hex);
+        scene.background = null;
         const css = '#' + hex.toString(16).padStart(6, '0');
         if (canvasWrap) {
             canvasWrap.style.background = css;
@@ -854,6 +855,14 @@ if (root && canvas) {
         if (viewerPane && !document.fullscreenElement) {
             viewerPane.style.background = css;
         }
+    }
+
+    function syncScreenGrid() {
+        if (!canvasWrap) {
+            return;
+        }
+
+        canvasWrap.classList.toggle('is-screen-grid-off', !viewerState.showGrid);
     }
 
     function applyLighting() {
@@ -1138,22 +1147,7 @@ if (root && canvas) {
 
     function setGrid(on) {
         viewerState.showGrid = on;
-        if (on && !gridHelper) {
-            const gridColors = getGridColors();
-            gridHelper = new THREE.GridHelper(240, 24, gridColors.center, gridColors.grid);
-            scene.add(gridHelper);
-            updateGridPosition();
-        } else if (!on && gridHelper) {
-            scene.remove(gridHelper);
-            gridHelper.geometry?.dispose();
-            const mats = gridHelper.material;
-            if (Array.isArray(mats)) {
-                mats.forEach((m) => m.dispose());
-            } else {
-                mats?.dispose();
-            }
-            gridHelper = null;
-        }
+        syncScreenGrid();
         setToggleActive('grid', on);
     }
 
@@ -1364,14 +1358,6 @@ if (root && canvas) {
         return Array.from(meshesById.values()).filter((entry) => entry.wrapper.visible);
     }
 
-    function syncLegendVisibility(scanId, isVisible) {
-        root.querySelectorAll('.case-scan-legend__item[data-scan-id]').forEach((item) => {
-            if (item.getAttribute('data-scan-id') === scanId) {
-                item.classList.toggle('is-off', !isVisible);
-            }
-        });
-    }
-
     function syncFileCardVisibility(scanId, isVisible) {
         const card = root.querySelector('.case-scan-file-card[data-scan-id="' + scanId + '"]');
         if (card) {
@@ -1443,7 +1429,7 @@ if (root && canvas) {
         afterLayout(() => {
             if (resize()) {
                 if (refitCamera) {
-                    fitCameraToModels();
+                    applyInitialCameraView();
                 }
             }
         });
@@ -1658,44 +1644,95 @@ if (root && canvas) {
         });
     }
 
-    function orientBiteGroupForFrontView(upper, lower) {
-        const xRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
-        const yRotations = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
-        let best = { rotX: 0, rotY: 0, score: -Infinity };
+    function alignRegisteredBiteUpAxis(upper, lower) {
+        biteGroup.rotation.set(0, 0, 0);
+        biteGroup.updateMatrixWorld(true);
 
-        yRotations.forEach((rotY) => {
-            xRotations.forEach((rotX) => {
-                biteGroup.rotation.set(rotX, rotY, 0);
-                biteGroup.updateMatrixWorld(true);
+        const initial = measureRegisteredBite(upper, lower);
+        if (initial.upAxis === 'y') {
+            return;
+        }
 
-                const reg = measureRegisteredBite(upper, lower);
-                const front = getClinicalFrontScore(upper, lower);
-                const horizontal = getOcclusalHorizontalScore(upper, lower);
-                const score = reg.score * 8 + front * 2 + horizontal * 5;
+        const candidates = [];
 
-                if (score > best.score) {
-                    best = { rotX, rotY, score };
-                }
-            });
+        if (initial.upAxis === 'z') {
+            candidates.push(
+                { rotX: -Math.PI / 2, rotY: 0, rotZ: 0 },
+                { rotX: Math.PI / 2, rotY: 0, rotZ: 0 }
+            );
+        } else if (initial.upAxis === 'x') {
+            candidates.push(
+                { rotX: 0, rotY: 0, rotZ: Math.PI / 2 },
+                { rotX: 0, rotY: 0, rotZ: -Math.PI / 2 }
+            );
+        }
+
+        let best = { rotX: 0, rotY: 0, rotZ: 0, score: -Infinity };
+
+        candidates.forEach(({ rotX, rotY, rotZ }) => {
+            biteGroup.rotation.set(rotX, rotY, rotZ);
+            biteGroup.updateMatrixWorld(true);
+
+            const reg = measureRegisteredBite(upper, lower);
+            const front = getClinicalFrontScore(upper, lower);
+            const score = reg.score + front * 3 + (reg.upAxis === 'y' ? 24 : 0);
+
+            if (score > best.score) {
+                best = { rotX, rotY, rotZ, score };
+            }
         });
 
-        biteGroup.rotation.set(best.rotX, best.rotY, 0);
+        biteGroup.rotation.set(best.rotX, best.rotY, best.rotZ);
         biteGroup.updateMatrixWorld(true);
     }
 
     function refineBiteGroupFrontYaw(upper, lower) {
         const baseRotX = biteGroup.rotation.x;
         const baseRotY = biteGroup.rotation.y;
+        const baseRotZ = biteGroup.rotation.z;
 
         const tryYaw = (rotY) => {
-            biteGroup.rotation.set(baseRotX, rotY, 0);
+            biteGroup.rotation.set(baseRotX, rotY, baseRotZ);
             biteGroup.updateMatrixWorld(true);
             return getClinicalFrontScore(upper, lower);
         };
 
         const score0 = tryYaw(baseRotY);
         const score180 = tryYaw(baseRotY + Math.PI);
-        biteGroup.rotation.set(baseRotX, score180 > score0 ? baseRotY + Math.PI : baseRotY, 0);
+        biteGroup.rotation.set(baseRotX, score180 > score0 ? baseRotY + Math.PI : baseRotY, baseRotZ);
+        biteGroup.updateMatrixWorld(true);
+    }
+
+    function isOcclusalTopPresentation(upper, lower) {
+        const horizontal = getOcclusalHorizontalScore(upper, lower);
+        const smile = Math.max(getSmileFacingScore(upper, lower, 1), getSmileFacingScore(upper, lower, -1));
+
+        return horizontal > 0.42 && smile < horizontal * 0.4;
+    }
+
+    /** When registration is Y-up but the arch still presents occlusal toward the camera, pitch the pair. */
+    function correctRegisteredBitePitch(upper, lower) {
+        if (!isOcclusalTopPresentation(upper, lower)) {
+            return;
+        }
+
+        const baseRotY = biteGroup.rotation.y;
+        const baseRotZ = biteGroup.rotation.z;
+        let best = {
+            rotX: biteGroup.rotation.x,
+            score: getClinicalFrontScore(upper, lower),
+        };
+
+        [-Math.PI / 2, Math.PI / 2].forEach((rotX) => {
+            biteGroup.rotation.set(rotX, baseRotY, baseRotZ);
+            biteGroup.updateMatrixWorld(true);
+            const score = getClinicalFrontScore(upper, lower);
+            if (score > best.score) {
+                best = { rotX, score };
+            }
+        });
+
+        biteGroup.rotation.set(best.rotX, baseRotY, baseRotZ);
         biteGroup.updateMatrixWorld(true);
     }
 
@@ -1706,15 +1743,14 @@ if (root && canvas) {
         resetBiteGroupOrientation();
         ensureBiteGroupPair(upper, lower);
 
-        forceCloseRegisteredGap(upper, lower);
-        recenterBiteGroupLocally();
-
-        orientBiteGroupForFrontView(upper, lower);
+        alignRegisteredBiteUpAxis(upper, lower);
+        correctRegisteredBitePitch(upper, lower);
         forceCloseRegisteredGap(upper, lower);
         recenterBiteGroupLocally();
 
         refineBiteGroupFrontYaw(upper, lower);
         forceCloseRegisteredGap(upper, lower);
+        recenterBiteGroupLocally();
     }
 
     function stackAutoOrientedBite(upper, lower) {
@@ -1728,6 +1764,8 @@ if (root && canvas) {
 
         const best = findBestBiteOrientation(upper, lower);
         ensureFrontSmileOrientation(upper, lower, best);
+        ensureBiteGroupPair(upper, lower);
+        recenterBiteGroupLocally();
     }
 
     /** Convert common scanner axes (Z-up / X-up) to Y-up. */
@@ -2109,16 +2147,9 @@ if (root && canvas) {
         return box;
     }
 
-    /** Aim at incisors — slightly below mid-height, toward the anterior of the arch. */
-    function getFrontFocusPoint(upper, lower, dirZ) {
-        const box = getBiteBounds(upper, lower);
-        const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
-        const anteriorZ = dirZ > 0
-            ? box.max.z - size.z * 0.2
-            : box.min.z + size.z * 0.2;
-
-        return new THREE.Vector3(center.x, center.y - size.y * 0.06, anteriorZ);
+    /** Aim at the bite center for a centered clinical front presentation. */
+    function getFrontFocusPoint(upper, lower) {
+        return getBiteBounds(upper, lower).getCenter(new THREE.Vector3());
     }
 
     function computeFrontCameraDistance(focus, size) {
@@ -2132,8 +2163,8 @@ if (root && canvas) {
             const halfHFov = halfVFov * camera.aspect;
             distance = Math.max(
                 distance,
-                (size.y * 0.55) / halfVFov,
-                (size.x * 0.52) / halfHFov
+                (size.y * 0.62) / halfVFov,
+                (size.x * 0.58) / halfHFov
             );
         }
 
@@ -2157,7 +2188,7 @@ if (root && canvas) {
         const dirZ = getFrontCameraDirection(upper, lower);
         const box = getBiteBounds(upper, lower);
         const size = box.getSize(new THREE.Vector3());
-        const focus = getFrontFocusPoint(upper, lower, dirZ);
+        const focus = getFrontFocusPoint(upper, lower);
         const distance = computeFrontCameraDistance(focus, size);
 
         controls.target.copy(focus);
@@ -2408,38 +2439,17 @@ if (root && canvas) {
 
         const registered = measureRegisteredBite(upper, lower);
 
-        if (registered.score >= REGISTERED_BITE_MIN_SCORE || (registered.overlap ?? 0) > 0.15) {
+        if (registered.overlap >= 0.18 || registered.score >= 10) {
             stackRegisteredBite(upper, lower);
         } else {
             stackAutoOrientedBite(upper, lower);
+            ensureBiteGroupPair(upper, lower);
         }
 
         const lowerBox = new THREE.Box3().setFromObject(lower.wrapper);
         const upperBox = new THREE.Box3().setFromObject(upper.wrapper);
         lower.size = lowerBox.getSize(new THREE.Vector3());
         upper.size = upperBox.getSize(new THREE.Vector3());
-    }
-
-    function updateGridPosition() {
-        if (!gridHelper) {
-            return;
-        }
-
-        const box = new THREE.Box3();
-        getVisibleMeshEntries().forEach((entry) => {
-            box.expandByObject(entry.wrapper);
-        });
-
-        if (box.isEmpty()) {
-            gridHelper.position.y = -0.01;
-            return;
-        }
-
-        gridHelper.position.y = box.min.y - Math.max(box.getSize(new THREE.Vector3()).y * 0.02, 0.5);
-    }
-
-    function fitFrontBiteCamera() {
-        applyFrontBiteCameraView();
     }
 
     function applyInitialCameraView() {
@@ -2451,7 +2461,7 @@ if (root && canvas) {
             && lower.wrapper.visible;
 
         if (hasBitePair) {
-            fitFrontBiteCamera();
+            applyFrontBiteCameraView();
             return;
         }
 
@@ -2494,7 +2504,6 @@ if (root && canvas) {
 
         modelGroup.position.set(0, 0, 0);
         centerModelGroup();
-        updateGridPosition();
         applyInitialCameraView();
         captureLayoutSnapshot();
         refreshAxesIfVisible();
@@ -2583,7 +2592,6 @@ if (root && canvas) {
         }
 
         entry.wrapper.visible = isVisible;
-        syncLegendVisibility(scanId, isVisible);
         syncFileCardVisibility(scanId, isVisible);
 
         if (viewerState.moveMode && selectedScanId === scanId && !isVisible) {
@@ -2627,9 +2635,6 @@ if (root && canvas) {
         selectedScanId = null;
         layoutSnapshot = null;
         syncMoveSelectionUi();
-        root.querySelectorAll('.case-scan-legend__item[data-scan-id]').forEach((item) => {
-            item.classList.add('is-off');
-        });
     }
 
     function updateModificationNotes(notes, setKey) {
@@ -2657,18 +2662,6 @@ if (root && canvas) {
 
         modNotesText.textContent = text;
         modNotesEl.classList.remove('is-hidden');
-    }
-
-    function rebuildLegend(files) {
-        const legend = root.querySelector('.case-scan-legend');
-        if (!legend) {
-            return;
-        }
-
-        legend.innerHTML = files.map((file) => (
-            `<span class="case-scan-legend__item case-scan-legend__item--${file.id}" data-scan-id="${file.id}">`
-            + `<span class="case-scan-legend__dot"></span>${file.label}</span>`
-        )).join('');
     }
 
     function escapeHtml(value) {
@@ -2746,7 +2739,6 @@ if (root && canvas) {
         scans = set.files;
         root.dataset.scans = JSON.stringify(scans);
         updateModificationNotes(set.notes, set.key);
-        rebuildLegend(scans);
         rebuildFileList(scans);
 
         clearAllMeshes();
@@ -2884,7 +2876,6 @@ if (root && canvas) {
         scans = initialScanSet.files;
         root.dataset.scans = JSON.stringify(scans);
         updateModificationNotes(initialScanSet.notes, initialScanSet.key);
-        rebuildLegend(scans);
         rebuildFileList(scans);
     }
 

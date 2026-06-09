@@ -1835,6 +1835,10 @@ body.lineup-app.lineup-color-dark .case-scan-canvas-wrap {
     background: #0c1117 !important;
 }
 
+body.lineup-app.lineup-color-dark .case-scan-screen-grid {
+    --case-scan-grid-line: rgba(148, 163, 184, 0.18);
+}
+
 body.lineup-app.lineup-color-dark .case-scan-canvas-overlay {
     background: rgba(12, 17, 23, 0.94) !important;
     color: var(--lineup-text-secondary) !important;
@@ -2002,6 +2006,16 @@ body.lineup-app.lineup-color-dark .case-modification-card__uploads--compact .cas
 
 body.lineup-app.lineup-color-dark .case-modification-card__uploads--compact .case-photo-preview-item img {
     border-color: var(--lineup-border) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-modification-card__uploads--compact .case-photo-preview-item__remove {
+    border-color: var(--lineup-surface-elevated) !important;
+    background: #ef4444 !important;
+    color: #fff !important;
+}
+
+body.lineup-app.lineup-color-dark .case-modification-card__uploads--compact .case-photo-preview-item__remove:hover {
+    background: #dc2626 !important;
 }
 
 body.lineup-app.lineup-color-dark .case-modification-card--refinement .case-modification-card__uploads--compact .case-photos-dropzone {

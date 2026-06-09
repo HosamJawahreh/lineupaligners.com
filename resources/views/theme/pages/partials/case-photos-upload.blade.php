@@ -1,7 +1,8 @@
 @php
     $uploadId = $uploadId ?? 'case-photos';
+    $compact = $compact ?? true;
 @endphp
-<div class="case-photos-upload-block">
+<div class="case-photos-upload-block @if($compact) case-photos-upload-block--compact @endif" @if($compact) data-photos-compact @endif>
     <label class="case-photos-upload-block__label">
         Photos <span class="text-success small">optional — multiple</span>
     </label>
