@@ -132,12 +132,64 @@ class Patient extends Model
 
     public function hasActiveRefinement(): bool
     {
-        return $this->currentRefinement() !== null;
+        return $this->activeRefinementId() !== null;
     }
 
     public function activeRefinementId(): ?int
     {
-        return $this->currentRefinement()?->id;
+        if ($current = $this->currentRefinement()) {
+            return $current->id;
+        }
+
+        return $this->refinementIdPendingManufacture();
+    }
+
+    /**
+     * Refinement approved by the doctor but not yet marked manufactured (legacy rows may have is_current=false).
+     */
+    public function refinementIdPendingManufacture(): ?int
+    {
+        if ($this->hasCompletedManufacturing() || ! Schema::hasTable('patient_case_refinements')) {
+            return null;
+        }
+
+        $refinement = $this->caseRefinements()->orderByDesc('version')->first();
+
+        if ($refinement === null || $refinement->is_current) {
+            return null;
+        }
+
+        $plan = $this->treatmentPlans()
+            ->where('refinement_id', $refinement->id)
+            ->whereNull('stage_number')
+            ->where('is_current', true)
+            ->first();
+
+        return ($plan !== null && $plan->isApproved()) ? $refinement->id : null;
+    }
+
+    /** Re-open a refinement cycle that was closed on plan approval before manufacture (legacy bug). */
+    public function reconcileRefinementCycleState(): void
+    {
+        if (! Schema::hasTable('patient_case_refinements')) {
+            return;
+        }
+
+        $pendingId = $this->refinementIdPendingManufacture();
+
+        if ($pendingId === null) {
+            return;
+        }
+
+        PatientCaseRefinement::query()
+            ->where('patient_id', $this->id)
+            ->update(['is_current' => false]);
+
+        PatientCaseRefinement::query()
+            ->where('id', $pendingId)
+            ->update(['is_current' => true]);
+
+        $this->unsetRelation('caseRefinements');
     }
 
     public function hasRefinementTreatmentPlanHistory(): bool
@@ -1090,9 +1142,11 @@ class Patient extends Model
                 $refFullPlans = $this->visibleFullTreatmentPlansForRefinement($ref->id);
                 $refStagePlans = $this->currentStageTreatmentPlansForRefinement($ref->id);
 
+                $isActiveRefinement = $this->activeRefinementId() === $ref->id;
+
                 if ($refFullPlans->isEmpty()
                     && $refStagePlans->isEmpty()
-                    && ! $ref->is_current) {
+                    && ! $isActiveRefinement) {
                     continue;
                 }
 
@@ -1107,7 +1161,7 @@ class Patient extends Model
                     $latestRefAt
                         ? \Carbon\Carbon::parse($latestRefAt)
                         : ($ref->created_at ?? now()),
-                    $ref->is_current,
+                    $isActiveRefinement,
                     [
                         'refinement_id' => $ref->id,
                         'refinement' => $ref,

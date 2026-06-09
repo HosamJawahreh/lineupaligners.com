@@ -70,9 +70,13 @@ class PatientCaseRefinement extends Model
 
     public function statusLabel(): string
     {
-        if ($this->is_current) {
-            $plan = $this->displayTreatmentPlan();
+        $plan = $this->displayTreatmentPlan();
 
+        if ($plan?->isApproved()) {
+            return 'Awaiting manufacture';
+        }
+
+        if ($this->is_current || $plan !== null) {
             return $plan !== null ? 'Awaiting doctor review' : 'Awaiting treatment plan';
         }
 

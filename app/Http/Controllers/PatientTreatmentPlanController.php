@@ -143,7 +143,7 @@ class PatientTreatmentPlanController extends Controller
 
         if ($validated['decision'] === 'approved') {
             $message = $plan->refinement_id
-                ? 'Refinement plan approved. This refinement cycle is complete. The patient may order a new refinement when they return.'
+                ? 'Refinement plan approved. LineUp will mark this refinement cycle as manufactured when production is complete.'
                 : 'Treatment plan approved. You may request another modification before manufacture, or wait for LineUp to mark the case as manufactured.';
             $tab = 'manufacture-plan';
         } else {

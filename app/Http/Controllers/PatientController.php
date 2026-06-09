@@ -154,6 +154,8 @@ class PatientController extends Controller
         $relations[] = 'treatmentPlans.uploader';
         $relations[] = 'treatmentPlans.reviewer';
         $patient->load($relations);
+        $patient->reconcileRefinementCycleState();
+        $patient->refresh();
 
         if (auth()->user()->can('chat', $patient)) {
             PatientCaseMessage::markIncomingAsReadFor($patient, (int) auth()->id());

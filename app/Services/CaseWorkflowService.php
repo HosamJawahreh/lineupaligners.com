@@ -83,12 +83,8 @@ class CaseWorkflowService
 
     public function afterPlanReview(Patient $patient, ?PatientTreatmentPlan $reviewedPlan = null): void
     {
-        if ($reviewedPlan?->isApproved()) {
-            if ($reviewedPlan->refinement_id) {
-                $this->closeActiveRefinementsForScope($patient);
-            } else {
-                $this->closeActiveModificationsForScope($patient, null);
-            }
+        if ($reviewedPlan?->isApproved() && ! $reviewedPlan->refinement_id) {
+            $this->closeActiveModificationsForScope($patient, null);
         }
 
         $this->syncFromPlans($patient);

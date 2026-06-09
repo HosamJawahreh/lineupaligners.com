@@ -12,7 +12,16 @@
      data-mfg-context-panel="{{ $ctxKey }}"
      @if(! $isDefault) hidden @endif>
 
-    @if($isActiveCtx && $ctxType === 'refinement')
+    @php $ctxFullPlan = $ctx['full_plan'] ?? null; @endphp
+    @if($isActiveCtx && $ctxType === 'refinement' && $ctxFullPlan?->isApproved())
+    <div class="mfg-plan__mod-banner mfg-plan__mod-banner--refinement mfg-plan__mod-banner--refinement-approved" role="status">
+        <i class="zmdi zmdi-check-circle" aria-hidden="true"></i>
+        <div>
+            <strong>Refinement plan approved</strong>
+            <p>The doctor approved this refinement treatment plan. LineUp can mark this refinement cycle as manufactured when production is complete.</p>
+        </div>
+    </div>
+    @elseif($isActiveCtx && $ctxType === 'refinement')
     <div class="mfg-plan__mod-banner mfg-plan__mod-banner--refinement" role="status">
         <i class="zmdi zmdi-swap-vertical" aria-hidden="true"></i>
         <div>
