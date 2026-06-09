@@ -30,10 +30,13 @@ class PatientTreatmentPlanController extends Controller
             'plan_url' => ['required', 'url', 'max:2048'],
         ]);
 
-        DB::transaction(function () use ($patient, $validated) {
+        $isRevisionUpload = false;
+
+        DB::transaction(function () use ($patient, $validated, &$isRevisionUpload) {
             $activeModification = $patient->currentModification(null);
 
             if ($activeModification !== null && $patient->activeRefinementId() === null) {
+                $isRevisionUpload = true;
                 $this->applyModificationPlanRevision($patient, $activeModification, $validated['plan_url'], null);
                 $this->workflow->afterPlanUploaded($patient);
 
@@ -45,9 +48,19 @@ class PatientTreatmentPlanController extends Controller
         });
 
         $patient->load('doctor.user');
-        app(LineUpNotifier::class)->planUploaded($patient, auth()->user(), null);
+        app(LineUpNotifier::class)->planUploaded($patient, auth()->user(), null, $isRevisionUpload);
 
-        return $this->redirectToTab($patient, 'Treatment plan submitted for doctor review.');
+        $openTab = ($isRevisionUpload || $patient->activeRefinementId())
+            ? 'manufacture-plan'
+            : 'modification';
+
+        return $this->redirectToTab(
+            $patient,
+            'Treatment plan submitted for doctor review.',
+            'success',
+            null,
+            $openTab
+        );
     }
 
     public function storeStage(Request $request, Patient $patient): RedirectResponse
@@ -82,10 +95,13 @@ class PatientTreatmentPlanController extends Controller
             );
         }
 
-        DB::transaction(function () use ($patient, $validated, $stageNumber) {
+        $isRevisionUpload = false;
+
+        DB::transaction(function () use ($patient, $validated, $stageNumber, &$isRevisionUpload) {
             $activeModification = $patient->currentModification($stageNumber);
 
             if ($activeModification !== null && $patient->activeRefinementId() === null) {
+                $isRevisionUpload = true;
                 $this->applyModificationPlanRevision($patient, $activeModification, $validated['plan_url'], $stageNumber);
                 $this->workflow->afterPlanUploaded($patient);
 
@@ -104,13 +120,18 @@ class PatientTreatmentPlanController extends Controller
         });
 
         $patient->load('doctor.user');
-        app(LineUpNotifier::class)->planUploaded($patient, auth()->user(), $stageNumber);
+        app(LineUpNotifier::class)->planUploaded($patient, auth()->user(), $stageNumber, $isRevisionUpload);
+
+        $openTab = ($isRevisionUpload || $patient->activeRefinementId())
+            ? 'manufacture-plan'
+            : 'modification';
 
         return $this->redirectToTab(
             $patient,
             "Stage {$stageNumber} submitted for doctor review.",
             'success',
-            $stageNumber
+            $stageNumber,
+            $openTab
         );
     }
 

@@ -1652,6 +1652,15 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     min-width: 0;
 }
 
+.case-scan-section__head-end {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+    margin-left: auto;
+    min-width: 0;
+}
+
 .case-scan-section__head h3 {
     margin: 0;
     font-size: 13px;
@@ -3218,6 +3227,13 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 
 .mfg-plan__review-form--prominent {
     margin: 0;
+}
+
+.mfg-plan__review-form--approve-only {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    display: contents;
 }
 
 .mfg-plan__review-actions--prominent {
@@ -5800,6 +5816,17 @@ a.case-data-zip-chip:focus-visible {
     .case-photos-gallery-trigger__inner {
         width: 100%;
         box-sizing: border-box;
+    }
+
+    .case-scan-section__head-end {
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-start;
+    }
+
+    .case-scan-section__head-end .case-data-zip-chip {
+        max-width: none;
+        width: 100%;
     }
 }
 

@@ -391,15 +391,16 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--lineup-brand) 10%, #fff);
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: transparent;
     color: var(--lineup-brand-secondary);
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1;
     flex-shrink: 0;
-    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: none;
+    transition: color 0.2s ease;
 }
 
 .lineup-smiliz-site .lineup-nav-link__icon i {
@@ -448,9 +449,16 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 .lineup-smiliz-site .main-menu .navigation > li.active > a .lineup-nav-link__icon,
 .lineup-smiliz-site .main-menu .navigation > li > a:hover .lineup-nav-link__icon,
 .lineup-smiliz-site .main-menu .navigation > li > a:focus-visible .lineup-nav-link__icon {
-    background: linear-gradient(145deg, var(--lineup-brand-secondary) 0%, var(--lineup-brand) 100%);
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(var(--lineup-brand-secondary-rgb, 26, 127, 212), 0.25);
+    background: transparent;
+    color: var(--lineup-brand);
+    box-shadow: none;
+}
+
+/* Formal header nav — no underline bars on active/hover */
+.lineup-smiliz-site .pbmit-navbar > div > ul > li > a::before,
+.lineup-smiliz-site .main-menu .navigation > li > ul a:before,
+.lineup-smiliz-site .main-menu .navigation > li > ul li.active > a:before {
+    display: none !important;
 }
 
 .lineup-smiliz-site .main-menu .navigation > li > ul .lineup-nav-link {
@@ -458,10 +466,11 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
 }
 
 .lineup-smiliz-site .main-menu .navigation > li > ul .lineup-nav-link__icon {
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
-    border-radius: 6px;
+    width: auto;
+    height: auto;
+    font-size: 14px;
+    border-radius: 0;
+    background: transparent;
 }
 
 .lineup-smiliz-site .main-menu .navigation > li > ul .lineup-nav-link__icon .pbmit-smiliz-icon {

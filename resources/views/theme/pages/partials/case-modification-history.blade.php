@@ -7,7 +7,7 @@
 <div class="case-timeline" id="case-modification-history">
     <header class="case-timeline__header">
         <div class="case-timeline__header-text">
-            <h3 class="case-timeline__title">Case history</h3>
+            <h3 class="case-timeline__title">Full case history</h3>
             <p class="case-timeline__subtitle">
                 A complete audit trail for this case — plans, reviews, manufacturing, modifications, and milestones in chronological order.
             </p>

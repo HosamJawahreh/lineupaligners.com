@@ -394,7 +394,7 @@ class PatientController extends Controller
         $this->storeCaseDataZip($request, $patient);
         $this->syncPrimaryPhoto($patient);
 
-        return redirect()->route('patients.index')->with('success', 'Patient case study updated successfully.');
+        return redirect()->route('patients.show', $patient)->with('success', 'Patient case study updated successfully.');
     }
 
     public function destroy(Patient $patient): RedirectResponse

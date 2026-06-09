@@ -963,17 +963,23 @@ body.lineup-app.lineup-color-dark .cases-mobile-card__foot {
 }
 
 @media (max-width: 400px) {
-    .case-study-tab span {
-        display: none;
+    .case-study-tab {
+        padding: 8px 6px;
+        min-height: 56px;
+        gap: 4px;
+        flex-direction: column;
     }
 
-    .case-study-tab {
-        padding: 12px 14px;
-        max-width: none;
-        min-width: 48px;
+    .case-study-tab span {
+        display: block;
+        font-size: 9px;
+        line-height: 1.2;
+        white-space: normal;
+        text-align: center;
+        word-break: break-word;
     }
 
     .case-study-tab i {
-        font-size: 22px;
+        font-size: 18px;
     }
 }

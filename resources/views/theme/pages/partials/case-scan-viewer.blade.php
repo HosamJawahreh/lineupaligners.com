@@ -28,7 +28,7 @@
         @endif
         <hr class="case-scan-section__divider" role="presentation" aria-hidden="true">
         <div class="case-scan-section__head">
-            <div class="case-scan-section__head-inline @if($hasAnyPhotos || $hasCaseDataZip) case-scan-section__head-inline--has-photos @endif" aria-label="3D models and scan files">
+            <div class="case-scan-section__head-inline @if($hasAnyPhotos) case-scan-section__head-inline--has-photos @endif" aria-label="3D models and scan files">
                 <div class="case-scan-section__head-start">
                     <h3>3D Models</h3>
                     @if($patient)
@@ -38,7 +38,6 @@
                             'caseScanSets' => $scanSets,
                             'defaultScanSetKey' => $defaultScanSetKey,
                         ])
-                        @include('theme.pages.partials.case-data-zip-chip', ['patient' => $patient])
                     @endif
                 </div>
                 @if($hasScanSets)
@@ -57,6 +56,11 @@
                             @endforeach
                         </select>
                     </div>
+                </div>
+                @endif
+                @if($patient && $hasCaseDataZip)
+                <div class="case-scan-section__head-end">
+                    @include('theme.pages.partials.case-data-zip-chip', ['patient' => $patient])
                 </div>
                 @endif
             </div>

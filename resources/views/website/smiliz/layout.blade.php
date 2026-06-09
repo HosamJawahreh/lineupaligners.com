@@ -82,7 +82,7 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/lineup-performance.css') }}?v=1">
 
-    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-overrides.css') }}?v=83">
+    <link rel="stylesheet" href="{{ asset('assets/css/lineup-smiliz-overrides.css') }}?v=84">
 
     <link rel="stylesheet" href="{{ asset('assets/css/lineup-brand-system.css') }}?v=3">
 

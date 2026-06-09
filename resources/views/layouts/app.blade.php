@@ -44,7 +44,7 @@
 @stack('styles')
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-form-pages.css') }}?v=3">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-responsive.css') }}?v=3">
-<link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=11">
+<link rel="stylesheet" href="{{ asset('assets/css/lineup-mobile.css') }}?v=12">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-performance.css') }}?v=1">
 <link rel="stylesheet" href="{{ asset('assets/css/lineup-theme-mode.css') }}?v=25">
 </head>

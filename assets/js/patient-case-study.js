@@ -58,6 +58,35 @@
         return true;
     }
 
+    function focusModificationPanel() {
+        var target = document.getElementById('case-modification-form-title')
+            || document.getElementById('case-modification-request');
+
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    function switchCaseStudyTab(tabId) {
+        if (!tabId) {
+            return false;
+        }
+
+        if (!activateTab(tabId)) {
+            return false;
+        }
+
+        persistActiveTab(tabId);
+
+        if (tabId === 'modification') {
+            focusModificationPanel();
+        }
+
+        return true;
+    }
+
+    window.switchCaseStudyTab = switchCaseStudyTab;
+
     function initTabs() {
         $('.case-study-tab').on('click', function () {
             var tabId = $(this).data('tab');
@@ -67,19 +96,14 @@
             }
         });
 
-        $(document).on('click', '[data-case-tab-switch]', function () {
-            var tabId = $(this).data('caseTabSwitch');
+        $(document).on('click', '[data-case-tab-switch]', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
 
-            if (activateTab(tabId)) {
-                persistActiveTab(tabId);
+            var tabId = this.getAttribute('data-case-tab-switch')
+                || $(this).data('caseTabSwitch');
 
-                if (tabId === 'modification') {
-                    var target = document.getElementById('case-modification-request');
-                    if (target) {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                }
-            }
+            switchCaseStudyTab(tabId);
         });
     }
 
@@ -512,11 +536,7 @@
             return;
         }
 
-        if (activateTab(tabId)) {
-            persistActiveTab(tabId);
-        }
-
-        if (tabId === 'manufacture-plan' && mfgStage) {
+        if (switchCaseStudyTab(tabId) && tabId === 'manufacture-plan' && mfgStage) {
             var $stageBtn = $('[data-mfg-stage-btn][data-stage="' + mfgStage + '"]');
             if ($stageBtn.length) {
                 $stageBtn.trigger('click');

@@ -49,7 +49,7 @@
                 <i class="zmdi zmdi-time" aria-hidden="true"></i>
                 <div>
                     <p><strong>Refinement #{{ $activeRefinement->version }} in progress</strong> (started {{ $activeRefinement->created_at?->format('M j, Y g:i A') }}).</p>
-                    <p>LineUp will upload new treatment plan(s) in the <strong>Treatment Plan</strong> tab. After you approve them, this refinement cycle ends. Previous scans and history stay in 3D Scans &amp; Photos and Case History.</p>
+                    <p>LineUp will upload new treatment plan(s) in the <strong>Treatment Plan</strong> tab. After you approve them, this refinement cycle ends. Previous scans and history stay in 3D Scans &amp; Photos and Full Case History.</p>
                     @if($activeRefinement->hasScans())
                     <p class="case-refinement__hint-inline">Scans attached: {{ $activeRefinement->upper_jaw_scan ? 'Upper' : '' }}{{ $activeRefinement->upper_jaw_scan && $activeRefinement->lower_jaw_scan ? ' · ' : '' }}{{ $activeRefinement->lower_jaw_scan ? 'Lower' : '' }}</p>
                     @endif

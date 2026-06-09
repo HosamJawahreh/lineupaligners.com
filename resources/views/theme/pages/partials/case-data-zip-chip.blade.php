@@ -6,7 +6,7 @@
     <span class="case-scan-file__body">
         <span class="case-scan-file__info">
             <span class="case-scan-file__icon" aria-hidden="true">
-                <i class="zmdi zmdi-folder"></i>
+                <i class="zmdi zmdi-archive"></i>
             </span>
             <span class="case-scan-file__details">
                 <span class="case-scan-file__name">Case Data Archive</span>

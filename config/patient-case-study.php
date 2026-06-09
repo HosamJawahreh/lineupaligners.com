@@ -34,7 +34,7 @@ return [
         ],
         [
             'id' => 'modification-history',
-            'label' => 'Case History',
+            'label' => 'Full Case History',
             'icon' => 'zmdi-time-restore',
             'tone' => 'indigo',
         ],

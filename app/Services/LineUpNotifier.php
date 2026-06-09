@@ -96,7 +96,7 @@ class LineUpNotifier
         }
     }
 
-    public function planUploaded(Patient $patient, User $admin, ?int $stageNumber = null): void
+    public function planUploaded(Patient $patient, User $admin, ?int $stageNumber = null, bool $isRevisionUpload = false): void
     {
         $doctorUser = $patient->doctor?->user;
         if (! $doctorUser) {
@@ -104,13 +104,18 @@ class LineUpNotifier
         }
 
         $stageText = $stageNumber ? " (stage {$stageNumber})" : '';
+        $tab = ($isRevisionUpload || $patient->activeRefinementId())
+            ? 'manufacture-plan'
+            : 'modification';
         $this->notifyUser($doctorUser, [
             'type' => 'plan_uploaded',
             'title' => 'Treatment plan ready',
-            'body' => "LineUp uploaded a manufacture plan{$stageText} for {$patient->display_patient_id}. Please review.",
-            'url' => $this->caseUrl($patient, 'manufacture-plan', $stageNumber),
+            'body' => $isRevisionUpload
+                ? "LineUp uploaded a revised manufacture plan{$stageText} for {$patient->display_patient_id}. Please review."
+                : "LineUp uploaded a manufacture plan{$stageText} for {$patient->display_patient_id}. Review it or request changes.",
+            'url' => $this->caseUrl($patient, $tab, $stageNumber),
             'icon' => 'zmdi-assignment-check',
-            'open_tab' => 'manufacture-plan',
+            'open_tab' => $tab,
             'mfg_stage' => $stageNumber,
             'patient_id' => $patient->id,
         ]);
