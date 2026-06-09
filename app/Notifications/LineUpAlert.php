@@ -32,18 +32,8 @@ class LineUpAlert extends Notification
             ? $notifiable->displayName()
             : ($notifiable->name ?? 'there');
 
-        $subject = $this->payload['title'];
-        $patientId = $this->payload['patient_id'] ?? null;
-
-        if ($patientId) {
-            $patient = Patient::query()->select(['id', 'first_name', 'last_name'])->find($patientId);
-            if ($patient) {
-                $subject .= ' — '.$patient->fullName();
-            }
-        }
-
         return (new MailMessage)
-            ->subject(LineUpMailBranding::subjectPrefix($subject))
+            ->subject(LineUpMailBranding::subjectPrefix($this->mailSubject()))
             ->markdown('mail.lineup-alert', [
                 'title' => $this->payload['title'],
                 'body' => $this->payload['body'],
@@ -64,6 +54,30 @@ class LineUpAlert extends Notification
             'mfg_stage' => $this->payload['mfg_stage'] ?? null,
             'patient_id' => $this->payload['patient_id'] ?? null,
         ];
+    }
+
+    protected function mailSubject(): string
+    {
+        $title = trim((string) ($this->payload['title'] ?? 'Case notification'));
+        $patientName = trim((string) ($this->payload['patient_name'] ?? ''));
+
+        if ($patientName === '' && ! empty($this->payload['patient_id'])) {
+            $patient = Patient::query()
+                ->select(['id', 'first_name', 'last_name'])
+                ->find($this->payload['patient_id']);
+
+            $patientName = trim($patient?->fullName() ?? '');
+        }
+
+        if ($patientName === '') {
+            return $title;
+        }
+
+        if (stripos($title, $patientName) !== false) {
+            return $title;
+        }
+
+        return $patientName.' — '.$title;
     }
 
     protected function shouldSendMail(object $notifiable): bool

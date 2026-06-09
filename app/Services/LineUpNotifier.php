@@ -210,6 +210,8 @@ class LineUpNotifier
 
     public function notifyUser(User $user, array $payload): void
     {
+        $payload = $this->enrichCasePayload($payload);
+
         $user->notify(new LineUpAlert($payload));
         $this->queueEmailAlert($user, $payload);
     }
@@ -222,6 +224,36 @@ class LineUpNotifier
         foreach ($users as $user) {
             $this->notifyUser($user, $payload);
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    protected function enrichCasePayload(array $payload): array
+    {
+        $patientId = $payload['patient_id'] ?? null;
+
+        if (! $patientId) {
+            return $payload;
+        }
+
+        if (filled($payload['patient_name'] ?? null)) {
+            return $payload;
+        }
+
+        $patient = Patient::query()
+            ->select(['id', 'first_name', 'last_name', 'patient_id'])
+            ->find($patientId);
+
+        if ($patient === null) {
+            return $payload;
+        }
+
+        $payload['patient_name'] = $patient->fullName();
+        $payload['case_number'] = $payload['case_number'] ?? $patient->display_patient_id;
+
+        return $payload;
     }
 
     protected function queueEmailAlert(User $user, array $payload): void
