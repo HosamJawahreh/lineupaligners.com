@@ -215,6 +215,7 @@
                         'caseScanSets' => $caseScanSets ?? [],
                         'defaultScanSetKey' => $defaultScanSetKey ?? 'original',
                         'casePhotosBySet' => $casePhotosBySet ?? [],
+                        'refinementRecords' => $refinementRecords ?? collect(),
                     ])
                 @elseif($tab['id'] === 'manufacture-plan')
                     @include('theme.pages.partials.case-manufacture-plan', [
@@ -238,6 +239,7 @@
                         'canRequestRefinement' => $canRequestRefinement ?? false,
                         'refinementsEnabled' => $refinementsEnabled ?? true,
                         'activeRefinement' => $activeRefinement ?? null,
+                        'refinementRecords' => $refinementRecords ?? collect(),
                         'refinementTimeline' => $refinementTimeline ?? ['events' => [], 'grouped' => []],
                         'scanUploadLimitsOk' => $scanUploadLimitsOk ?? true,
                         'scanUploadLimitsLabel' => $scanUploadLimitsLabel ?? '',

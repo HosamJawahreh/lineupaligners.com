@@ -52,7 +52,9 @@
                                 @if(count($scanSets) < 2) disabled @endif
                                 aria-describedby="case-scan-set-label">
                             @foreach($scanSets as $set)
-                            <option value="{{ $set['key'] }}" @selected($set['key'] === $defaultScanSetKey)>{{ $set['label'] }}</option>
+                            <option value="{{ $set['key'] }}" @selected($set['key'] === $defaultScanSetKey)>
+                                {{ $set['label'] }}@if(($set['photo_count'] ?? 0) > 0) · {{ $set['photo_count'] }} {{ Str::plural('photo', $set['photo_count']) }}@endif
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -305,5 +307,14 @@
         <p>No 3D scan files uploaded for this case yet.</p>
         <span class="case-scan-empty-state__hint">3D scans are optional — upload upper, lower, or both when editing the case.</span>
     </div>
+    @endif
+
+    @if($patient && ($refinementRecords ?? collect())->isNotEmpty())
+    <hr class="case-scan-section__divider" role="presentation" aria-hidden="true">
+    @include('theme.pages.partials.case-refinement-records', [
+        'patient' => $patient,
+        'refinementRecords' => $refinementRecords,
+        'navKey' => 'scan-refinement-records',
+    ])
     @endif
 </section>

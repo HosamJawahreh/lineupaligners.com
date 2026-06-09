@@ -756,6 +756,15 @@ class Patient extends Model
     public function defaultScanSetKey(): string
     {
         $candidates = $this->caseScanSetCandidates();
+        $keys = array_column($candidates, 'key');
+
+        if ($refinement = $this->currentRefinement()) {
+            $activeKey = 'ref-'.$refinement->id;
+
+            if (in_array($activeKey, $keys, true)) {
+                return $activeKey;
+            }
+        }
 
         return $candidates[0]['key'] ?? 'original';
     }
@@ -768,18 +777,58 @@ class Patient extends Model
         $bySet = [];
 
         foreach ($this->caseScanSetCandidates() as $candidate) {
-            $bySet[$candidate['key']] = $this->photosForSetKey($candidate['key'])
-                ->map(fn (PatientPhoto $photo) => [
-                    'id' => $photo->id,
-                    'url' => $photo->url(),
-                    'name' => $photo->original_name ?: basename($photo->path),
-                    'download_url' => route('patients.photos.download', [$this, $photo]),
-                ])
-                ->values()
-                ->all();
+            $bySet[$candidate['key']] = $this->photosForGallerySet($candidate['key']);
+        }
+
+        if (Schema::hasTable('patient_case_refinements')) {
+            foreach ($this->caseRefinements()->orderBy('version')->get() as $refinement) {
+                $key = 'ref-'.$refinement->id;
+
+                if (array_key_exists($key, $bySet)) {
+                    continue;
+                }
+
+                $photos = $this->photosForGallerySet($key);
+
+                if ($photos !== []) {
+                    $bySet[$key] = $photos;
+                }
+            }
+        }
+
+        if (Schema::hasTable('patient_case_modifications')) {
+            foreach ($this->caseModifications()->orderBy('version')->get() as $modification) {
+                $key = 'mod-'.$modification->id;
+
+                if (array_key_exists($key, $bySet)) {
+                    continue;
+                }
+
+                $photos = $this->photosForGallerySet($key);
+
+                if ($photos !== []) {
+                    $bySet[$key] = $photos;
+                }
+            }
         }
 
         return $bySet;
+    }
+
+    /**
+     * @return list<array{id: int, url: string, name: string, download_url: string}>
+     */
+    protected function photosForGallerySet(string $setKey): array
+    {
+        return $this->photosForSetKey($setKey)
+            ->map(fn (PatientPhoto $photo) => [
+                'id' => $photo->id,
+                'url' => $photo->url(),
+                'name' => $photo->original_name ?: basename($photo->path),
+                'download_url' => route('patients.photos.download', [$this, $photo]),
+            ])
+            ->values()
+            ->all();
     }
 
     /**
@@ -795,15 +844,101 @@ class Patient extends Model
      */
     public function caseScanSetsForViewer(): array
     {
-        return array_map(function (array $candidate) {
-            return [
-                'key' => $candidate['key'],
-                'label' => $candidate['label'],
-                'notes' => $candidate['notes'],
-                'files' => $candidate['files'],
-                'photo_count' => $this->photosForSetKey($candidate['key'])->count(),
-            ];
-        }, $this->caseScanSetCandidates());
+        $setsByKey = [];
+
+        foreach ($this->caseScanSetCandidates() as $candidate) {
+            $setsByKey[$candidate['key']] = $this->formatScanSetForViewer($candidate);
+        }
+
+        foreach (array_keys($this->casePhotosGalleryBySet()) as $setKey) {
+            if (isset($setsByKey[$setKey])) {
+                continue;
+            }
+
+            $setsByKey[$setKey] = $this->formatScanSetForViewer([
+                'key' => $setKey,
+                'label' => $this->scanSetLabel($setKey),
+                'notes' => $this->scanSetNotes($setKey),
+                'files' => [],
+                'at' => now(),
+            ]);
+        }
+
+        $sets = array_values($setsByKey);
+        usort($sets, function (array $a, array $b) {
+            $aAt = $this->scanSetSortTime($a['key']);
+            $bAt = $this->scanSetSortTime($b['key']);
+
+            return $bAt <=> $aAt;
+        });
+
+        return $sets;
+    }
+
+    /**
+     * @param  array{key: string, label: string, notes: ?string, files: list<array>}  $candidate
+     * @return array{key: string, label: string, notes: ?string, files: list<array>, photo_count: int}
+     */
+    protected function formatScanSetForViewer(array $candidate): array
+    {
+        return [
+            'key' => $candidate['key'],
+            'label' => $candidate['label'],
+            'notes' => $candidate['notes'] ?? null,
+            'files' => $candidate['files'] ?? [],
+            'photo_count' => $this->photosForSetKey($candidate['key'])->count(),
+        ];
+    }
+
+    protected function scanSetLabel(string $setKey): string
+    {
+        if ($setKey === 'original') {
+            return 'Original case data';
+        }
+
+        if (str_starts_with($setKey, 'ref-') && Schema::hasTable('patient_case_refinements')) {
+            $refinement = $this->caseRefinements()->find((int) substr($setKey, 4));
+
+            return $refinement?->scopeLabel() ?? $setKey;
+        }
+
+        if (str_starts_with($setKey, 'mod-') && Schema::hasTable('patient_case_modifications')) {
+            $modification = $this->caseModifications()->find((int) substr($setKey, 4));
+
+            return $modification?->scopeLabel() ?? $setKey;
+        }
+
+        return $setKey;
+    }
+
+    protected function scanSetNotes(string $setKey): ?string
+    {
+        if (str_starts_with($setKey, 'ref-') && Schema::hasTable('patient_case_refinements')) {
+            return $this->caseRefinements()->find((int) substr($setKey, 4))?->notes;
+        }
+
+        if (str_starts_with($setKey, 'mod-') && Schema::hasTable('patient_case_modifications')) {
+            return $this->caseModifications()->find((int) substr($setKey, 4))?->notes;
+        }
+
+        return null;
+    }
+
+    protected function scanSetSortTime(string $setKey): \Carbon\Carbon
+    {
+        if ($setKey === 'original') {
+            return $this->created_at ?? now();
+        }
+
+        if (str_starts_with($setKey, 'ref-') && Schema::hasTable('patient_case_refinements')) {
+            return $this->caseRefinements()->find((int) substr($setKey, 4))?->created_at ?? now();
+        }
+
+        if (str_starts_with($setKey, 'mod-') && Schema::hasTable('patient_case_modifications')) {
+            return $this->caseModifications()->find((int) substr($setKey, 4))?->created_at ?? now();
+        }
+
+        return now();
     }
 
     /**
@@ -851,8 +986,9 @@ class Patient extends Model
             foreach ($this->caseRefinements()->orderBy('version')->get() as $ref) {
                 $files = $ref->caseScanFiles();
                 $photoCount = $ref->photos()->count();
+                $hasData = count($files) > 0 || $photoCount > 0;
 
-                if (count($files) === 0 && $photoCount === 0) {
+                if (! $hasData && ! $ref->is_current) {
                     continue;
                 }
 

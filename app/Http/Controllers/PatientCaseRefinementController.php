@@ -122,10 +122,15 @@ class PatientCaseRefinementController extends Controller
 
         app(LineUpNotifier::class)->refinementRequested($patient, auth()->user());
 
+        $hasAttachments = $request->hasFile('photos')
+            || $request->hasFile('upper_jaw_scan')
+            || $request->hasFile('lower_jaw_scan');
+
         return $this->redirectToTab(
             $patient,
             'Refinement #'.$patient->currentRefinement()?->version.' started. LineUp will upload the new plan on Treatment Plan.',
-            'success'
+            'success',
+            $hasAttachments ? 'view-data' : 'order-refinement'
         );
     }
 
@@ -194,14 +199,18 @@ class PatientCaseRefinementController extends Controller
         ]);
     }
 
-    protected function redirectToTab(Patient $patient, string $message, string $type = 'success'): RedirectResponse
-    {
+    protected function redirectToTab(
+        Patient $patient,
+        string $message,
+        string $type = 'success',
+        string $openTab = 'order-refinement'
+    ): RedirectResponse {
         return redirect()
             ->route('patients.show', [
                 'patient' => $patient,
-                'tab' => 'order-refinement',
+                'tab' => $openTab,
             ])
             ->with($type, $message)
-            ->with('open_tab', 'order-refinement');
+            ->with('open_tab', $openTab);
     }
 }

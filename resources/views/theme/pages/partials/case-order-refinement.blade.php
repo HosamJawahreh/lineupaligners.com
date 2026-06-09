@@ -186,13 +186,10 @@
         </div>
 
         <aside class="case-refinement__aside" aria-label="Refinement history">
-            @include('theme.pages.partials.case-cycle-timeline-panel', [
-                'cycleTimeline' => $refinementTimeline ?? ['events' => [], 'grouped' => []],
-                'panelTitle' => 'Refinement history',
-                'panelSubtitle' => 'Ordered cycles, plans, and doctor reviews.',
-                'emptyTitle' => 'No refinements yet',
-                'emptyMessage' => 'Ordered refinements and plan updates will appear here.',
-                'timelineIdPrefix' => 'ref-history',
+            @include('theme.pages.partials.case-refinement-records', [
+                'patient' => $patient,
+                'refinementRecords' => $refinementRecords ?? collect(),
+                'navKey' => 'refinement-aside',
             ])
         </aside>
     </div>
