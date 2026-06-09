@@ -24,13 +24,10 @@
         function syncForViewport() {
             if (!isMobileFilters()) {
                 setFiltersOpen($form, $toggle, true);
-                $panel.removeAttr('hidden');
                 return;
             }
 
-            var open = $form.hasClass('is-open');
-            setFiltersOpen($form, $toggle, open);
-            $panel.prop('hidden', !open);
+            setFiltersOpen($form, $toggle, $form.hasClass('is-open'));
         }
 
         $toggle.on('click', function () {
@@ -38,9 +35,14 @@
                 return;
             }
 
-            var open = !$form.hasClass('is-open');
-            setFiltersOpen($form, $toggle, open);
-            $panel.prop('hidden', !open);
+            setFiltersOpen($form, $toggle, !$form.hasClass('is-open'));
+        });
+
+        $(document).on('keydown.lineupCasesFilters', function (event) {
+            if (event.key === 'Escape' && isMobileFilters() && $form.hasClass('is-open')) {
+                setFiltersOpen($form, $toggle, false);
+                $toggle.trigger('focus');
+            }
         });
 
         $(window).on('resize.lineupCasesFilters', syncForViewport);

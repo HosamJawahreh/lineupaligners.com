@@ -11,7 +11,7 @@
 @endphp
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/cases-dashboard.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/cases-dashboard.css') }}?v=2">
 @endpush
 
 @section('content')
@@ -56,24 +56,37 @@
                 <input type="hidden" name="sort" value="{{ $filters['sort'] }}">
                 <input type="hidden" name="dir" value="{{ $filters['dir'] }}">
 
-                <div class="cases-filters-mobile-bar">
+                <div class="cases-filters-toolbar">
                     <button type="button"
                             class="cases-filters-toggle"
                             id="cases-filters-toggle"
                             aria-expanded="{{ $activeFilterCount > 0 ? 'true' : 'false' }}"
                             aria-controls="cases-filters-panel">
-                        <i class="zmdi zmdi-filter-list" aria-hidden="true"></i>
-                        <span>Filters</span>
-                        @if($activeFilterCount > 0)
-                        <span class="cases-filters-toggle__count">{{ $activeFilterCount }}</span>
-                        @endif
+                        <span class="cases-filters-toggle__lead">
+                            <span class="cases-filters-toggle__icon" aria-hidden="true">
+                                <i class="zmdi zmdi-tune"></i>
+                            </span>
+                            <span class="cases-filters-toggle__copy">
+                                <span class="cases-filters-toggle__label">Filters</span>
+                                <span class="cases-filters-toggle__meta">
+                                    @if($activeFilterCount > 0)
+                                        {{ $activeFilterCount }} active filter{{ $activeFilterCount === 1 ? '' : 's' }}
+                                    @else
+                                        Search and narrow cases
+                                    @endif
+                                </span>
+                            </span>
+                        </span>
+                        <span class="cases-filters-toggle__trail">
+                            @if($activeFilterCount > 0)
+                            <span class="cases-filters-toggle__count">{{ $activeFilterCount }}</span>
+                            @endif
+                            <i class="zmdi zmdi-chevron-down cases-filters-toggle__chevron" aria-hidden="true"></i>
+                        </span>
                     </button>
-                    @if($activeFilterCount > 0)
-                    <span class="cases-filters-active-hint">{{ $activeFilterCount }} active filter{{ $activeFilterCount === 1 ? '' : 's' }}</span>
-                    @endif
-                </div>
 
-                <div class="cases-filters-row" id="cases-filters-panel" @if($activeFilterCount === 0) hidden @endif>
+                    <div class="cases-filters-drawer" id="cases-filters-panel">
+                <div class="cases-filters-row">
                     <div class="cases-field cases-field-search">
                         <i class="zmdi zmdi-search" aria-hidden="true"></i>
                         <input type="text" name="patient" class="form-control" value="{{ $filters['patient'] }}" placeholder="Patient Name">
@@ -117,6 +130,8 @@
                         <button type="button" class="cases-btn cases-btn-icon cases-view-toggle" title="List view" disabled>
                             <i class="zmdi zmdi-view-list"></i>
                         </button>
+                    </div>
+                </div>
                     </div>
                 </div>
             </form>
@@ -279,7 +294,7 @@
 
 @push('scripts')
 <script src="{{ asset('assets/js/cases-actions.js') }}"></script>
-<script src="{{ asset('assets/js/cases-filters.js') }}"></script>
+<script src="{{ asset('assets/js/cases-filters.js') }}?v=2"></script>
 <script>
 $(function () {
     $('.cases-delete-form').on('submit', function (e) {

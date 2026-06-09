@@ -46,7 +46,15 @@
             <span class="mfg-plan__empty-hint">Paste the canvas link from the LineUp viewer below.</span>
             @endif
         </div>
-        @if($isActiveCtx && ! $isDivided && ($patient->hasCompletedManufacturing() || (($canMarkManufactured ?? false) && $patient->isReadyForManufacturedMark())))
+        @php
+            $showManufacturedBanner = $isActiveCtx && ! $isDivided
+                && ! ($ctxType === 'refinement' && $patient->awaitingRefinementTreatmentPlanUpload())
+                && (
+                    $patient->hasCompletedManufacturing()
+                    || (($canMarkManufactured ?? false) && $patient->isReadyForManufacturedMark())
+                );
+        @endphp
+        @if($showManufacturedBanner)
         @include('theme.pages.partials.case-manufacture-plan-manufactured-banner', [
             'patient' => $patient,
             'canMarkManufactured' => $canMarkManufactured ?? false,

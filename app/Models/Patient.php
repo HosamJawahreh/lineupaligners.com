@@ -221,8 +221,7 @@ class Patient extends Model
         }
 
         if ($this->hasActiveRefinement()) {
-            $plan = $this->currentFullTreatmentPlan()
-                ?? $this->originalCycleFullTreatmentPlan();
+            $plan = $this->currentFullTreatmentPlan();
 
             return $plan !== null && $plan->isApproved();
         }
