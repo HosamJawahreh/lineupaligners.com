@@ -31,8 +31,6 @@ class PatientCaseModificationController extends Controller
 
         $request->request->remove('stage_number');
 
-        ScanZipExtractor::normalizeRequestFiles($request, ['upper_jaw_scan', 'lower_jaw_scan']);
-
         if (PhpUploadLimits::requestPayloadUnparsed($request)) {
             return $this->redirectToTab(
                 $patient,
