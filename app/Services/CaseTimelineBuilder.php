@@ -331,11 +331,7 @@ class CaseTimelineBuilder
      */
     protected function modificationEvent(PatientCaseModification $mod): array
     {
-        $files = array_filter([
-            $mod->hasCaseDataZip() ? 'Archive' : null,
-            $mod->upper_jaw_scan ? 'Upper' : null,
-            $mod->lower_jaw_scan ? 'Lower' : null,
-        ]);
+        $downloads = $mod->timelineDownloads();
 
         $badges = [
             ['label' => $mod->scopeLabel(), 'variant' => 'amber'],
