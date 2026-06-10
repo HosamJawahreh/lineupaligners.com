@@ -33,7 +33,6 @@ class CaseTimelineBuilder
             'treatmentPlans.reviewer',
             'treatmentPlans.manufacturedByUser',
             'caseModifications.requester',
-            'caseModifications.treatmentPlan.uploader',
             'manufacturedByUser',
             'doctor',
         ]);
@@ -64,9 +63,6 @@ class CaseTimelineBuilder
 
         foreach ($patient->caseModifications->sortBy('created_at') as $modification) {
             $events->push($this->modificationEvent($modification));
-            if ($modification->hasRevisedPlan()) {
-                $events->push($this->modificationPlanUploadedEvent($modification));
-            }
         }
 
         if ($patient->manufactured_at) {
@@ -84,7 +80,7 @@ class CaseTimelineBuilder
         $patient->loadMissing(['treatmentPlans', 'caseModifications']);
 
         return $this->buildFiltered($patient, function (array $event) use ($patient): bool {
-            if (in_array($event['type'], ['modification_requested', 'modification_plan_uploaded', 'plan_rejected'], true)) {
+            if (in_array($event['type'], ['modification_requested', 'plan_rejected'], true)) {
                 return true;
             }
 
@@ -117,10 +113,6 @@ class CaseTimelineBuilder
         return $this->buildFiltered($patient, function (array $event) use ($patient): bool {
             if ($event['type'] === 'refinement_ordered') {
                 return true;
-            }
-
-            if ($event['type'] === 'modification_plan_uploaded') {
-                return $this->modificationFromPlanUploadEventId($patient, $event['id'] ?? '')?->treatmentPlan?->refinement_id !== null;
             }
 
             $plan = $this->planFromEventId($patient, $event['id'] ?? '');
@@ -183,15 +175,6 @@ class CaseTimelineBuilder
         }
 
         return $patient->treatmentPlans->firstWhere('id', (int) $matches[1]);
-    }
-
-    protected function modificationFromPlanUploadEventId(Patient $patient, string $eventId): ?PatientCaseModification
-    {
-        if (! preg_match('/^mod-plan-(\d+)$/', $eventId, $matches)) {
-            return null;
-        }
-
-        return $patient->caseModifications->firstWhere('id', (int) $matches[1]);
     }
 
     /**
@@ -281,7 +264,7 @@ class CaseTimelineBuilder
                 ? ($isRevision ? 'Refinement plan revised' : 'Refinement plan uploaded')
                 : ($isRevision ? 'Revised treatment plan submitted' : 'Treatment plan uploaded'),
             summary: $plan->stageLabel().' · View on Treatment Plan tab',
-            body: $this->truncateUrl($plan->plan_url),
+            body: null,
             actorName: $plan->uploader?->displayName(),
             actorRole: 'LineUp Admin',
             tone: 'blue',
@@ -352,38 +335,6 @@ class CaseTimelineBuilder
     /**
      * @return array<string, mixed>
      */
-    protected function modificationPlanUploadedEvent(PatientCaseModification $mod): array
-    {
-        $plan = $mod->treatmentPlan;
-        $badges = [
-            ['label' => $mod->scopeLabel(), 'variant' => 'amber'],
-            ['label' => 'Revised plan', 'variant' => 'neutral'],
-        ];
-
-        if ($plan?->is_current && $plan->isPending()) {
-            $badges[] = ['label' => 'Awaiting review', 'variant' => 'pending'];
-        }
-
-        if ($plan?->refinement_id) {
-            $badges[] = ['label' => 'Refinement cycle', 'variant' => 'violet'];
-        }
-
-        return $this->event(
-            id: 'mod-plan-'.$mod->id,
-            type: 'modification_plan_uploaded',
-            at: $plan?->updated_at ?? $mod->updated_at,
-            title: 'Revised treatment plan submitted',
-            summary: $mod->scopeLabel().' · View on Treatment Plan tab',
-            body: $this->truncateUrl($mod->revised_plan_url),
-            actorName: $plan?->uploader?->displayName(),
-            actorRole: 'LineUp Admin',
-            tone: 'blue',
-            icon: 'zmdi-link',
-            badges: $badges,
-            isActive: (bool) ($mod->is_current && $plan?->is_current && $plan->isPending()),
-        );
-    }
-
     /**
      * @return array<string, mixed>
      */
