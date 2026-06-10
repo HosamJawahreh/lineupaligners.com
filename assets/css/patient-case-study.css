@@ -5440,7 +5440,8 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     color: #1e293b;
 }
 
-.case-timeline__event--plan_uploaded .case-timeline__body p {
+.case-timeline__event--plan_uploaded .case-timeline__body p,
+.case-timeline__event--modification_plan_uploaded .case-timeline__body p {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 10px;
 }

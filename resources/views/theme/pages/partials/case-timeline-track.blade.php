@@ -61,7 +61,7 @@
                         <span class="case-timeline__body-label">Modification notes</span>
                         @elseif($event['type'] === 'refinement_ordered')
                         <span class="case-timeline__body-label">Refinement notes</span>
-                        @elseif($event['type'] === 'plan_uploaded')
+                        @elseif(in_array($event['type'], ['plan_uploaded', 'modification_plan_uploaded'], true))
                         <span class="case-timeline__body-label">Canvas link</span>
                         @endif
                         <p>{{ $event['body'] }}</p>
