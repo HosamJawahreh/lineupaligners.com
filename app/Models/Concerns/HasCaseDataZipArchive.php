@@ -43,4 +43,51 @@ trait HasCaseDataZipArchive
     {
         return $this->patient?->scanSizeLabelForPath($this->case_data_zip);
     }
+
+    /** @return list<array{label: string, name: string, url: string, size: ?string}> */
+    public function zipTimelineDownloads(): array
+    {
+        $downloads = [];
+
+        if ($this->hasCaseDataZip()) {
+            $downloads[] = [
+                'label' => 'ZIP archive',
+                'name' => $this->caseDataZipDisplayName(),
+                'url' => $this->caseDataZipDownloadUrl(),
+                'size' => $this->caseDataZipSizeLabel(),
+            ];
+        }
+
+        $patient = $this->relationLoaded('patient') ? $this->patient : null;
+
+        foreach ([
+            'upper' => ['field' => 'upper_jaw_scan', 'name_field' => 'upper_jaw_scan_name'],
+            'lower' => ['field' => 'lower_jaw_scan', 'name_field' => 'lower_jaw_scan_name'],
+        ] as $scan => $meta) {
+            $path = $this->{$meta['field']} ?? null;
+
+            if (! $path || strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'zip') {
+                continue;
+            }
+
+            if ($path === $this->case_data_zip) {
+                continue;
+            }
+
+            $url = $this->scanDownloadUrl($scan);
+
+            if (! $url) {
+                continue;
+            }
+
+            $downloads[] = [
+                'label' => 'ZIP archive',
+                'name' => $this->{$meta['name_field']} ?: basename($path),
+                'url' => $url,
+                'size' => $patient?->scanSizeLabelForPath($path),
+            ];
+        }
+
+        return $downloads;
+    }
 }

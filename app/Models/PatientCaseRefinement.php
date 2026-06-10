@@ -80,25 +80,12 @@ class PatientCaseRefinement extends Model
     /** @return list<array{label: string, name: string, url: string, size: ?string}> */
     public function timelineDownloads(): array
     {
-        if (! $this->hasCaseDataZip()) {
-            return [];
-        }
-
-        return [[
-            'label' => 'ZIP archive',
-            'name' => $this->caseDataZipDisplayName(),
-            'url' => $this->caseDataZipDownloadUrl(),
-            'size' => $this->caseDataZipSizeLabel(),
-        ]];
+        return $this->zipTimelineDownloads();
     }
 
     public function attachedFilesSummary(): ?string
     {
-        if (! $this->hasCaseDataZip()) {
-            return null;
-        }
-
-        return 'ZIP archive attached';
+        return $this->timelineDownloads() === [] ? null : 'ZIP archive attached';
     }
 
     public function statusLabel(): string

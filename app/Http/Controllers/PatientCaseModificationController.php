@@ -15,6 +15,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PatientCaseModificationController extends Controller
@@ -55,7 +57,7 @@ class PatientCaseModificationController extends Controller
             'notes' => ['required', 'string', 'min:1', 'max:10000'],
             'upper_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
             'lower_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
-            'case_data_zip' => ['nullable', 'file', 'mimes:zip', 'max:'.self::SCAN_MAX_KB],
+            'case_data_zip' => ['nullable', 'file', Rule::file()->extensions(['zip'])->max(self::SCAN_MAX_KB)],
             'photos' => ['nullable', 'array'],
             'photos.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:'.CasePhotoStorage::MAX_KB],
         ]);
@@ -93,6 +95,10 @@ class PatientCaseModificationController extends Controller
             }
 
             if ($request->hasFile('case_data_zip')) {
+                if (! Schema::hasColumn('patient_case_modifications', 'case_data_zip')) {
+                    throw new \RuntimeException('ZIP uploads require a database update. Run php artisan migrate on the server.');
+                }
+
                 CaseDataZipStorage::replaceOnModel(
                     $modification,
                     $request->file('case_data_zip'),

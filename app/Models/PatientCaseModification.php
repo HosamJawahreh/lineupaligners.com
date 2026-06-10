@@ -27,6 +27,8 @@ class PatientCaseModification extends Model
         'upper_jaw_scan_name',
         'lower_jaw_scan',
         'lower_jaw_scan_name',
+        'case_data_zip',
+        'case_data_zip_name',
         'notes',
         'requested_by',
         'treatment_plan_id',
@@ -77,25 +79,12 @@ class PatientCaseModification extends Model
     /** @return list<array{label: string, name: string, url: string, size: ?string}> */
     public function timelineDownloads(): array
     {
-        if (! $this->hasCaseDataZip()) {
-            return [];
-        }
-
-        return [[
-            'label' => 'ZIP archive',
-            'name' => $this->caseDataZipDisplayName(),
-            'url' => $this->caseDataZipDownloadUrl(),
-            'size' => $this->caseDataZipSizeLabel(),
-        ]];
+        return $this->zipTimelineDownloads();
     }
 
     public function attachedFilesSummary(): ?string
     {
-        if (! $this->hasCaseDataZip()) {
-            return null;
-        }
-
-        return 'ZIP archive attached';
+        return $this->timelineDownloads() === [] ? null : 'ZIP archive attached';
     }
 
     public function hasRevisedPlan(): bool
