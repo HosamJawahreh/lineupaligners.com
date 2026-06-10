@@ -5379,6 +5379,15 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     line-height: 1.35;
 }
 
+.case-timeline__downloads-label {
+    margin: 0 0 4px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+}
+
 .case-timeline__downloads {
     list-style: none;
     margin: 0 0 6px;

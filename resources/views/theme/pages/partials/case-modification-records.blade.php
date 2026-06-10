@@ -84,7 +84,7 @@
                     <li>
                         <a href="{{ $mod->caseDataZipDownloadUrl() }}" class="case-cycle-record__file" download>
                             <i class="zmdi zmdi-archive" aria-hidden="true"></i>
-                            <span>Case data archive · {{ $mod->caseDataZipDisplayName() }}</span>
+                            <span>ZIP archive · {{ $mod->caseDataZipDisplayName() }}</span>
                         </a>
                     </li>
                     @endif

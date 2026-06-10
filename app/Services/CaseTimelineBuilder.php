@@ -33,13 +33,14 @@ class CaseTimelineBuilder
             'treatmentPlans.reviewer',
             'treatmentPlans.manufacturedByUser',
             'caseModifications.requester',
+            'caseModifications.photos',
             'caseModifications.treatmentPlan.uploader',
             'manufacturedByUser',
             'doctor',
         ]);
 
         if (Schema::hasTable('patient_case_refinements')) {
-            $patient->loadMissing(['caseRefinements.requester']);
+            $patient->loadMissing(['caseRefinements.requester', 'caseRefinements.photos']);
             foreach ($patient->caseRefinements->sortBy('created_at') as $refinement) {
                 $events->push($this->refinementEvent($refinement));
             }
@@ -349,7 +350,7 @@ class CaseTimelineBuilder
             type: 'modification_requested',
             at: $mod->created_at,
             title: 'Modification requested',
-            summary: 'New 3D scans: '.(implode(' · ', $files) ?: '—'),
+            summary: $mod->attachedFilesSummary(),
             body: $mod->notes,
             actorName: $mod->requester?->displayName(),
             actorRole: 'Doctor',
@@ -358,7 +359,7 @@ class CaseTimelineBuilder
             badges: $badges,
             isActive: $mod->is_current,
             sortSequence: ($mod->id * 10),
-            downloads: $mod->timelineDownloads(),
+            downloads: $downloads,
         );
     }
 
@@ -473,11 +474,7 @@ class CaseTimelineBuilder
      */
     protected function refinementEvent(PatientCaseRefinement $ref): array
     {
-        $files = array_filter([
-            $ref->hasCaseDataZip() ? 'Archive' : null,
-            $ref->upper_jaw_scan ? 'Upper' : null,
-            $ref->lower_jaw_scan ? 'Lower' : null,
-        ]);
+        $downloads = $ref->timelineDownloads();
 
         $badges = [
             ['label' => $ref->scopeLabel(), 'variant' => 'violet'],
@@ -492,7 +489,7 @@ class CaseTimelineBuilder
             type: 'refinement_ordered',
             at: $ref->created_at,
             title: 'Refinement ordered',
-            summary: 'New 3D scans: '.(implode(' · ', $files) ?: '—'),
+            summary: $ref->attachedFilesSummary(),
             body: $ref->notes,
             actorName: $ref->requester?->displayName(),
             actorRole: 'Doctor',
@@ -500,7 +497,7 @@ class CaseTimelineBuilder
             icon: 'zmdi-swap-vertical',
             badges: $badges,
             isActive: $ref->is_current,
-            downloads: $ref->timelineDownloads(),
+            downloads: $downloads,
         );
     }
 

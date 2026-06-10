@@ -10,7 +10,7 @@
 <div class="case-jaw-scan-fields">
     <div class="scan-upload-box scan-upload-box--upper">
         <label for="{{ $upperInputId }}">
-            Upper jaw 3D file <span class="case-modification-card__optional">optional</span>
+            Upper jaw file <span class="case-modification-card__optional">optional</span>
         </label>
         <div class="scan-upload-box__visual" aria-hidden="true">
             <img src="{{ $upperPlaceholder }}" alt="" width="160" height="100">
@@ -24,7 +24,7 @@
 
     <div class="scan-upload-box scan-upload-box--lower">
         <label for="{{ $lowerInputId }}">
-            Lower jaw 3D file <span class="case-modification-card__optional">optional</span>
+            Lower jaw file <span class="case-modification-card__optional">optional</span>
         </label>
         <div class="scan-upload-box__visual" aria-hidden="true">
             <img src="{{ $lowerPlaceholder }}" alt="" width="160" height="100">

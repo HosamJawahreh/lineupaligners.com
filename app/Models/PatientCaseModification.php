@@ -81,7 +81,7 @@ class PatientCaseModification extends Model
 
         if ($this->hasCaseDataZip()) {
             $downloads[] = [
-                'label' => 'Case data archive',
+                'label' => 'ZIP archive',
                 'name' => $this->caseDataZipDisplayName(),
                 'url' => $this->caseDataZipDownloadUrl(),
                 'size' => $this->caseDataZipSizeLabel(),
@@ -97,7 +97,34 @@ class PatientCaseModification extends Model
             ];
         }
 
+        $patient = $this->relationLoaded('patient') ? $this->patient : $this->patient()->first();
+
+        foreach ($this->photos as $photo) {
+            $downloads[] = [
+                'label' => 'Photo',
+                'name' => $photo->downloadFilename(),
+                'url' => route('patients.photos.download', [$patient ?? $this->patient_id, $photo]),
+                'size' => $patient?->scanSizeLabelForPath($photo->path),
+            ];
+        }
+
         return $downloads;
+    }
+
+    public function hasAttachedFiles(): bool
+    {
+        return count($this->timelineDownloads()) > 0;
+    }
+
+    public function attachedFilesSummary(): ?string
+    {
+        $count = count($this->timelineDownloads());
+
+        if ($count === 0) {
+            return null;
+        }
+
+        return $count === 1 ? '1 file attached' : $count.' files attached';
     }
 
     public function hasRevisedPlan(): bool
@@ -157,8 +184,8 @@ class PatientCaseModification extends Model
         $patient = $this->patient;
 
         foreach ([
-            'upper' => ['field' => 'upper_jaw_scan', 'name_field' => 'upper_jaw_scan_name', 'label' => 'Upper 3D model (modification)'],
-            'lower' => ['field' => 'lower_jaw_scan', 'name_field' => 'lower_jaw_scan_name', 'label' => 'Lower 3D model (modification)'],
+            'upper' => ['field' => 'upper_jaw_scan', 'name_field' => 'upper_jaw_scan_name', 'label' => 'Upper jaw file'],
+            'lower' => ['field' => 'lower_jaw_scan', 'name_field' => 'lower_jaw_scan_name', 'label' => 'Lower jaw file'],
         ] as $id => $meta) {
             $field = $meta['field'];
 

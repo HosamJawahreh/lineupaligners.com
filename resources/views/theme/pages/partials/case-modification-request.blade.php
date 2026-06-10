@@ -67,7 +67,7 @@
                         <div class="case-modification-card__section">
                             <h5 class="case-modification-card__section-title">
                                 <i class="zmdi zmdi-cloud-upload" aria-hidden="true"></i>
-                                Scans &amp; photos
+                                Files &amp; photos
                             </h5>
                             <div class="case-modification-card__uploads case-modification-card__uploads--compact">
                                 <div class="case-modification-card__upload-block case-modification-card__upload-block--photos">
