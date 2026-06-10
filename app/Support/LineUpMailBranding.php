@@ -150,6 +150,17 @@ class LineUpMailBranding
         return $detail;
     }
 
+    public static function patientCaseEmailSubject(string $patientName): string
+    {
+        $patientName = trim($patientName);
+
+        if ($patientName === '') {
+            return 'New Update';
+        }
+
+        return $patientName.' - New Update';
+    }
+
     public static function absoluteUrl(?string $url): ?string
     {
         if (! filled($url)) {

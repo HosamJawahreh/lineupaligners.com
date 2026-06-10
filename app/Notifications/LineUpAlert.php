@@ -33,7 +33,7 @@ class LineUpAlert extends Notification
             : ($notifiable->name ?? 'there');
 
         return (new MailMessage)
-            ->subject(LineUpMailBranding::subjectPrefix($this->mailSubject()))
+            ->subject(LineUpMailBranding::patientCaseEmailSubject($this->resolvePatientName()))
             ->markdown('mail.lineup-alert', [
                 'title' => $this->payload['title'],
                 'body' => $this->payload['body'],
@@ -56,9 +56,8 @@ class LineUpAlert extends Notification
         ];
     }
 
-    protected function mailSubject(): string
+    protected function resolvePatientName(): string
     {
-        $title = trim((string) ($this->payload['title'] ?? 'Case notification'));
         $patientName = trim((string) ($this->payload['patient_name'] ?? ''));
 
         if ($patientName === '' && ! empty($this->payload['patient_id'])) {
@@ -69,15 +68,7 @@ class LineUpAlert extends Notification
             $patientName = trim($patient?->fullName() ?? '');
         }
 
-        if ($patientName === '') {
-            return $title;
-        }
-
-        if (stripos($title, $patientName) !== false) {
-            return $title;
-        }
-
-        return $patientName.' — '.$title;
+        return $patientName;
     }
 
     protected function shouldSendMail(object $notifiable): bool
