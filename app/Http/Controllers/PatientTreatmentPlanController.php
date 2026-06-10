@@ -179,7 +179,10 @@ class PatientTreatmentPlanController extends Controller
             'uploaded_by' => auth()->id(),
         ]);
 
-        $modification->update(['revised_plan_url' => $planUrl]);
+        $modification->update([
+            'revised_plan_url' => $planUrl,
+            'revised_plan_uploaded_at' => now(),
+        ]);
     }
 
     protected function createNewTreatmentPlan(

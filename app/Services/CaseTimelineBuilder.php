@@ -119,6 +119,12 @@ class CaseTimelineBuilder
                 return true;
             }
 
+            if (in_array($event['type'], ['modification_requested', 'modification_plan_uploaded'], true)) {
+                $modification = $this->modificationFromEventId($patient, $event['id'] ?? '');
+
+                return $modification !== null && $modification->treatmentPlan?->refinement_id !== null;
+            }
+
             $plan = $this->planFromEventId($patient, $event['id'] ?? '');
 
             if ($plan !== null && $plan->refinement_id !== null) {
@@ -148,7 +154,15 @@ class CaseTimelineBuilder
     {
         $sorted = collect($events)
             ->filter(fn (?array $e) => $e !== null && ! empty($e['occurred_at']))
-            ->sortByDesc(fn (array $e) => $e['occurred_at']->timestamp)
+            ->sort(function (array $a, array $b): int {
+                $timeCmp = $b['occurred_at']->getTimestamp() <=> $a['occurred_at']->getTimestamp();
+
+                if ($timeCmp !== 0) {
+                    return $timeCmp;
+                }
+
+                return ($b['sort_sequence'] ?? 0) <=> ($a['sort_sequence'] ?? 0);
+            })
             ->values()
             ->map(function (array $event, int $index) {
                 $event['is_latest'] = $index === 0;
@@ -179,6 +193,15 @@ class CaseTimelineBuilder
         }
 
         return $patient->treatmentPlans->firstWhere('id', (int) $matches[1]);
+    }
+
+    protected function modificationFromEventId(Patient $patient, string $eventId): ?PatientCaseModification
+    {
+        if (! preg_match('/^mod(?:-plan)?-(\d+)$/', $eventId, $matches)) {
+            return null;
+        }
+
+        return $patient->caseModifications->firstWhere('id', (int) $matches[1]);
     }
 
     /**
@@ -333,6 +356,7 @@ class CaseTimelineBuilder
             icon: 'zmdi-edit',
             badges: $badges,
             isActive: $mod->is_current,
+            sortSequence: ($mod->id * 10),
         );
     }
 
@@ -353,7 +377,7 @@ class CaseTimelineBuilder
         return $this->event(
             id: 'mod-plan-'.$mod->id,
             type: 'modification_plan_uploaded',
-            at: $plan?->updated_at ?? $mod->updated_at,
+            at: $mod->revised_plan_uploaded_at ?? $mod->updated_at,
             title: 'Modified treatment plan uploaded',
             summary: $mod->scopeLabel().' · View on Treatment Plan tab',
             body: null,
@@ -363,6 +387,7 @@ class CaseTimelineBuilder
             icon: 'zmdi-assignment-check',
             badges: $badges,
             isActive: (bool) ($mod->is_current && $plan?->is_current && $plan->isPending()),
+            sortSequence: ($mod->id * 10) + 1,
         );
     }
 
@@ -492,6 +517,7 @@ class CaseTimelineBuilder
         string $icon,
         array $badges = [],
         bool $isActive = false,
+        int $sortSequence = 0,
     ): array {
         return [
             'id' => $id,
@@ -510,6 +536,7 @@ class CaseTimelineBuilder
             'date_label' => '',
             'time_label' => '',
             'date_key' => '',
+            'sort_sequence' => $sortSequence,
         ];
     }
 

@@ -29,6 +29,7 @@ class PatientCaseModification extends Model
         'requested_by',
         'treatment_plan_id',
         'revised_plan_url',
+        'revised_plan_uploaded_at',
     ];
 
     protected function casts(): array
@@ -37,6 +38,7 @@ class PatientCaseModification extends Model
             'is_current' => 'boolean',
             'stage_number' => 'integer',
             'version' => 'integer',
+            'revised_plan_uploaded_at' => 'datetime',
         ];
     }
 
