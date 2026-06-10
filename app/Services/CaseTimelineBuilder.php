@@ -33,14 +33,13 @@ class CaseTimelineBuilder
             'treatmentPlans.reviewer',
             'treatmentPlans.manufacturedByUser',
             'caseModifications.requester',
-            'caseModifications.photos',
             'caseModifications.treatmentPlan.uploader',
             'manufacturedByUser',
             'doctor',
         ]);
 
         if (Schema::hasTable('patient_case_refinements')) {
-            $patient->loadMissing(['caseRefinements.requester', 'caseRefinements.photos']);
+            $patient->loadMissing(['caseRefinements.requester']);
             foreach ($patient->caseRefinements->sortBy('created_at') as $refinement) {
                 $events->push($this->refinementEvent($refinement));
             }

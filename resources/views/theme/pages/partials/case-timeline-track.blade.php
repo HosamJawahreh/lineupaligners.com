@@ -54,8 +54,8 @@
                     @endif
 
                     @if(! empty($event['downloads']))
-                    <p class="case-timeline__downloads-label">Attached files</p>
-                    <ul class="case-timeline__downloads" aria-label="Attached files">
+                    <p class="case-timeline__downloads-label">Uploaded archive</p>
+                    <ul class="case-timeline__downloads" aria-label="Uploaded ZIP archive">
                         @foreach($event['downloads'] as $download)
                         <li>
                             <a href="{{ $download['url'] }}" class="case-timeline__download" download>

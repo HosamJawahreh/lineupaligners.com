@@ -77,54 +77,25 @@ class PatientCaseModification extends Model
     /** @return list<array{label: string, name: string, url: string, size: ?string}> */
     public function timelineDownloads(): array
     {
-        $downloads = [];
-
-        if ($this->hasCaseDataZip()) {
-            $downloads[] = [
-                'label' => 'ZIP archive',
-                'name' => $this->caseDataZipDisplayName(),
-                'url' => $this->caseDataZipDownloadUrl(),
-                'size' => $this->caseDataZipSizeLabel(),
-            ];
+        if (! $this->hasCaseDataZip()) {
+            return [];
         }
 
-        foreach ($this->caseScanFiles() as $file) {
-            $downloads[] = [
-                'label' => $file['label'],
-                'name' => $file['name'],
-                'url' => $file['download_url'],
-                'size' => $file['size'],
-            ];
-        }
-
-        $patient = $this->relationLoaded('patient') ? $this->patient : $this->patient()->first();
-
-        foreach ($this->photos as $photo) {
-            $downloads[] = [
-                'label' => 'Photo',
-                'name' => $photo->downloadFilename(),
-                'url' => route('patients.photos.download', [$patient ?? $this->patient_id, $photo]),
-                'size' => $patient?->scanSizeLabelForPath($photo->path),
-            ];
-        }
-
-        return $downloads;
-    }
-
-    public function hasAttachedFiles(): bool
-    {
-        return count($this->timelineDownloads()) > 0;
+        return [[
+            'label' => 'ZIP archive',
+            'name' => $this->caseDataZipDisplayName(),
+            'url' => $this->caseDataZipDownloadUrl(),
+            'size' => $this->caseDataZipSizeLabel(),
+        ]];
     }
 
     public function attachedFilesSummary(): ?string
     {
-        $count = count($this->timelineDownloads());
-
-        if ($count === 0) {
+        if (! $this->hasCaseDataZip()) {
             return null;
         }
 
-        return $count === 1 ? '1 file attached' : $count.' files attached';
+        return 'ZIP archive attached';
     }
 
     public function hasRevisedPlan(): bool
