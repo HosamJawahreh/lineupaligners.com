@@ -32,7 +32,7 @@
         return '<div class="lineup-ios-spinner scan-upload-overlay__spinner" role="status" aria-hidden="true">' + bars + '</div>';
     }
 
-    function showOverlay(files) {
+    function showOverlay(files, form) {
         if (document.getElementById('scan-upload-overlay')) {
             return;
         }
@@ -52,7 +52,9 @@
         overlay.innerHTML =
             '<div class="scan-upload-overlay__panel">' +
             spinnerHtml() +
-            '<h2 id="scan-upload-overlay-title" class="scan-upload-overlay__title">Uploading 3D files…</h2>' +
+            '<h2 id="scan-upload-overlay-title" class="scan-upload-overlay__title">' +
+            escapeHtml(overlayTitleFor(form || document.body)) +
+            '</h2>' +
             '<p class="scan-upload-overlay__detail">' +
             (total > 0
                 ? 'Sending ' + formatSize(total) + ' to the server. Large scans can take several minutes.'
@@ -94,10 +96,30 @@
     }
 
     function confirmWasPassed(form) {
-        return form.dataset.caseConfirmPassed === '1';
+        return form.dataset.caseConfirmPassed === '1' || form.dataset.caseConfirmPassed === 'true';
+    }
+
+    function clearConfirmPassed(form) {
+        delete form.dataset.caseConfirmPassed;
+    }
+
+    function overlayTitleFor(form) {
+        if (form.id === 'case-refinement-form') {
+            return 'Uploading refinement files…';
+        }
+        if (form.matches('.case-modification-card__form')) {
+            return 'Uploading modification files…';
+        }
+        return 'Uploading 3D files…';
     }
 
     function bindForm(form) {
+        if (form.dataset.scanUploadBound === '1') {
+            return;
+        }
+
+        form.dataset.scanUploadBound = '1';
+
         form.addEventListener('submit', function (e) {
             if (form.dataset.scanUploading === '1') {
                 e.preventDefault();
@@ -129,7 +151,8 @@
             }
 
             form.dataset.scanUploading = '1';
-            showOverlay(files);
+            showOverlay(files, form);
+            clearConfirmPassed(form);
 
             form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function (btn) {
                 btn.disabled = true;
@@ -142,6 +165,11 @@
         clearOverlay();
         document.querySelectorAll('form[data-scan-upload]').forEach(bindForm);
     }
+
+    window.LineUpScanUpload = {
+        bindForm: bindForm,
+        init: init,
+    };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);

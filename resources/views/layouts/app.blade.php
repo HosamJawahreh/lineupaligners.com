@@ -101,7 +101,7 @@
 @if(auth()->user()->isAdmin())
 <script src="{{ asset('assets/js/lineup-contact-requests-badge.js') }}?v=1"></script>
 @endif
-<script src="{{ asset('assets/js/scan-upload-loading.js') }}?v=2"></script>
+<script src="{{ asset('assets/js/scan-upload-loading.js') }}?v=3"></script>
 @stack('scripts')
 </body>
 </html>

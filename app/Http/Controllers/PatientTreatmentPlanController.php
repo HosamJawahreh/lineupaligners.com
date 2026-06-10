@@ -43,6 +43,8 @@ class PatientTreatmentPlanController extends Controller
                 return;
             }
 
+            $isRevisionUpload = $this->isRevisionPlanUpload($patient, null);
+
             $this->createNewTreatmentPlan(
                 $patient,
                 $validated['plan_url'],
@@ -57,16 +59,12 @@ class PatientTreatmentPlanController extends Controller
         $patient->load('doctor.user');
         app(LineUpNotifier::class)->planUploaded($patient, auth()->user(), null, $isRevisionUpload);
 
-        $openTab = ($isRevisionUpload || $patient->activeRefinementId())
-            ? 'manufacture-plan'
-            : 'modification';
-
         return $this->redirectToTab(
             $patient,
             'Treatment plan submitted for doctor review.',
             'success',
             null,
-            $openTab
+            'manufacture-plan'
         );
     }
 
@@ -302,6 +300,31 @@ class PatientTreatmentPlanController extends Controller
         }
 
         return null;
+    }
+
+    protected function isRevisionPlanUpload(Patient $patient, ?int $stageNumber): bool
+    {
+        if ($patient->hasModificationHistory() || $patient->hasActiveModificationFor($stageNumber)) {
+            return true;
+        }
+
+        $query = $patient->treatmentPlans()->where('is_current', true);
+
+        if ($patient->activeRefinementId()) {
+            $query->where('refinement_id', $patient->activeRefinementId());
+        } else {
+            $query->whereNull('refinement_id');
+        }
+
+        if ($stageNumber !== null) {
+            $query->where('stage_number', $stageNumber);
+        } else {
+            $query->whereNull('stage_number');
+        }
+
+        $current = $query->first();
+
+        return $current !== null && $current->isRejected();
     }
 
     protected function redirectToTab(

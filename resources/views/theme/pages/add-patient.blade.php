@@ -113,7 +113,7 @@
                                 <label>Gender <span class="text-success small">optional</span></label>
                                 <select name="gender" class="form-control show-tick">
                                     <option value="">— Select —</option>
-                                    @foreach(['male' => 'Male', 'female' => 'Female', 'other' => 'Other'] as $val => $label)
+                                    @foreach(['male' => 'Male', 'female' => 'Female'] as $val => $label)
                                         <option value="{{ $val }}" @selected(old('gender', $patient->gender ?? '') === $val)>{{ $label }}</option>
                                     @endforeach
                                 </select>

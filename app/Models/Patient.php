@@ -1602,7 +1602,8 @@ class Patient extends Model
             $currentIndex,
             $internalKey,
             $planOverlay,
-            $inModification
+            $inModification,
+            $progressKey
         ) {
             $key = $step['key'];
             $label = $step['label'];
@@ -1628,14 +1629,14 @@ class Patient extends Model
                     && $planOverlay === 'pending';
                 $modInProgress = $activeMod || $modRevisionAwaitingReview;
 
-                if ($modInProgress && $index <= $currentIndex) {
+                if ($index === $currentIndex && $modInProgress && $progressKey === 'modification') {
                     $state = 'current';
                     $variant = 'modification';
-                    $label = match (true) {
-                        $planOverlay === 'pending' => 'Awaiting doctor approval · After mod',
-                        $inModification || $activeMod => 'Awaiting new plan',
-                        default => 'Modification in progress',
-                    };
+                    $label = ($inModification || $activeMod) ? 'Awaiting new plan' : 'Modification in progress';
+                } elseif ($index < $currentIndex && $modRevisionAwaitingReview) {
+                    $state = 'completed';
+                    $label = 'Plan revised';
+                    $variant = 'modification';
                 } elseif ($index < $currentIndex && $historyInOriginalCycle && ! $modRevisionAwaitingReview) {
                     $state = 'completed';
                     $label = 'Modification done';
@@ -1650,7 +1651,7 @@ class Patient extends Model
             if ($key === 'case_status') {
                 if ($planOverlay === 'pending' && $index === $currentIndex) {
                     $state = 'current';
-                    $label = $this->hasActiveModificationForAny()
+                    $label = ($this->hasActiveModificationForAny() || $this->hasModificationHistory())
                         ? 'Awaiting doctor approval · After mod'
                         : 'Awaiting doctor approval';
                     if ($this->hasActiveRefinement()) {

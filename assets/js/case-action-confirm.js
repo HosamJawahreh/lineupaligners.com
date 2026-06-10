@@ -154,6 +154,10 @@
         $form.data('caseConfirmPassed', true);
 
         var formEl = $form.get(0);
+        if (formEl) {
+            formEl.dataset.caseConfirmPassed = '1';
+        }
+
         var triggerEl = $trigger && $trigger.length ? $trigger.get(0) : null;
 
         if (triggerEl && typeof formEl.requestSubmit === 'function') {

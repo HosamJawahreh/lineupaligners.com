@@ -104,15 +104,27 @@ class LineUpNotifier
         }
 
         $stageText = $stageNumber ? " (stage {$stageNumber})" : '';
-        $tab = ($isRevisionUpload || $patient->activeRefinementId())
-            ? 'manufacture-plan'
-            : 'modification';
+        $tab = 'manufacture-plan';
+
+        if ($isRevisionUpload) {
+            $this->notifyUser($doctorUser, [
+                'type' => 'plan_revised',
+                'title' => 'Revised plan uploaded',
+                'body' => "LineUp uploaded a revised treatment plan{$stageText} for {$patient->display_patient_id}. Please review and approve.",
+                'url' => $this->caseUrl($patient, $tab, $stageNumber),
+                'icon' => 'zmdi-refresh-sync',
+                'open_tab' => $tab,
+                'mfg_stage' => $stageNumber,
+                'patient_id' => $patient->id,
+            ]);
+
+            return;
+        }
+
         $this->notifyUser($doctorUser, [
             'type' => 'plan_uploaded',
             'title' => 'Treatment plan ready',
-            'body' => $isRevisionUpload
-                ? "LineUp uploaded a revised manufacture plan{$stageText} for {$patient->display_patient_id}. Please review."
-                : "LineUp uploaded a manufacture plan{$stageText} for {$patient->display_patient_id}. Review it or request changes.",
+            'body' => "LineUp uploaded a treatment plan{$stageText} for {$patient->display_patient_id}. Review it or request changes.",
             'url' => $this->caseUrl($patient, $tab, $stageNumber),
             'icon' => 'zmdi-assignment-check',
             'open_tab' => $tab,
