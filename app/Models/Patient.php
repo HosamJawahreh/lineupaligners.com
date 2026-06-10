@@ -1635,7 +1635,7 @@ class Patient extends Model
                     $label = ($inModification || $activeMod) ? 'Awaiting new plan' : 'Modification in progress';
                 } elseif ($index < $currentIndex && $modRevisionAwaitingReview) {
                     $state = 'completed';
-                    $label = 'Plan revised';
+                    $label = 'Modified';
                     $variant = 'modification';
                 } elseif ($index < $currentIndex && $historyInOriginalCycle && ! $modRevisionAwaitingReview) {
                     $state = 'completed';

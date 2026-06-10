@@ -660,6 +660,13 @@ body.lineup-app.lineup-color-dark .case-modification-card__field textarea {
     background: var(--lineup-surface-elevated);
     border-color: var(--lineup-border);
     color: var(--lineup-text);
+    font-weight: 600;
+}
+
+body.lineup-app.lineup-color-dark .case-modification .case-cycle-record__text,
+body.lineup-app.lineup-color-dark .case-refinement .case-cycle-record__text {
+    color: var(--lineup-text-secondary);
+    font-weight: 600;
 }
 
 body.lineup-app.lineup-color-dark .case-modification-card__select-icon,

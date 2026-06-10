@@ -41,7 +41,7 @@ return [
         'case_created' => 'Case created / submitted',
         'case_message' => 'Case chat message',
         'plan_uploaded' => 'Treatment plan uploaded',
-        'plan_revised' => 'Revised plan uploaded (after modification)',
+        'plan_revised' => 'Modified (plan uploaded after modification)',
         'plan_approved' => 'Plan approved by doctor',
         'plan_rejected' => 'Plan rejected by doctor',
         'modification_requested' => 'Modification requested',

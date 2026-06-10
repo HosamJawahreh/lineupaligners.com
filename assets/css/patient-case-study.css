@@ -4580,8 +4580,8 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 
 .case-modification-card__section-title {
     margin: 0 0 14px;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     color: #c2410c;
     display: flex;
     align-items: center;
@@ -4857,8 +4857,9 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     border: 1px solid #fed7aa;
     border-radius: 10px;
     background: #fff;
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.55;
     color: #0f172a;
     resize: vertical;
     min-height: 120px;
@@ -7337,6 +7338,14 @@ body.case-photos-gallery-open {
     line-height: 1.55;
     color: #334155;
     white-space: pre-wrap;
+}
+
+.case-modification .case-cycle-record__text,
+.case-refinement .case-cycle-record__text {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.6;
+    color: #1e293b;
 }
 
 .case-cycle-record__hint {

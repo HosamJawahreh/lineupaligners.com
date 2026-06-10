@@ -109,8 +109,8 @@ class LineUpNotifier
         if ($isRevisionUpload) {
             $this->notifyUser($doctorUser, [
                 'type' => 'plan_revised',
-                'title' => 'Revised plan uploaded',
-                'body' => "LineUp uploaded a revised treatment plan{$stageText} for {$patient->display_patient_id}. Please review and approve.",
+                'title' => 'Modified',
+                'body' => "LineUp uploaded the modified treatment plan{$stageText} for {$patient->display_patient_id}. Please review and approve.",
                 'url' => $this->caseUrl($patient, $tab, $stageNumber),
                 'icon' => 'zmdi-refresh-sync',
                 'open_tab' => $tab,

@@ -5,7 +5,7 @@
 @section('body-class', 'patient-case-study-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=67">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=68">
 @endpush
 
 @section('content')
