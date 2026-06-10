@@ -901,6 +901,25 @@ class Patient extends Model
         return $this->hasActiveModificationFor($stageNumber);
     }
 
+    public function modificationProgressBarLabel(?PatientCaseModification $mod = null): string
+    {
+        $mod ??= $this->currentModification(null);
+
+        if ($mod?->hasRevisedPlan()) {
+            return 'Modified';
+        }
+
+        if ($this->modificationTargetPlan() === null) {
+            return 'Waiting for modified case plan';
+        }
+
+        if ($this->isAwaitingRevisedPlanUpload($mod?->stage_number)) {
+            return 'Awaiting new plan';
+        }
+
+        return 'Waiting for modified case plan';
+    }
+
     public function defaultScanSetKey(): string
     {
         $candidates = $this->caseScanSetCandidates();
@@ -1614,15 +1633,17 @@ class Patient extends Model
                 if ($activeMod && $index === $currentIndex) {
                     $state = 'current';
                     $variant = 'modification';
-                    $label = $currentMod?->hasRevisedPlan() ? 'Modified' : 'Awaiting new plan';
+                    $label = $this->modificationProgressBarLabel($currentMod);
                 } elseif ($activeMod && $index < $currentIndex) {
                     $state = 'completed';
                     $variant = 'modification';
-                    $label = $currentMod?->hasRevisedPlan() ? 'Modified' : 'Awaiting new plan';
+                    $label = $this->modificationProgressBarLabel($currentMod);
                 } elseif ($index === $currentIndex && $modInProgress && $progressKey === 'modification') {
                     $state = 'current';
                     $variant = 'modification';
-                    $label = ($inModification || $activeMod) ? 'Awaiting new plan' : 'Modification in progress';
+                    $label = ($inModification || $activeMod)
+                        ? $this->modificationProgressBarLabel($currentMod)
+                        : 'Modification in progress';
                 } elseif ($index < $currentIndex && $modRevisionAwaitingReview) {
                     $state = 'completed';
                     $label = 'Modified';
