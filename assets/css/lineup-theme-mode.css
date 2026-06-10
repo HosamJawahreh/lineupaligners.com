@@ -663,8 +663,8 @@ body.lineup-app.lineup-color-dark .case-modification-card__field textarea {
     font-weight: 600;
 }
 
-body.lineup-app.lineup-color-dark .case-modification .case-cycle-record__text,
-body.lineup-app.lineup-color-dark .case-refinement .case-cycle-record__text {
+body.lineup-app.lineup-color-dark .case-cycle-records--modification .case-cycle-record__text,
+body.lineup-app.lineup-color-dark .case-cycle-records--refinement .case-cycle-record__text {
     color: var(--lineup-text-secondary);
     font-weight: 600;
 }
@@ -2731,6 +2731,12 @@ body.lineup-app.lineup-color-dark .case-timeline__body-label {
 
 body.lineup-app.lineup-color-dark .case-timeline__body p {
     color: var(--lineup-text-secondary) !important;
+}
+
+body.lineup-app.lineup-color-dark .case-timeline__body--modification_requested p,
+body.lineup-app.lineup-color-dark .case-timeline__body--refinement_ordered p {
+    color: var(--lineup-text) !important;
+    font-weight: 600;
 }
 
 body.lineup-app.lineup-color-dark .case-timeline__actor {

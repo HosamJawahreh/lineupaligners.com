@@ -2,16 +2,17 @@
     $casePhotosBySet = $casePhotosBySet ?? [];
     $defaultScanSetKey = $defaultScanSetKey ?? 'original';
     $hasAnyPhotos = collect($casePhotosBySet)->flatten(1)->isNotEmpty();
+    $hasScanVersions = count($caseScanSets ?? []) > 0;
+    $showPhotosGallery = $hasAnyPhotos || $hasScanVersions;
     $initialPhotos = $casePhotosBySet[$defaultScanSetKey] ?? [];
 @endphp
-@if($hasAnyPhotos)
+@if($showPhotosGallery)
 <button type="button"
         class="case-photos-gallery-trigger"
         id="case-photos-gallery-open"
         aria-haspopup="dialog"
         aria-controls="case-photos-gallery-modal"
-        title="Open case photos gallery"
-        @if(count($initialPhotos) === 0) hidden @endif>
+        title="Open case photos gallery">
     <span class="case-photos-gallery-trigger__glow" aria-hidden="true"></span>
     <span class="case-photos-gallery-trigger__inner">
         <span class="case-photos-gallery-trigger__thumbs" id="case-photos-gallery-trigger-thumbs" aria-hidden="true">

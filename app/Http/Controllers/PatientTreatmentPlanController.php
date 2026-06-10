@@ -30,20 +30,20 @@ class PatientTreatmentPlanController extends Controller
             'plan_url' => ['required', 'url', 'max:2048'],
         ]);
 
-        $isRevisionUpload = false;
+        $uploadKind = 'standard';
 
-        DB::transaction(function () use ($patient, $validated, &$isRevisionUpload) {
+        DB::transaction(function () use ($patient, $validated, &$uploadKind) {
             $activeModification = $patient->currentModification(null);
 
             if ($activeModification !== null) {
-                $isRevisionUpload = true;
+                $uploadKind = 'modification';
                 $this->applyModificationPlanRevision($patient, $activeModification, $validated['plan_url'], null);
                 $this->workflow->afterPlanUploaded($patient, $activeModification->fresh());
 
                 return;
             }
 
-            $isRevisionUpload = $this->isRevisionPlanUpload($patient, null);
+            $uploadKind = $this->resolvePlanUploadKind($patient, null);
 
             $this->createNewTreatmentPlan(
                 $patient,
@@ -57,7 +57,7 @@ class PatientTreatmentPlanController extends Controller
         });
 
         $patient->load('doctor.user');
-        app(LineUpNotifier::class)->planUploaded($patient, auth()->user(), null, $isRevisionUpload);
+        app(LineUpNotifier::class)->planUploaded($patient, auth()->user(), null, $uploadKind);
 
         return $this->redirectToTab(
             $patient,
@@ -300,6 +300,15 @@ class PatientTreatmentPlanController extends Controller
         }
 
         return null;
+    }
+
+    protected function resolvePlanUploadKind(Patient $patient, ?int $stageNumber): string
+    {
+        if ($patient->activeRefinementId() !== null) {
+            return 'refinement';
+        }
+
+        return $this->isRevisionPlanUpload($patient, $stageNumber) ? 'modification' : 'standard';
     }
 
     protected function isRevisionPlanUpload(Patient $patient, ?int $stageNumber): bool

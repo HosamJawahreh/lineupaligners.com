@@ -946,11 +946,7 @@ class Patient extends Model
                     continue;
                 }
 
-                $photos = $this->photosForGallerySet($key);
-
-                if ($photos !== []) {
-                    $bySet[$key] = $photos;
-                }
+                $bySet[$key] = $this->photosForGallerySet($key);
             }
         }
 
@@ -962,11 +958,7 @@ class Patient extends Model
                     continue;
                 }
 
-                $photos = $this->photosForGallerySet($key);
-
-                if ($photos !== []) {
-                    $bySet[$key] = $photos;
-                }
+                $bySet[$key] = $this->photosForGallerySet($key);
             }
         }
 
@@ -1123,18 +1115,11 @@ class Patient extends Model
 
         if (Schema::hasTable('patient_case_modifications')) {
             foreach ($this->caseModifications()->orderBy('version')->get() as $mod) {
-                $files = $mod->caseScanFiles();
-                $photoCount = $mod->photos()->count();
-
-                if (count($files) === 0 && $photoCount === 0) {
-                    continue;
-                }
-
                 $candidates[] = [
                     'key' => 'mod-'.$mod->id,
                     'label' => $mod->scopeLabel(),
                     'notes' => $mod->notes,
-                    'files' => $files,
+                    'files' => $mod->caseScanFiles(),
                     'at' => $mod->created_at ?? now(),
                 ];
             }
@@ -1142,19 +1127,11 @@ class Patient extends Model
 
         if (Schema::hasTable('patient_case_refinements')) {
             foreach ($this->caseRefinements()->orderBy('version')->get() as $ref) {
-                $files = $ref->caseScanFiles();
-                $photoCount = $ref->photos()->count();
-                $hasData = count($files) > 0 || $photoCount > 0;
-
-                if (! $hasData && ! $ref->is_current) {
-                    continue;
-                }
-
                 $candidates[] = [
                     'key' => 'ref-'.$ref->id,
                     'label' => $ref->scopeLabel(),
                     'notes' => $ref->notes,
-                    'files' => $files,
+                    'files' => $ref->caseScanFiles(),
                     'at' => $ref->created_at ?? now(),
                 ];
             }

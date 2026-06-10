@@ -5,7 +5,7 @@
 @section('body-class', 'patient-case-study-page')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=68">
+<link rel="stylesheet" href="{{ asset('assets/css/patient-case-study.css') }}?v=69">
 @endpush
 
 @section('content')
@@ -290,8 +290,8 @@
 @if(!empty($caseScanSets))
 <script>window.caseScanSetsMeta = @json($caseScanSets);</script>
 @endif
-@if(!empty($casePhotosBySet) && collect($casePhotosBySet)->flatten(1)->isNotEmpty())
-<script src="{{ asset('assets/js/case-photos-gallery.js') }}?v=2"></script>
+@if(!empty($caseScanSets))
+<script src="{{ asset('assets/js/case-photos-gallery.js') }}?v=3"></script>
 @endif
 @if(session('open_tab'))
 <script>window.CASE_STUDY_OPEN_TAB = @json(session('open_tab'));</script>
