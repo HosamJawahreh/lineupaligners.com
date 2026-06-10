@@ -33,6 +33,7 @@ class CaseTimelineBuilder
             'treatmentPlans.reviewer',
             'treatmentPlans.manufacturedByUser',
             'caseModifications.requester',
+            'caseModifications.treatmentPlan.uploader',
             'manufacturedByUser',
             'doctor',
         ]);
@@ -63,6 +64,9 @@ class CaseTimelineBuilder
 
         foreach ($patient->caseModifications->sortBy('created_at') as $modification) {
             $events->push($this->modificationEvent($modification));
+            if ($modification->hasRevisedPlan()) {
+                $events->push($this->modificationPlanUploadedEvent($modification));
+            }
         }
 
         if ($patient->manufactured_at) {
@@ -80,7 +84,7 @@ class CaseTimelineBuilder
         $patient->loadMissing(['treatmentPlans', 'caseModifications']);
 
         return $this->buildFiltered($patient, function (array $event) use ($patient): bool {
-            if (in_array($event['type'], ['modification_requested', 'plan_rejected'], true)) {
+            if (in_array($event['type'], ['modification_requested', 'modification_plan_uploaded', 'plan_rejected'], true)) {
                 return true;
             }
 
@@ -261,7 +265,7 @@ class CaseTimelineBuilder
             type: 'plan_uploaded',
             at: $plan->created_at,
             title: $plan->refinement_id
-                ? ($isRevision ? 'Refinement plan revised' : 'Refinement plan uploaded')
+                ? 'Refinement treatment plan uploaded'
                 : ($isRevision ? 'Revised treatment plan submitted' : 'Treatment plan uploaded'),
             summary: $plan->stageLabel().' · View on Treatment Plan tab',
             body: null,
@@ -335,6 +339,33 @@ class CaseTimelineBuilder
     /**
      * @return array<string, mixed>
      */
+    protected function modificationPlanUploadedEvent(PatientCaseModification $mod): array
+    {
+        $plan = $mod->treatmentPlan;
+        $badges = [
+            ['label' => $mod->scopeLabel(), 'variant' => 'amber'],
+        ];
+
+        if ($plan?->is_current && $plan->isPending()) {
+            $badges[] = ['label' => 'Awaiting review', 'variant' => 'pending'];
+        }
+
+        return $this->event(
+            id: 'mod-plan-'.$mod->id,
+            type: 'modification_plan_uploaded',
+            at: $plan?->updated_at ?? $mod->updated_at,
+            title: 'Modified treatment plan uploaded',
+            summary: $mod->scopeLabel().' · View on Treatment Plan tab',
+            body: null,
+            actorName: $plan?->uploader?->displayName(),
+            actorRole: 'LineUp Admin',
+            tone: 'blue',
+            icon: 'zmdi-assignment-check',
+            badges: $badges,
+            isActive: (bool) ($mod->is_current && $plan?->is_current && $plan->isPending()),
+        );
+    }
+
     /**
      * @return array<string, mixed>
      */
