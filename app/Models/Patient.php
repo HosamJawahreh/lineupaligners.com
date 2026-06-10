@@ -137,9 +137,10 @@ class Patient extends Model
 
     public function activeRefinementId(): ?int
     {
-        // Modifications always revise Version #1 — never scope to a refinement cycle.
         if ($this->hasActiveModificationForAny()) {
-            return null;
+            $refinementId = $this->currentModification(null)?->treatmentPlan?->refinement_id;
+
+            return $refinementId ? (int) $refinementId : null;
         }
 
         if ($current = $this->currentRefinement()) {
@@ -222,6 +223,12 @@ class Patient extends Model
     public function treatmentPlansQuery()
     {
         if ($this->hasActiveModificationForAny()) {
+            $refinementId = $this->currentModification(null)?->treatmentPlan?->refinement_id;
+
+            if ($refinementId) {
+                return $this->treatmentPlans()->where('refinement_id', $refinementId);
+            }
+
             return $this->originalCycleTreatmentPlansQuery();
         }
 
@@ -805,7 +812,7 @@ class Patient extends Model
         }
 
         if ($this->hasActiveRefinement()) {
-            return $this->hasActiveModificationForAny();
+            return $this->hasActiveModificationForAny() || $this->modificationTargetPlan() !== null;
         }
 
         return $this->hasTreatmentPlanInActiveCycle()
@@ -813,10 +820,20 @@ class Patient extends Model
             || $this->hasModificationHistory();
     }
 
+    /** Plan the doctor may request modifications against (Version #1 or active refinement). */
+    public function modificationTargetPlan(): ?PatientTreatmentPlan
+    {
+        if ($this->hasActiveRefinement()) {
+            return $this->currentFullTreatmentPlan();
+        }
+
+        return $this->originalCycleFullTreatmentPlan() ?? $this->currentFullTreatmentPlan();
+    }
+
     /** A current treatment plan exists in the active case cycle (not yet manufactured). */
     public function hasTreatmentPlanInActiveCycle(): bool
     {
-        $plan = $this->originalCycleFullTreatmentPlan() ?? $this->currentFullTreatmentPlan();
+        $plan = $this->modificationTargetPlan();
 
         return $plan !== null && $plan->is_current;
     }
@@ -846,11 +863,7 @@ class Patient extends Model
             return false;
         }
 
-        if ($this->hasActiveRefinement()) {
-            return false;
-        }
-
-        $plan = $this->originalCycleFullTreatmentPlan() ?? $this->currentFullTreatmentPlan();
+        $plan = $this->modificationTargetPlan();
 
         if ($plan === null || ! $plan->is_current) {
             return false;
@@ -870,7 +883,7 @@ class Patient extends Model
             return false;
         }
 
-        $plan = $this->originalCycleFullTreatmentPlan() ?? $this->currentFullTreatmentPlan();
+        $plan = $this->modificationTargetPlan();
 
         return $plan === null || ! $plan->isPending();
     }
@@ -1155,7 +1168,9 @@ class Patient extends Model
     public function defaultTreatmentPlanContextKey(): string
     {
         if ($this->hasActiveModificationFor(null)) {
-            return 'original';
+            $refinementId = $this->currentModification(null)?->treatmentPlan?->refinement_id;
+
+            return $refinementId ? 'ref-'.$refinementId : 'original';
         }
 
         $contexts = $this->treatmentPlanContextsForViewer();
@@ -1480,7 +1495,7 @@ class Patient extends Model
     public function planReviewOverlay(): ?string
     {
         $fullPlan = $this->hasActiveModificationForAny()
-            ? $this->originalCycleFullTreatmentPlan()
+            ? $this->modificationTargetPlan()
             : $this->currentFullTreatmentPlan();
 
         if ($fullPlan) {

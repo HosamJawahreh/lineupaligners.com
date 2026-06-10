@@ -61,7 +61,7 @@ class PatientCaseModificationController extends Controller
             'photos.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:'.CasePhotoStorage::MAX_KB],
         ]);
 
-        $plan = $patient->originalCycleFullTreatmentPlan();
+        $plan = $patient->modificationTargetPlan();
 
         DB::transaction(function () use ($patient, $request, $validated, $plan) {
             PatientCaseModification::query()

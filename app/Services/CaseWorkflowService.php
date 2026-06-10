@@ -45,11 +45,14 @@ class CaseWorkflowService
 
     public function afterModificationRequested(Patient $patient): void
     {
-        // Modifications apply to Version #1 only — close any refinement cycle that was re-opened in error.
-        PatientCaseRefinement::query()
-            ->where('patient_id', $patient->id)
-            ->where('is_current', true)
-            ->update(['is_current' => false]);
+        $targetPlan = $patient->modificationTargetPlan();
+
+        if (! $targetPlan?->refinement_id) {
+            PatientCaseRefinement::query()
+                ->where('patient_id', $patient->id)
+                ->where('is_current', true)
+                ->update(['is_current' => false]);
+        }
 
         $patient->update([
             'case_workflow_stage' => 'modification',
@@ -89,7 +92,7 @@ class CaseWorkflowService
 
     public function afterPlanReview(Patient $patient, ?PatientTreatmentPlan $reviewedPlan = null): void
     {
-        if ($reviewedPlan?->isApproved() && ! $reviewedPlan->refinement_id) {
+        if ($reviewedPlan?->isApproved()) {
             $this->closeActiveModificationsForScope($patient, null);
         }
 

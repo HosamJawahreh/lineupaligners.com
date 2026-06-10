@@ -4,7 +4,7 @@
     $canRequestNow = $patient->canRequestModificationNow();
     $canRequest = $hasWorkflowPermission && $canRequestNow;
     $awaitingPlan = $patient->isAwaitingRevisedPlanUpload(null);
-    $activePlan = $patient->originalCycleFullTreatmentPlan() ?? $patient->currentFullTreatmentPlan();
+    $activePlan = $patient->modificationTargetPlan();
     $hasPlanInCycle = $patient->hasTreatmentPlanInActiveCycle();
     $reviewStage = null;
 @endphp
@@ -120,11 +120,6 @@
                     <i class="zmdi zmdi-time" aria-hidden="true"></i>
                     <p>A modification is in progress. LineUp will upload a revised plan for you to review. After you approve it, the case continues toward manufacturing.</p>
                 </div>
-                @elseif($patient->hasActiveRefinement())
-                <div class="case-modification__notice case-modification__notice--info">
-                    <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-                    <p>Modifications apply to Version #1 only. During a refinement cycle, use the Treatment Plan tab to review the refinement plan.</p>
-                </div>
                 @elseif(! $hasWorkflowPermission)
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-lock" aria-hidden="true"></i>
@@ -146,11 +141,6 @@
                 <div class="case-modification__notice case-modification__notice--pending">
                     <i class="zmdi zmdi-time" aria-hidden="true"></i>
                     <p>A modification is in progress. Upload the revised plan on the <strong>Treatment Plan</strong> tab. The assigned doctor will review it when ready.</p>
-                </div>
-                @elseif($patient->hasActiveRefinement())
-                <div class="case-modification__notice case-modification__notice--info">
-                    <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-                    <p>Modifications apply to Version #1 only. Upload and manage refinement plans on the <strong>Treatment Plan</strong> tab.</p>
                 </div>
                 @elseif($hasPlanInCycle && $activePlan?->isPending())
                 <div class="case-modification__notice case-modification__notice--success" role="status">
