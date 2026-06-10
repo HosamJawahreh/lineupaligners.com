@@ -805,7 +805,7 @@ class Patient extends Model
         }
 
         if ($this->hasActiveRefinement()) {
-            return $this->hasActiveModificationForAny() || $this->hasModificationHistory();
+            return $this->hasActiveModificationForAny();
         }
 
         return $this->hasTreatmentPlanInActiveCycle()
@@ -1592,13 +1592,22 @@ class Patient extends Model
             }
 
             if ($key === 'modification') {
-                $hadModification = $this->hasActiveModificationForAny() || $this->hasModificationHistory();
+                $activeMod = $this->hasActiveModificationForAny();
+                $historyInOriginalCycle = $this->hasModificationHistory() && ! $this->hasActiveRefinement();
+                $modRevisionAwaitingReview = $historyInOriginalCycle
+                    && ! $activeMod
+                    && $planOverlay === 'pending';
+                $modInProgress = $activeMod || $modRevisionAwaitingReview;
 
-                if ($index === $currentIndex && $hadModification) {
+                if ($modInProgress && $index <= $currentIndex) {
                     $state = 'current';
                     $variant = 'modification';
-                    $label = $inModification ? 'Awaiting new plan' : 'Modification in progress';
-                } elseif ($index < $currentIndex && $hadModification) {
+                    $label = match (true) {
+                        $planOverlay === 'pending' => 'Awaiting doctor approval · After mod',
+                        $inModification || $activeMod => 'Awaiting new plan',
+                        default => 'Modification in progress',
+                    };
+                } elseif ($index < $currentIndex && $historyInOriginalCycle && ! $modRevisionAwaitingReview) {
                     $state = 'completed';
                     $label = 'Modification done';
                     $variant = 'modification';

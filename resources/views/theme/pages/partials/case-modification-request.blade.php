@@ -120,10 +120,15 @@
                     <p>This case cycle is manufactured and complete. Modifications are closed. Use <strong>Order Refinement</strong> when the patient returns for continued treatment.</p>
                 </div>
             @elseif(auth()->user()->isDoctor())
-                @if($awaitingPlan)
+                @if($awaitingPlan && ! $canRequestNow)
                 <div class="case-modification__notice case-modification__notice--pending">
                     <i class="zmdi zmdi-time" aria-hidden="true"></i>
                     <p>A modification is in progress. LineUp will upload a revised plan for you to review. After you approve it, the case continues toward manufacturing — refinement is only available after LineUp marks the case as manufactured.</p>
+                </div>
+                @elseif($patient->hasActiveRefinement())
+                <div class="case-modification__notice case-modification__notice--info">
+                    <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
+                    <p>Modifications apply to Version #1 only. During a refinement cycle, use the Treatment Plan tab to review the refinement plan.</p>
                 </div>
                 @elseif($hasWorkflowPermission && ! $canRequestNow && $reviewStage)
                 <div class="case-modification__notice case-modification__notice--info">
@@ -138,7 +143,13 @@
                 @else
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-                    <p>No modification can be started right now. LineUp must upload a treatment plan first, and no other modification may be in progress.</p>
+                    <p>
+                        @if(! $patient->hasTreatmentPlanInActiveCycle())
+                            No modification can be started yet. LineUp must upload a treatment plan first.
+                        @else
+                            No modification can be started right now. A modification may already be awaiting a revised plan from LineUp.
+                        @endif
+                    </p>
                 </div>
                 @endif
             @else

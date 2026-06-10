@@ -38,7 +38,7 @@ class PatientTreatmentPlanController extends Controller
             if ($activeModification !== null) {
                 $isRevisionUpload = true;
                 $this->applyModificationPlanRevision($patient, $activeModification, $validated['plan_url'], null);
-                $this->workflow->afterPlanUploaded($patient);
+                $this->workflow->afterPlanUploaded($patient, $activeModification->fresh());
 
                 return;
             }
