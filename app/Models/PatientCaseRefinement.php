@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasCaseDataZipArchive;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class PatientCaseRefinement extends Model
 {
+    use HasCaseDataZipArchive;
     protected static function booted(): void
     {
         static::deleting(function (PatientCaseRefinement $refinement) {
@@ -25,6 +27,8 @@ class PatientCaseRefinement extends Model
         'upper_jaw_scan_name',
         'lower_jaw_scan',
         'lower_jaw_scan_name',
+        'case_data_zip',
+        'case_data_zip_name',
         'notes',
         'requested_by',
         'treatment_plan_id',
@@ -63,9 +67,40 @@ class PatientCaseRefinement extends Model
         return $this->hasMany(PatientPhoto::class, 'refinement_id')->orderBy('sort_order');
     }
 
+    protected function caseDataZipDownloadRouteName(): string
+    {
+        return 'patients.refinements.case-data-zip.download';
+    }
+
     public function hasScans(): bool
     {
-        return (bool) ($this->upper_jaw_scan || $this->lower_jaw_scan);
+        return (bool) ($this->upper_jaw_scan || $this->lower_jaw_scan || $this->hasCaseDataZip());
+    }
+
+    /** @return list<array{label: string, name: string, url: string, size: ?string}> */
+    public function timelineDownloads(): array
+    {
+        $downloads = [];
+
+        if ($this->hasCaseDataZip()) {
+            $downloads[] = [
+                'label' => 'Case data archive',
+                'name' => $this->caseDataZipDisplayName(),
+                'url' => $this->caseDataZipDownloadUrl(),
+                'size' => $this->caseDataZipSizeLabel(),
+            ];
+        }
+
+        foreach ($this->caseScanFiles() as $file) {
+            $downloads[] = [
+                'label' => $file['label'],
+                'name' => $file['name'],
+                'url' => $file['download_url'],
+                'size' => $file['size'],
+            ];
+        }
+
+        return $downloads;
     }
 
     public function statusLabel(): string
@@ -176,6 +211,10 @@ class PatientCaseRefinement extends Model
             if ($path && Storage::disk('public')->exists($path)) {
                 Storage::disk('public')->delete($path);
             }
+        }
+
+        if ($this->case_data_zip && Storage::disk('public')->exists($this->case_data_zip)) {
+            Storage::disk('public')->delete($this->case_data_zip);
         }
     }
 

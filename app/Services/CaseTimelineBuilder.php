@@ -331,6 +331,7 @@ class CaseTimelineBuilder
     protected function modificationEvent(PatientCaseModification $mod): array
     {
         $files = array_filter([
+            $mod->hasCaseDataZip() ? 'Archive' : null,
             $mod->upper_jaw_scan ? 'Upper' : null,
             $mod->lower_jaw_scan ? 'Lower' : null,
         ]);
@@ -357,6 +358,7 @@ class CaseTimelineBuilder
             badges: $badges,
             isActive: $mod->is_current,
             sortSequence: ($mod->id * 10),
+            downloads: $mod->timelineDownloads(),
         );
     }
 
@@ -472,6 +474,7 @@ class CaseTimelineBuilder
     protected function refinementEvent(PatientCaseRefinement $ref): array
     {
         $files = array_filter([
+            $ref->hasCaseDataZip() ? 'Archive' : null,
             $ref->upper_jaw_scan ? 'Upper' : null,
             $ref->lower_jaw_scan ? 'Lower' : null,
         ]);
@@ -497,11 +500,13 @@ class CaseTimelineBuilder
             icon: 'zmdi-swap-vertical',
             badges: $badges,
             isActive: $ref->is_current,
+            downloads: $ref->timelineDownloads(),
         );
     }
 
     /**
      * @param  list<array{label: string, variant: string}>  $badges
+     * @param  list<array{label: string, name: string, url: string, size: ?string}>  $downloads
      * @return array<string, mixed>
      */
     protected function event(
@@ -518,6 +523,7 @@ class CaseTimelineBuilder
         array $badges = [],
         bool $isActive = false,
         int $sortSequence = 0,
+        array $downloads = [],
     ): array {
         return [
             'id' => $id,
@@ -531,6 +537,7 @@ class CaseTimelineBuilder
             'tone' => $tone,
             'icon' => $icon,
             'badges' => $badges,
+            'downloads' => $downloads,
             'is_active' => $isActive,
             'is_latest' => false,
             'date_label' => '',

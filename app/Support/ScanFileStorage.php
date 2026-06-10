@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class ScanFileStorage
 {
     /** @var list<string> */
-    public const EXTENSIONS = ['stl', 'obj', 'ply'];
+    public const EXTENSIONS = ['stl', 'obj', 'ply', 'zip'];
 
     public static function store(UploadedFile $file, string $directory, string $namePrefix): string
     {

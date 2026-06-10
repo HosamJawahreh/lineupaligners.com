@@ -82,7 +82,7 @@
                         <div class="case-modification-card__head-text">
                             <p class="case-modification-card__kicker">Returning patient</p>
                             <h4 class="case-modification-card__title" id="case-refinement-form-title">Start refinement case</h4>
-                            <p class="case-modification-card__lead">Notes are required. Upload updated 3D scans and photos if needed — LineUp will prepare a new treatment plan for this refinement cycle.</p>
+                            <p class="case-modification-card__lead">Notes are required. Upload updated 3D scans, a ZIP archive, and photos if needed — LineUp will prepare a new treatment plan for this refinement cycle.</p>
                         </div>
                     </header>
 
@@ -113,6 +113,9 @@
                                 @include('theme.pages.partials.case-jaw-scan-fields', [
                                     'upperInputId' => 'refinement-upper',
                                     'lowerInputId' => 'refinement-lower',
+                                ])
+                                @include('theme.pages.partials.case-data-zip-field', [
+                                    'inputId' => 'refinement-case-data-zip',
                                 ])
                             </div>
                         </div>

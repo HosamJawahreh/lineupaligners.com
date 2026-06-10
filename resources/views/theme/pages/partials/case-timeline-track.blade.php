@@ -53,6 +53,22 @@
                     <p class="case-timeline__summary">{{ $event['summary'] }}</p>
                     @endif
 
+                    @if(! empty($event['downloads']))
+                    <ul class="case-timeline__downloads" aria-label="Downloadable files">
+                        @foreach($event['downloads'] as $download)
+                        <li>
+                            <a href="{{ $download['url'] }}" class="case-timeline__download" download>
+                                <i class="zmdi zmdi-download" aria-hidden="true"></i>
+                                <span class="case-timeline__download-text">
+                                    <strong>{{ $download['label'] }}</strong>
+                                    <span>{{ $download['name'] }}@if(! empty($download['size'])) · {{ $download['size'] }}@endif</span>
+                                </span>
+                            </a>
+                        </li>
+                        @endforeach
+                    </ul>
+                    @endif
+
                     @if(! empty($event['body']))
                     <div class="case-timeline__body case-timeline__body--{{ $event['type'] }}">
                         @if($event['type'] === 'plan_rejected')

@@ -6,15 +6,15 @@ use App\Models\Patient;
 use App\Models\PatientCaseModification;
 use App\Rules\Scan3dFile;
 use App\Services\CasePhotoStorage;
+use App\Support\CaseDataZipStorage;
 use App\Support\PhpUploadLimits;
-use App\Support\ScanZipExtractor;
+use App\Support\ScanFileStorage;
 use App\Services\CaseWorkflowService;
 use App\Services\LineUpNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PatientCaseModificationController extends Controller
@@ -57,6 +57,7 @@ class PatientCaseModificationController extends Controller
             'notes' => ['required', 'string', 'min:1', 'max:10000'],
             'upper_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
             'lower_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
+            'case_data_zip' => ['nullable', 'file', 'mimes:zip', 'max:'.self::SCAN_MAX_KB],
             'photos' => ['nullable', 'array'],
             'photos.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:'.CasePhotoStorage::MAX_KB],
         ]);
@@ -91,6 +92,14 @@ class PatientCaseModificationController extends Controller
 
             if ($request->hasFile('lower_jaw_scan')) {
                 $this->storeModificationScan($modification, 'lower_jaw_scan', $request->file('lower_jaw_scan'));
+            }
+
+            if ($request->hasFile('case_data_zip')) {
+                CaseDataZipStorage::replaceOnModel(
+                    $modification,
+                    $request->file('case_data_zip'),
+                    "patients/{$patient->id}/modifications/{$modification->id}"
+                );
             }
 
             app(CasePhotoStorage::class)->storeFromRequest($request, $patient, $modification);
@@ -134,11 +143,7 @@ class PatientCaseModificationController extends Controller
             : basename($path);
 
         $absolutePath = $disk->path($path);
-        $mime = match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
-            'obj' => 'model/obj',
-            'ply' => 'application/octet-stream',
-            default => 'model/stl',
-        };
+        $mime = $this->scanMimeType($path);
 
         if ($request->boolean('download')) {
             return response()->download($absolutePath, $filename, ['Content-Type' => $mime]);
@@ -147,24 +152,46 @@ class PatientCaseModificationController extends Controller
         return response()->file($absolutePath, ['Content-Type' => $mime]);
     }
 
-    protected function storeModificationScan(PatientCaseModification $modification, string $field, UploadedFile $file): void
+    public function downloadCaseDataZip(Request $request, Patient $patient, PatientCaseModification $modification): BinaryFileResponse
     {
-        $ext = strtolower($file->getClientOriginalExtension() ?: 'stl');
-        if (! in_array($ext, ['stl', 'obj', 'ply'], true)) {
-            $ext = 'stl';
+        $this->authorize('view', $patient);
+
+        if ($modification->patient_id !== $patient->id || ! $modification->hasCaseDataZip()) {
+            abort(404);
         }
 
-        $base = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) ?: 'scan';
-        $filename = $base.'_mod'.$modification->id.'.'.$ext;
-        $dir = "patients/{$modification->patient_id}/modifications/{$modification->id}";
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+        $absolutePath = $disk->path($modification->case_data_zip);
 
-        $path = $file->storeAs($dir, $filename, 'public');
+        return response()->download($absolutePath, $modification->caseDataZipDisplayName(), [
+            'Content-Type' => 'application/zip',
+        ]);
+    }
+
+    protected function storeModificationScan(PatientCaseModification $modification, string $field, UploadedFile $file): void
+    {
+        $dir = "patients/{$modification->patient_id}/modifications/{$modification->id}";
+        $path = ScanFileStorage::store(
+            $file,
+            $dir,
+            $field === 'upper_jaw_scan' ? 'upper' : 'lower'
+        );
         $nameField = $field === 'upper_jaw_scan' ? 'upper_jaw_scan_name' : 'lower_jaw_scan_name';
 
         $modification->update([
             $field => $path,
             $nameField => $file->getClientOriginalName(),
         ]);
+    }
+
+    protected function scanMimeType(string $path): string
+    {
+        return match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
+            'zip' => 'application/zip',
+            'obj' => 'model/obj',
+            'ply' => 'application/octet-stream',
+            default => 'model/stl',
+        };
     }
 
     protected function redirectToTab(

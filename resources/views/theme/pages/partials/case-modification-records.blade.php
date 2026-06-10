@@ -72,11 +72,22 @@
             </div>
             @endif
 
-            @php $scanFiles = $mod->caseScanFiles(); @endphp
-            @if(count($scanFiles) > 0)
+            @php
+                $scanFiles = $mod->caseScanFiles();
+                $hasDownloads = $mod->hasCaseDataZip() || count($scanFiles) > 0;
+            @endphp
+            @if($hasDownloads)
             <div class="case-cycle-record__block">
-                <h5 class="case-cycle-record__label">3D scans</h5>
+                <h5 class="case-cycle-record__label">Attachments</h5>
                 <ul class="case-cycle-record__files">
+                    @if($mod->hasCaseDataZip())
+                    <li>
+                        <a href="{{ $mod->caseDataZipDownloadUrl() }}" class="case-cycle-record__file" download>
+                            <i class="zmdi zmdi-archive" aria-hidden="true"></i>
+                            <span>Case data archive · {{ $mod->caseDataZipDisplayName() }}</span>
+                        </a>
+                    </li>
+                    @endif
                     @foreach($scanFiles as $file)
                     <li>
                         <a href="{{ $file['download_url'] }}" class="case-cycle-record__file" download>

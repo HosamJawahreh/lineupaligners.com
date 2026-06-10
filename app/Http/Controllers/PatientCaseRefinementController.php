@@ -8,8 +8,8 @@ use App\Rules\Scan3dFile;
 use App\Services\CasePhotoStorage;
 use App\Services\CaseWorkflowService;
 use App\Services\LineUpNotifier;
+use App\Support\CaseDataZipStorage;
 use App\Support\PhpUploadLimits;
-use App\Support\ScanZipExtractor;
 use App\Support\ScanFileStorage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,8 +37,6 @@ class PatientCaseRefinementController extends Controller
                 'error'
             );
         }
-
-        ScanZipExtractor::normalizeRequestFiles($request, ['upper_jaw_scan', 'lower_jaw_scan']);
 
         if (PhpUploadLimits::requestPayloadUnparsed($request)) {
             return $this->redirectToTab(
@@ -70,6 +68,7 @@ class PatientCaseRefinementController extends Controller
             'notes' => ['required', 'string', 'min:1', 'max:10000'],
             'upper_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
             'lower_jaw_scan' => ['nullable', 'file', new Scan3dFile(self::SCAN_MAX_KB)],
+            'case_data_zip' => ['nullable', 'file', 'mimes:zip', 'max:'.self::SCAN_MAX_KB],
             'photos' => ['nullable', 'array'],
             'photos.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:'.CasePhotoStorage::MAX_KB],
         ]);
@@ -99,6 +98,15 @@ class PatientCaseRefinementController extends Controller
 
                 $this->attachScanIfPresent($request, 'upper_jaw_scan', $refinement, 'upper_jaw_scan');
                 $this->attachScanIfPresent($request, 'lower_jaw_scan', $refinement, 'lower_jaw_scan');
+
+                if ($request->hasFile('case_data_zip')) {
+                    CaseDataZipStorage::replaceOnModel(
+                        $refinement,
+                        $request->file('case_data_zip'),
+                        "patients/{$patient->id}/refinements/{$refinement->id}"
+                    );
+                }
+
                 $storedPhotoCount = app(CasePhotoStorage::class)->storeFromRequest($request, $patient, null, $refinement);
 
                 $this->workflow->afterRefinementRequested($patient->fresh());
@@ -166,17 +174,39 @@ class PatientCaseRefinementController extends Controller
             : basename($path);
 
         $absolutePath = $disk->path($path);
-        $mime = match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
-            'obj' => 'model/obj',
-            'ply' => 'application/octet-stream',
-            default => 'model/stl',
-        };
+        $mime = $this->scanMimeType($path);
 
         if ($request->boolean('download')) {
             return response()->download($absolutePath, $filename, ['Content-Type' => $mime]);
         }
 
         return response()->file($absolutePath, ['Content-Type' => $mime]);
+    }
+
+    public function downloadCaseDataZip(Request $request, Patient $patient, PatientCaseRefinement $refinement): BinaryFileResponse
+    {
+        $this->authorize('view', $patient);
+
+        if ($refinement->patient_id !== $patient->id || ! $refinement->hasCaseDataZip()) {
+            abort(404);
+        }
+
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+        $absolutePath = $disk->path($refinement->case_data_zip);
+
+        return response()->download($absolutePath, $refinement->caseDataZipDisplayName(), [
+            'Content-Type' => 'application/zip',
+        ]);
+    }
+
+    protected function scanMimeType(string $path): string
+    {
+        return match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
+            'zip' => 'application/zip',
+            'obj' => 'model/obj',
+            'ply' => 'application/octet-stream',
+            default => 'model/stl',
+        };
     }
 
     protected function attachScanIfPresent(

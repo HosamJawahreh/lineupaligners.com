@@ -145,6 +145,8 @@ Route::middleware('auth')->group(function () {
         Route::get('patients/{patient}/modifications/{modification}/scans/{scan}', [PatientCaseModificationController::class, 'downloadScan'])
             ->whereIn('scan', ['upper', 'lower'])
             ->name('patients.modifications.scans.download');
+        Route::get('patients/{patient}/modifications/{modification}/case-data-zip', [PatientCaseModificationController::class, 'downloadCaseDataZip'])
+            ->name('patients.modifications.case-data-zip.download');
         Route::post('patients/{patient}/refinements', [PatientCaseRefinementController::class, 'store'])
             ->name('patients.refinements.store');
         Route::post('patients/{patient}/send-last-update', [PatientController::class, 'sendLastUpdate'])
@@ -152,6 +154,8 @@ Route::middleware('auth')->group(function () {
         Route::get('patients/{patient}/refinements/{refinement}/scans/{scan}', [PatientCaseRefinementController::class, 'downloadScan'])
             ->whereIn('scan', ['upper', 'lower'])
             ->name('patients.refinements.scans.download');
+        Route::get('patients/{patient}/refinements/{refinement}/case-data-zip', [PatientCaseRefinementController::class, 'downloadCaseDataZip'])
+            ->name('patients.refinements.case-data-zip.download');
         Route::resource('patients', PatientController::class);
     });
 

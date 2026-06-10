@@ -52,7 +52,7 @@
                             <p class="case-modification-card__kicker">Plan changes</p>
                             <h4 class="case-modification-card__title" id="case-modification-form-title">Submit modification request</h4>
                             <p class="case-modification-card__lead">
-                                Notes are required. Upload revised 3D scans and photos if needed — LineUp will prepare an updated plan for your review.
+                                Notes are required. Upload revised 3D scans, a ZIP archive, and photos if needed — LineUp will prepare an updated plan for your review.
                             </p>
                         </div>
                     </header>
@@ -76,6 +76,9 @@
                                 @include('theme.pages.partials.case-jaw-scan-fields', [
                                     'upperInputId' => 'modification-upper',
                                     'lowerInputId' => 'modification-lower',
+                                ])
+                                @include('theme.pages.partials.case-data-zip-field', [
+                                    'inputId' => 'modification-case-data-zip',
                                 ])
                             </div>
                         </div>
