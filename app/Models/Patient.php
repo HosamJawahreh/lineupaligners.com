@@ -883,9 +883,7 @@ class Patient extends Model
             return false;
         }
 
-        $plan = $this->modificationTargetPlan();
-
-        return $plan === null || ! $plan->isPending();
+        return ! $this->currentModification($stageNumber)?->hasRevisedPlan();
     }
 
     /**
@@ -1515,15 +1513,21 @@ class Patient extends Model
         $internal = $this->workflowStageKey();
         $overlay = $this->planReviewOverlay();
 
+        if ($this->hasActiveModificationForAny()) {
+            $mod = $this->currentModification(null);
+
+            if ($mod?->hasRevisedPlan() && $overlay === 'pending') {
+                return 'case_status';
+            }
+
+            return 'modification';
+        }
+
         if ($internal === 'waiting_plan' && in_array($overlay, ['pending', 'rejected'], true)) {
             return 'case_status';
         }
 
-        if ($this->hasActiveModificationForAny() || $internal === 'modification') {
-            if ($internal === 'modification' && $overlay === 'pending') {
-                return 'case_status';
-            }
-
+        if ($internal === 'modification') {
             return 'modification';
         }
 
@@ -1600,13 +1604,22 @@ class Patient extends Model
 
             if ($key === 'modification') {
                 $activeMod = $this->hasActiveModificationForAny();
+                $currentMod = $this->currentModification(null);
                 $historyInOriginalCycle = $this->hasModificationHistory() && ! $this->hasActiveRefinement();
                 $modRevisionAwaitingReview = $historyInOriginalCycle
                     && ! $activeMod
                     && $planOverlay === 'pending';
                 $modInProgress = $activeMod || $modRevisionAwaitingReview;
 
-                if ($index === $currentIndex && $modInProgress && $progressKey === 'modification') {
+                if ($activeMod && $index === $currentIndex) {
+                    $state = 'current';
+                    $variant = 'modification';
+                    $label = $currentMod?->hasRevisedPlan() ? 'Modified' : 'Awaiting new plan';
+                } elseif ($activeMod && $index < $currentIndex) {
+                    $state = 'completed';
+                    $variant = 'modification';
+                    $label = $currentMod?->hasRevisedPlan() ? 'Modified' : 'Awaiting new plan';
+                } elseif ($index === $currentIndex && $modInProgress && $progressKey === 'modification') {
                     $state = 'current';
                     $variant = 'modification';
                     $label = ($inModification || $activeMod) ? 'Awaiting new plan' : 'Modification in progress';
@@ -1628,10 +1641,11 @@ class Patient extends Model
             if ($key === 'case_status') {
                 if ($planOverlay === 'pending' && $index === $currentIndex) {
                     $state = 'current';
-                    $label = ($this->hasActiveModificationForAny() || $this->hasModificationHistory())
+                    $hasModContext = $this->hasActiveModificationForAny() || $this->hasModificationHistory();
+                    $label = $hasModContext
                         ? 'Awaiting doctor approval · After mod'
                         : 'Awaiting doctor approval';
-                    if ($this->hasActiveRefinement()) {
+                    if ($this->hasActiveRefinement() && ! $hasModContext) {
                         $label = 'Awaiting doctor approval · Refinement';
                         $variant = 'refinement-review';
                     }
