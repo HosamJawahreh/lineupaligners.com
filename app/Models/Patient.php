@@ -837,6 +837,8 @@ class Patient extends Model
     /**
      * Doctor may request modification throughout the active case cycle:
      * from the first treatment plan upload until LineUp marks manufactured (pending, rejected, or approved).
+     *
+     * Blocked only while an active modification is waiting for LineUp to upload a revised plan.
      */
     public function canRequestModification(?int $stageNumber = null): bool
     {
@@ -848,17 +850,29 @@ class Patient extends Model
             return false;
         }
 
-        if ($this->hasActiveModificationFor($stageNumber)) {
-            return false;
-        }
-
         $plan = $this->originalCycleFullTreatmentPlan() ?? $this->currentFullTreatmentPlan();
 
         if ($plan === null || ! $plan->is_current) {
             return false;
         }
 
+        if ($this->isAwaitingRevisedPlanUpload($stageNumber)) {
+            return false;
+        }
+
         return $plan->isPending() || $plan->isRejected() || $plan->isApproved();
+    }
+
+    /** Active modification waiting for LineUp to upload a revised plan (not yet pending review). */
+    public function isAwaitingRevisedPlanUpload(?int $stageNumber = null): bool
+    {
+        if (! $this->hasActiveModificationFor($stageNumber)) {
+            return false;
+        }
+
+        $plan = $this->originalCycleFullTreatmentPlan() ?? $this->currentFullTreatmentPlan();
+
+        return $plan === null || ! $plan->isPending();
     }
 
     /**

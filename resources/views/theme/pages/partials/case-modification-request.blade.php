@@ -3,7 +3,9 @@
     $hasWorkflowPermission = $canRequestModification ?? false;
     $canRequestNow = $patient->canRequestModificationNow();
     $canRequest = $hasWorkflowPermission && $canRequestNow;
-    $awaitingPlan = $patient->hasModificationAwaitingPlan(null);
+    $awaitingPlan = $patient->isAwaitingRevisedPlanUpload(null);
+    $activePlan = $patient->originalCycleFullTreatmentPlan() ?? $patient->currentFullTreatmentPlan();
+    $hasPlanInCycle = $patient->hasTreatmentPlanInActiveCycle();
     $reviewStage = null;
 @endphp
 
@@ -39,13 +41,6 @@
     <div class="case-modification__layout">
         <div class="case-modification__main">
             @if($canRequest)
-                @if($awaitingPlan)
-                <div class="case-modification__notice case-modification__notice--info">
-                    <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-                    <p>A modification is already in progress. You can still submit a new request when the current plan cycle allows it.</p>
-                </div>
-                @endif
-
                 <section class="case-modification-card" aria-labelledby="case-modification-form-title">
                     <div class="case-modification-card__accent" aria-hidden="true"></div>
 
@@ -120,36 +115,30 @@
                     <p>This case cycle is manufactured and complete. Modifications are closed. Use <strong>Order Refinement</strong> when the patient returns for continued treatment.</p>
                 </div>
             @elseif(auth()->user()->isDoctor())
-                @if($awaitingPlan && ! $canRequestNow)
+                @if($awaitingPlan)
                 <div class="case-modification__notice case-modification__notice--pending">
                     <i class="zmdi zmdi-time" aria-hidden="true"></i>
-                    <p>A modification is in progress. LineUp will upload a revised plan for you to review. After you approve it, the case continues toward manufacturing — refinement is only available after LineUp marks the case as manufactured.</p>
+                    <p>A modification is in progress. LineUp will upload a revised plan for you to review. After you approve it, the case continues toward manufacturing.</p>
                 </div>
                 @elseif($patient->hasActiveRefinement())
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
                     <p>Modifications apply to Version #1 only. During a refinement cycle, use the Treatment Plan tab to review the refinement plan.</p>
                 </div>
-                @elseif($hasWorkflowPermission && ! $canRequestNow && $reviewStage)
-                <div class="case-modification__notice case-modification__notice--info">
-                    <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-                    <p>A treatment plan is pending your approval on the <strong>Treatment Plan</strong> tab. You can request a modification here before approving when the case is eligible.</p>
-                </div>
                 @elseif(! $hasWorkflowPermission)
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-lock" aria-hidden="true"></i>
                     <p>Your account role does not include modification requests. Contact LineUp admin to update your permissions.</p>
                 </div>
+                @elseif(! $hasPlanInCycle)
+                <div class="case-modification__notice case-modification__notice--info">
+                    <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
+                    <p>No modification can be started yet. LineUp must upload a treatment plan first.</p>
+                </div>
                 @else
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
-                    <p>
-                        @if(! $patient->hasTreatmentPlanInActiveCycle())
-                            No modification can be started yet. LineUp must upload a treatment plan first.
-                        @else
-                            No modification can be started right now. A modification may already be awaiting a revised plan from LineUp.
-                        @endif
-                    </p>
+                    <p>No modification can be started right now for this case.</p>
                 </div>
                 @endif
             @else
@@ -158,22 +147,49 @@
                     <i class="zmdi zmdi-time" aria-hidden="true"></i>
                     <p>A modification is in progress. Upload the revised plan on the <strong>Treatment Plan</strong> tab. The assigned doctor will review it when ready.</p>
                 </div>
-                @elseif($canRequestNow)
+                @elseif($patient->hasActiveRefinement())
+                <div class="case-modification__notice case-modification__notice--info">
+                    <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
+                    <p>Modifications apply to Version #1 only. Upload and manage refinement plans on the <strong>Treatment Plan</strong> tab.</p>
+                </div>
+                @elseif($hasPlanInCycle && $activePlan?->isPending())
+                <div class="case-modification__notice case-modification__notice--success" role="status">
+                    <i class="zmdi zmdi-check-circle" aria-hidden="true"></i>
+                    <p>
+                        Revised treatment plan uploaded. The modification cycle is complete on your side — the assigned doctor will review the plan on the <strong>Treatment Plan</strong> tab.
+                        @if($patient->doctor)
+                        <strong>Dr. {{ $patient->doctor->fullName() }}</strong> may also request a new modification from this tab when logged in.
+                        @endif
+                    </p>
+                </div>
+                @elseif($hasPlanInCycle && $activePlan?->isApproved())
                 <div class="case-modification__notice case-modification__notice--info">
                     <i class="zmdi zmdi-account" aria-hidden="true"></i>
                     <p>
-                        A treatment plan is uploaded and ready for modification.
+                        The current plan is approved.
                         @if($patient->doctor)
-                        <strong>Dr. {{ $patient->doctor->fullName() }}</strong> can submit a request from this tab when logged in as the assigned doctor.
+                        <strong>Dr. {{ $patient->doctor->fullName() }}</strong> can request a modification from this tab before manufacture.
                         @else
-                        The assigned doctor can submit a request from this tab.
+                        The assigned doctor can request a modification from this tab before manufacture.
+                        @endif
+                    </p>
+                </div>
+                @elseif($hasPlanInCycle)
+                <div class="case-modification__notice case-modification__notice--info">
+                    <i class="zmdi zmdi-account" aria-hidden="true"></i>
+                    <p>
+                        A treatment plan is on file.
+                        @if($patient->doctor)
+                        <strong>Dr. {{ $patient->doctor->fullName() }}</strong> can submit a modification request from this tab when logged in as the assigned doctor.
+                        @else
+                        The assigned doctor can submit a modification request from this tab.
                         @endif
                     </p>
                 </div>
                 @else
                 <div class="case-modification__notice case-modification__notice--info">
-                    <i class="zmdi zmdi-account" aria-hidden="true"></i>
-                    <p>Only the assigned doctor can submit modification requests. When a request is active, upload a revised plan in the Treatment Plan tab.</p>
+                    <i class="zmdi zmdi-info-outline" aria-hidden="true"></i>
+                    <p>Upload a treatment plan on the <strong>Treatment Plan</strong> tab before the doctor can request modifications.</p>
                 </div>
                 @endif
             @endif
