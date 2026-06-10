@@ -909,14 +909,6 @@ class Patient extends Model
             return 'Modified';
         }
 
-        if ($this->modificationTargetPlan() === null) {
-            return 'Waiting for modified case plan';
-        }
-
-        if ($this->isAwaitingRevisedPlanUpload($mod?->stage_number)) {
-            return 'Awaiting new plan';
-        }
-
         return 'Waiting for modified case plan';
     }
 
