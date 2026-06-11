@@ -2009,12 +2009,7 @@ body:has(.lineup-smiliz-preview-bar) .page-wrapper {
         margin-top: 0;
     }
 
-    /* CSS sticky fallback only — ScrollTrigger manages spacing when pinned */
-    .lineup-process-showcase.is-scroll-driven:not(.is-scroll-trigger) .lineup-process-showcase__pin-spacer {
-        height: calc(var(--lineup-process-step-count, 4) * 100vh);
-    }
-
-    .lineup-process-showcase.is-scroll-driven.is-scroll-trigger .lineup-process-showcase__pin-spacer {
+    .lineup-process-showcase.is-scroll-driven .lineup-process-showcase__pin-spacer {
         height: auto;
     }
 

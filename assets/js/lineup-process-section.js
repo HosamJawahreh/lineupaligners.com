@@ -177,25 +177,22 @@
             destroyScrollTrigger();
             resetDrivenStyles();
 
-            var shouldEnable = isDesktop() && stepCount > 1 && !prefersReducedMotion();
+            // Static tab tour only — scroll-pin caused multi-viewport whitespace when
+            // ScrollTrigger was unavailable or pin spacing stacked with the CSS fallback.
+            var shouldEnable = false;
 
             scrollEnabled = shouldEnable;
 
-            root.classList.toggle('is-scroll-driven', shouldEnable);
-            root.classList.toggle('is-scroll-trigger', shouldEnable && hasScrollTrigger());
-            section.classList.toggle('is-scroll-driven', shouldEnable);
+            root.classList.remove('is-scroll-driven', 'is-scroll-trigger');
+            section.classList.remove('is-scroll-driven');
 
-            if (shouldEnable) {
-                disableTourAos();
-            }
+            goToStepDiscrete(0);
 
             if (!shouldEnable) {
-                goToStepDiscrete(0);
                 return;
             }
 
             if (!hasScrollTrigger()) {
-                goToStepDiscrete(0);
                 return;
             }
 
