@@ -1684,16 +1684,12 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 .case-scan-viewer-pane {
     min-width: 0;
     background: #b8c5d4;
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, auto);
-    grid-template-areas:
-        "toolbar"
-        "canvas";
+    display: flex;
+    flex-direction: column;
 }
 
 .case-scan-toolbar-wrap {
-    grid-area: toolbar;
+    order: 1;
     flex-shrink: 0;
     overflow: hidden;
     background: linear-gradient(180deg, #f1f5f9 0%, #e8eef4 100%);
@@ -1835,7 +1831,7 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 }
 
 .case-scan-canvas-wrap {
-    grid-area: canvas;
+    order: 2;
     flex: 0 0 auto;
     position: relative;
     width: 100%;
@@ -1873,14 +1869,21 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
     background: transparent;
 }
 
+/* Mobile / tablet: scan files stack below the 3D viewer */
 .case-scan-files__panel--overlay {
-    grid-area: canvas;
-    align-self: start;
-    justify-self: end;
-    z-index: 12;
-    margin: 12px;
-    width: min(272px, calc(100% - 24px));
-    max-height: min(340px, calc(100% - 24px));
+    order: 3;
+    position: relative;
+    z-index: auto;
+    align-self: stretch;
+    width: 100%;
+    max-height: none;
+    margin: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    border-top: 1px solid #e2e8f0;
+    box-shadow: none;
     pointer-events: auto;
 }
 
@@ -1891,7 +1894,46 @@ body.lineup-app.ls-closed.patient-case-study-page section.content {
 .case-scan-files__panel--overlay .case-scan-files__list {
     padding: 10px;
     gap: 10px;
-    max-height: min(280px, 38vh);
+    max-height: none;
+}
+
+@media (min-width: 992px) {
+    .case-scan-viewer-pane {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto minmax(0, auto);
+        grid-template-areas:
+            "toolbar"
+            "canvas";
+    }
+
+    .case-scan-toolbar-wrap {
+        order: unset;
+        grid-area: toolbar;
+    }
+
+    .case-scan-canvas-wrap {
+        order: unset;
+        grid-area: canvas;
+    }
+
+    .case-scan-files__panel--overlay {
+        order: unset;
+        grid-area: canvas;
+        align-self: start;
+        justify-self: end;
+        z-index: 12;
+        margin: 12px;
+        width: min(272px, calc(100% - 24px));
+        max-height: min(340px, calc(100% - 24px));
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .case-scan-files__panel--overlay .case-scan-files__list {
+        max-height: min(280px, 38vh);
+    }
 }
 
 .case-scan-file-card--panel {
@@ -6440,40 +6482,6 @@ a.case-data-zip-chip:focus-visible {
     .case-refinement__uploads,
     .case-jaw-scan-fields {
         grid-template-columns: 1fr;
-    }
-
-    .case-scan-viewer-pane {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .case-scan-toolbar-wrap {
-        order: 1;
-    }
-
-    .case-scan-canvas-wrap {
-        order: 2;
-        grid-area: unset;
-    }
-
-    .case-scan-files__panel--overlay {
-        order: 3;
-        grid-area: unset;
-        align-self: stretch;
-        justify-self: stretch;
-        margin: 0;
-        width: 100%;
-        max-height: none;
-        border-radius: 0;
-        border-left: none;
-        border-right: none;
-        border-bottom: none;
-        border-top: 1px solid #e2e8f0;
-        box-shadow: none;
-    }
-
-    .case-scan-files__panel--overlay .case-scan-files__list {
-        max-height: none;
     }
 
     .case-modification-card__uploads {

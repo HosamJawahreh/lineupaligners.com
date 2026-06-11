@@ -2031,6 +2031,13 @@ body.lineup-app.lineup-color-dark .case-scan-files__panel--overlay {
     backdrop-filter: blur(8px);
 }
 
+@media (max-width: 991px) {
+    body.lineup-app.lineup-color-dark .case-scan-files__panel--overlay {
+        background: var(--lineup-surface-elevated) !important;
+        backdrop-filter: none;
+    }
+}
+
 body.lineup-app.lineup-color-dark .case-scan-file-card--panel .case-scan-file__jaw {
     color: #38bdf8 !important;
 }
