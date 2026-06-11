@@ -34,6 +34,7 @@ return [
         'modification_requested',
         'case_ready_for_manufacture',
         'case_manufactured',
+        'stage_manufactured',
         'refinement_requested',
     ],
 
@@ -47,6 +48,7 @@ return [
         'modification_requested' => 'Modification requested',
         'case_ready_for_manufacture' => 'Ready to mark manufactured',
         'case_manufactured' => 'Case marked manufactured',
+        'stage_manufactured' => 'Divided stage marked manufactured',
         'refinement_requested' => 'Refinement ordered',
     ],
 
@@ -60,6 +62,7 @@ return [
         'modification_requested' => 'Admin',
         'case_ready_for_manufacture' => 'Admin',
         'case_manufactured' => 'Assigned doctor',
+        'stage_manufactured' => 'Assigned doctor',
         'refinement_requested' => 'Admin',
     ],
 

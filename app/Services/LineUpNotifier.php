@@ -211,6 +211,32 @@ class LineUpNotifier
         ]);
     }
 
+    public function stageMarkedManufactured(
+        Patient $patient,
+        User $admin,
+        int $stageNumber,
+        ?string $stepRange = null
+    ): void {
+        $doctorUser = $patient->doctor?->user;
+        if (! $doctorUser) {
+            return;
+        }
+
+        $rangeText = $stepRange ? " ({$stepRange})" : '';
+        $caseLabel = $patient->display_patient_id.' — '.$patient->fullName();
+
+        $this->notifyUser($doctorUser, [
+            'type' => 'stage_manufactured',
+            'title' => 'Manufacturing stage '.$stageNumber.' complete',
+            'body' => "LineUp recorded manufacturing stage {$stageNumber}{$rangeText} for {$caseLabel}.",
+            'url' => $this->caseUrl($patient, 'manufacture-plan', $stageNumber),
+            'icon' => 'zmdi-check-circle',
+            'open_tab' => 'manufacture-plan',
+            'mfg_stage' => $stageNumber,
+            'patient_id' => $patient->id,
+        ]);
+    }
+
     public function refinementRequested(Patient $patient, User $doctor): void
     {
         $this->notifyAdmins([

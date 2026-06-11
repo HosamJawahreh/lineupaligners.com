@@ -78,7 +78,7 @@ class PatientManufacturingController extends Controller
         ]);
 
         $patient->refresh();
-        $this->workflow->afterStageMarkedManufactured(
+        $fullyManufactured = $this->workflow->afterStageMarkedManufactured(
             $patient,
             $patient->currentFullTreatmentPlan() ?? $patient->originalCycleFullTreatmentPlan(),
             (int) auth()->id()
@@ -87,6 +87,13 @@ class PatientManufacturingController extends Controller
         $patient->load('doctor.user');
         $stage = $patient->manufacturingStageRecord($stageNumber);
         $range = $stage?->stepRangeLabel() ?? '';
+
+        if ($fullyManufactured) {
+            $this->notifier->caseMarkedManufactured($patient, auth()->user());
+        } else {
+            $this->notifier->stageMarkedManufactured($patient, auth()->user(), $stageNumber, $range !== '' ? $range : null);
+        }
+
         $message = $range !== ''
             ? "Manufacturing stage {$stageNumber} ({$range}) recorded."
             : "Manufacturing stage {$stageNumber} recorded.";
