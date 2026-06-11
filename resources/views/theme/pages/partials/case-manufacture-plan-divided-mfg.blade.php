@@ -16,7 +16,11 @@
             Manufacturing stages
         </h4>
         <p class="mfg-plan__divided-mfg-lead">
-            This case uses one shared treatment plan above. Record each manufacturing batch here with its step range after the doctor approves the plan.
+            @if(! empty($isRefinementCycle))
+                This refinement uses one shared treatment plan above. Record each manufacturing batch here with its step range after the doctor approves the plan.
+            @else
+                This case uses one shared treatment plan above. Record each manufacturing batch here with its step range after the doctor approves the plan.
+            @endif
         </p>
     </header>
 

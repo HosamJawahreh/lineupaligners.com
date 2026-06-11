@@ -18,7 +18,13 @@
         <i class="zmdi zmdi-check-circle" aria-hidden="true"></i>
         <div>
             <strong>Refinement plan approved</strong>
-            <p>The doctor approved this refinement treatment plan. LineUp can mark this refinement cycle as manufactured when production is complete.</p>
+            <p>
+                @if($isDivided)
+                    The doctor approved this refinement treatment plan. Record each manufacturing batch in the stages section below, then mark the refinement cycle complete when production is finished.
+                @else
+                    The doctor approved this refinement treatment plan. LineUp can mark this refinement cycle as manufactured when production is complete.
+                @endif
+            </p>
         </div>
     </div>
     @elseif($isActiveCtx && $ctxType === 'refinement')
@@ -126,10 +132,11 @@
         <p class="mfg-plan__locked-note mfg-plan__locked-note--ok"><i class="zmdi zmdi-check-circle"></i> This plan is approved. No further upload is required until the doctor requests a modification.</p>
         @endif
 
-        @if($isDivided && $isActiveCtx && $ctxType === 'original')
+        @if($isDivided && $isActiveCtx && in_array($ctxType, ['original', 'refinement'], true))
         @include('theme.pages.partials.case-manufacture-plan-divided-mfg', [
             'patient' => $patient,
             'canMarkManufactured' => $canMarkManufactured ?? false,
+            'isRefinementCycle' => $ctxType === 'refinement',
         ])
         @endif
 </div>

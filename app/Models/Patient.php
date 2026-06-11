@@ -300,7 +300,15 @@ class Patient extends Model
         if ($this->hasActiveRefinement()) {
             $plan = $this->currentFullTreatmentPlan();
 
-            return $plan !== null && $plan->isApproved();
+            if ($plan === null || ! $plan->isApproved()) {
+                return false;
+            }
+
+            if ($this->isDividedStages()) {
+                return $this->manufacturingStagesForScope()->isNotEmpty();
+            }
+
+            return true;
         }
 
         if ($this->isDividedStages()) {
