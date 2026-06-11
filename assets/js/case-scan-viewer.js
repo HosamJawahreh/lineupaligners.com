@@ -116,11 +116,12 @@ if (root && canvas) {
 
     const renderer = new THREE.WebGLRenderer({
         canvas,
-        antialias: true,
+        antialias: window.devicePixelRatio < 2,
         alpha: true,
-        preserveDrawingBuffer: true,
+        preserveDrawingBuffer: false,
+        powerPreference: 'high-performance',
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -451,6 +452,7 @@ if (root && canvas) {
     const meshesById = new Map();
     let animating = true;
     let loadedCount = 0;
+    let registeredPairCache = null;
 
     function materialFor(scanId) {
         const style = SCAN_STYLES[scanId] || { color: 0xeceff1 };
@@ -1465,6 +1467,10 @@ if (root && canvas) {
      * Detect that relationship before any heuristic re-orientation.
      */
     function isPreRegisteredPair(upper, lower) {
+        if (registeredPairCache !== null) {
+            return registeredPairCache;
+        }
+
         resetArchToFileState(upper);
         resetArchToFileState(lower);
         lower.wrapper.updateMatrixWorld(true);
@@ -1473,14 +1479,20 @@ if (root && canvas) {
         const reg = measureRegisteredBite(upper, lower);
 
         if (reg.upperAbove === false) {
+            registeredPairCache = false;
+
             return false;
         }
 
         if (reg.overlap >= 0.22) {
+            registeredPairCache = true;
+
             return true;
         }
 
         if (reg.score >= 12 && reg.overlap >= 0.1) {
+            registeredPairCache = true;
+
             return true;
         }
 
@@ -1490,6 +1502,8 @@ if (root && canvas) {
         const upperCenter = upperBox.getCenter(new THREE.Vector3());
 
         if (upperCenter.y <= lowerCenter.y) {
+            registeredPairCache = false;
+
             return false;
         }
 
@@ -1502,7 +1516,9 @@ if (root && canvas) {
             1
         );
 
-        return xzOffset <= archSpan * 0.16 && reg.overlap >= 0.06;
+        registeredPairCache = xzOffset <= archSpan * 0.16 && reg.overlap >= 0.06;
+
+        return registeredPairCache;
     }
 
     function getBoxOverlapOnAxes(boxA, boxB, axis1, axis2) {
@@ -1785,6 +1801,15 @@ if (root && canvas) {
      * Clinical bite from scanner export: keep upper/lower registration exactly as captured.
      * Only rotate the pair as one unit for a front-facing presentation — never force occlusion.
      */
+    /** Quick registered-bite layout for first paint — full correction runs in the background. */
+    function stackRegisteredBiteFast(upper, lower) {
+        resetArchToFileState(upper);
+        resetArchToFileState(lower);
+        resetBiteGroupOrientation();
+        ensureBiteGroupPair(upper, lower);
+        recenterBiteGroupLocally();
+    }
+
     function stackRegisteredBite(upper, lower) {
         resetArchToFileState(upper);
         resetArchToFileState(lower);
@@ -1868,8 +1893,15 @@ if (root && canvas) {
         }
     }
 
-    function collectWrapperPoints(wrapper, step = 6) {
-        const points = [];
+    function computeCoordinateVariances(wrapper, step = 6) {
+        let count = 0;
+        let meanX = 0;
+        let meanY = 0;
+        let meanZ = 0;
+        let m2x = 0;
+        let m2y = 0;
+        let m2z = 0;
+
         wrapper.updateMatrixWorld(true);
         wrapper.traverse((child) => {
             if (!child.isMesh || !child.geometry?.attributes?.position) {
@@ -1877,39 +1909,36 @@ if (root && canvas) {
             }
 
             const positions = child.geometry.attributes.position;
-            const stride = positions.count > 100000 ? Math.max(step, 10) : step;
+            const stride = geometrySampleStep(positions.count, step);
 
             for (let i = 0; i < positions.count; i += stride) {
                 occlusalSampleVec.fromBufferAttribute(positions, i);
                 occlusalSampleVec.applyMatrix4(child.matrixWorld);
-                points.push(occlusalSampleVec.clone());
+
+                count += 1;
+                const dx = occlusalSampleVec.x - meanX;
+                meanX += dx / count;
+                m2x += dx * (occlusalSampleVec.x - meanX);
+
+                const dy = occlusalSampleVec.y - meanY;
+                meanY += dy / count;
+                m2y += dy * (occlusalSampleVec.y - meanY);
+
+                const dz = occlusalSampleVec.z - meanZ;
+                meanZ += dz / count;
+                m2z += dz * (occlusalSampleVec.z - meanZ);
             }
         });
 
-        return points;
-    }
-
-    function computeCoordinateVariances(wrapper, step = 6) {
-        const points = collectWrapperPoints(wrapper, step);
-        if (points.length < 3) {
+        if (count < 3) {
             return { x: 1, y: 1, z: 1 };
         }
 
-        const mean = new THREE.Vector3();
-        points.forEach((point) => mean.add(point));
-        mean.divideScalar(points.length);
-
-        let vx = 0;
-        let vy = 0;
-        let vz = 0;
-        points.forEach((point) => {
-            vx += (point.x - mean.x) ** 2;
-            vy += (point.y - mean.y) ** 2;
-            vz += (point.z - mean.z) ** 2;
-        });
-
-        const n = points.length;
-        return { x: vx / n, y: vy / n, z: vz / n };
+        return {
+            x: m2x / count,
+            y: m2y / count,
+            z: m2z / count,
+        };
     }
 
     /**
@@ -1992,6 +2021,26 @@ if (root && canvas) {
     const occlusalSampleVec = new THREE.Vector3();
     const occlusalNormalVec = new THREE.Vector3();
 
+    function geometrySampleStep(vertexCount, baseStep = 2) {
+        if (vertexCount > 250000) {
+            return 14;
+        }
+        if (vertexCount > 180000) {
+            return 10;
+        }
+        if (vertexCount > 120000) {
+            return 8;
+        }
+        if (vertexCount > 80000) {
+            return 6;
+        }
+        if (vertexCount > 40000) {
+            return 4;
+        }
+
+        return baseStep;
+    }
+
     function ensureMeshNormals(object) {
         object.traverse((child) => {
             if (!child.isMesh || !child.geometry) {
@@ -2017,7 +2066,7 @@ if (root && canvas) {
             const positions = child.geometry.attributes.position;
             const normals = child.geometry.attributes.normal;
             const threshold = 0.25;
-            const step = positions.count > 120000 ? 3 : 1;
+            const step = geometrySampleStep(positions.count, 1);
 
             for (let i = 0; i < positions.count; i += step) {
                 occlusalSampleVec.fromBufferAttribute(positions, i);
@@ -2070,7 +2119,7 @@ if (root && canvas) {
                 return;
             }
 
-            const step = positions.count > 80000 ? 4 : 2;
+            const step = geometrySampleStep(positions.count);
             for (let i = 0; i < positions.count; i += step) {
                 occlusalNormalVec.fromBufferAttribute(normals, i);
                 occlusalNormalVec.transformDirection(child.matrixWorld);
@@ -2120,7 +2169,7 @@ if (root && canvas) {
                 }
 
                 const threshold = 0.25;
-                const step = positions.count > 80000 ? 4 : 2;
+                const step = geometrySampleStep(positions.count);
 
                 for (let i = 0; i < positions.count; i += step) {
                     occlusalNormalVec.fromBufferAttribute(normals, i);
@@ -2167,7 +2216,7 @@ if (root && canvas) {
                     return;
                 }
 
-                const step = positions.count > 80000 ? 4 : 2;
+                const step = geometrySampleStep(positions.count);
 
                 for (let i = 0; i < positions.count; i += step) {
                     occlusalNormalVec.fromBufferAttribute(normals, i);
@@ -2277,33 +2326,9 @@ if (root && canvas) {
     }
 
     function getArchOcclusalYFallback(wrapper, arch) {
-        const ys = [];
+        const box = new THREE.Box3().setFromObject(wrapper);
 
-        wrapper.updateMatrixWorld(true);
-        wrapper.traverse((child) => {
-            if (!child.isMesh || !child.geometry?.attributes?.position) {
-                return;
-            }
-
-            const positions = child.geometry.attributes.position;
-            for (let i = 0; i < positions.count; i += 1) {
-                occlusalSampleVec.fromBufferAttribute(positions, i);
-                occlusalSampleVec.applyMatrix4(child.matrixWorld);
-                ys.push(occlusalSampleVec.y);
-            }
-        });
-
-        if (!ys.length) {
-            const box = new THREE.Box3().setFromObject(wrapper);
-            return arch === 'lower' ? box.max.y : box.min.y;
-        }
-
-        ys.sort((a, b) => a - b);
-        const index = arch === 'lower'
-            ? Math.floor(ys.length * 0.9)
-            : Math.floor(ys.length * 0.1);
-
-        return ys[Math.min(Math.max(index, 0), ys.length - 1)];
+        return arch === 'lower' ? box.max.y : box.min.y;
     }
 
     function alignArchCentersXZ(upper, lower) {
@@ -2532,7 +2557,12 @@ if (root && canvas) {
         let needsRefinement = false;
 
         if (isPreRegisteredPair(upper, lower)) {
-            stackRegisteredBite(upper, lower);
+            if (fast) {
+                stackRegisteredBiteFast(upper, lower);
+                needsRefinement = true;
+            } else {
+                stackRegisteredBite(upper, lower);
+            }
         } else if (fast) {
             stackAutoOrientedBiteFast(upper, lower);
             needsRefinement = true;
@@ -2559,10 +2589,6 @@ if (root && canvas) {
             return;
         }
 
-        if (isPreRegisteredPair(upper, lower)) {
-            return;
-        }
-
         const token = ++biteRefinementToken;
 
         const run = () => {
@@ -2571,7 +2597,12 @@ if (root && canvas) {
             }
 
             try {
-                stackUpperLowerMeshes(upper, lower, { fast: false });
+                if (isPreRegisteredPair(upper, lower)) {
+                    stackRegisteredBite(upper, lower);
+                } else {
+                    stackUpperLowerMeshes(upper, lower, { fast: false });
+                }
+
                 modelGroup.position.set(0, 0, 0);
                 centerModelGroup();
                 applyInitialCameraView();
@@ -2583,9 +2614,9 @@ if (root && canvas) {
         };
 
         if (typeof requestIdleCallback === 'function') {
-            requestIdleCallback(run, { timeout: 2500 });
+            requestIdleCallback(run, { timeout: 3500 });
         } else {
-            setTimeout(run, 0);
+            setTimeout(run, 16);
         }
     }
 
@@ -2767,6 +2798,7 @@ if (root && canvas) {
 
     function clearAllMeshes() {
         biteRefinementToken += 1;
+        registeredPairCache = null;
         meshesById.forEach((entry) => {
             if (entry.wrapper.parent) {
                 entry.wrapper.parent.remove(entry.wrapper);

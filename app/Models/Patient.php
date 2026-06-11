@@ -1105,8 +1105,15 @@ class Patient extends Model
      *
      * @return list<array{key: string, label: string, notes: ?string, files: list<array>, at: \Carbon\Carbon}>
      */
+    /** @var list<array{key: string, label: string, notes: ?string, files: list<array>, at: \Carbon\Carbon}>|null */
+    protected ?array $caseScanSetCandidatesCache = null;
+
     protected function caseScanSetCandidates(): array
     {
+        if ($this->caseScanSetCandidatesCache !== null) {
+            return $this->caseScanSetCandidatesCache;
+        }
+
         $candidates = [];
 
         $originalFiles = $this->caseScanFiles();
@@ -1123,7 +1130,11 @@ class Patient extends Model
         }
 
         if (Schema::hasTable('patient_case_modifications')) {
-            foreach ($this->caseModifications()->orderBy('version')->get() as $mod) {
+            $modifications = $this->relationLoaded('caseModifications')
+                ? $this->caseModifications->sortBy('version')->values()
+                : $this->caseModifications()->orderBy('version')->get();
+
+            foreach ($modifications as $mod) {
                 $candidates[] = [
                     'key' => 'mod-'.$mod->id,
                     'label' => $mod->scopeLabel(),
@@ -1135,7 +1146,11 @@ class Patient extends Model
         }
 
         if (Schema::hasTable('patient_case_refinements')) {
-            foreach ($this->caseRefinements()->orderBy('version')->get() as $ref) {
+            $refinements = $this->relationLoaded('caseRefinements')
+                ? $this->caseRefinements->sortBy('version')->values()
+                : $this->caseRefinements()->orderBy('version')->get();
+
+            foreach ($refinements as $ref) {
                 $candidates[] = [
                     'key' => 'ref-'.$ref->id,
                     'label' => $ref->scopeLabel(),
@@ -1148,7 +1163,7 @@ class Patient extends Model
 
         usort($candidates, fn (array $a, array $b) => $b['at'] <=> $a['at']);
 
-        return $candidates;
+        return $this->caseScanSetCandidatesCache = $candidates;
     }
 
     public function defaultTreatmentPlanContextKey(): string

@@ -281,7 +281,7 @@
     }
 }
 </script>
-<script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=23"></script>
+<script type="module" src="{{ asset('assets/js/case-scan-viewer.js') }}?v=24"></script>
 @endif
 <script src="{{ asset('assets/js/patient-case-study.js') }}?v=7"></script>
 <script src="{{ asset('assets/js/case-action-confirm.js') }}?v=9"></script>

@@ -77,34 +77,36 @@ class CaseTimelineBuilder
     }
 
     /**
+     * @return array{
+     *     full: array{events: list<array<string, mixed>>, grouped: array<string, list<array<string, mixed>>>},
+     *     modification: array{events: list<array<string, mixed>>, grouped: array<string, list<array<string, mixed>>>},
+     *     refinement: array{events: list<array<string, mixed>>, grouped: array<string, list<array<string, mixed>>>}
+     * }
+     */
+    public function buildAllForPatient(Patient $patient): array
+    {
+        $full = $this->build($patient);
+        $events = collect($full['events']);
+
+        return [
+            'full' => $full,
+            'modification' => $this->finalizeTimeline(
+                $events->filter(fn (array $event) => $this->isModificationHistoryEvent($patient, $event))->values()
+            ),
+            'refinement' => $this->finalizeTimeline(
+                $events->filter(fn (array $event) => $this->isRefinementHistoryEvent($patient, $event))->values()
+            ),
+        ];
+    }
+
+    /**
      * @return array{events: list<array<string, mixed>>, grouped: array<string, list<array<string, mixed>>>}
      */
     public function buildModificationHistory(Patient $patient): array
     {
         $patient->loadMissing(['treatmentPlans', 'caseModifications']);
 
-        return $this->buildFiltered($patient, function (array $event) use ($patient): bool {
-            if (in_array($event['type'], ['modification_requested', 'modification_plan_uploaded', 'plan_rejected'], true)) {
-                return true;
-            }
-
-            $plan = $this->planFromEventId($patient, $event['id'] ?? '');
-
-            if ($plan === null || $plan->refinement_id !== null) {
-                return false;
-            }
-
-            if ($event['type'] === 'plan_uploaded') {
-                return $plan->version > 1;
-            }
-
-            if ($event['type'] === 'plan_approved') {
-                return $plan->version > 1
-                    || $patient->caseModifications->contains('treatment_plan_id', $plan->id);
-            }
-
-            return false;
-        });
+        return $this->buildAllForPatient($patient)['modification'];
     }
 
     /**
@@ -114,36 +116,54 @@ class CaseTimelineBuilder
     {
         $patient->loadMissing(['treatmentPlans', 'caseRefinements']);
 
-        return $this->buildFiltered($patient, function (array $event) use ($patient): bool {
-            if ($event['type'] === 'refinement_ordered') {
-                return true;
-            }
-
-            if (in_array($event['type'], ['modification_requested', 'modification_plan_uploaded'], true)) {
-                $modification = $this->modificationFromEventId($patient, $event['id'] ?? '');
-
-                return $modification !== null && $modification->treatmentPlan?->refinement_id !== null;
-            }
-
-            $plan = $this->planFromEventId($patient, $event['id'] ?? '');
-
-            if ($plan !== null && $plan->refinement_id !== null) {
-                return in_array($event['type'], ['plan_uploaded', 'plan_approved', 'plan_rejected'], true);
-            }
-
-            return false;
-        });
+        return $this->buildAllForPatient($patient)['refinement'];
     }
 
-    /**
-     * @param  callable(array<string, mixed>): bool  $filter
-     * @return array{events: list<array<string, mixed>>, grouped: array<string, list<array<string, mixed>>>}
-     */
-    protected function buildFiltered(Patient $patient, callable $filter): array
+    /** @param  array<string, mixed>  $event */
+    protected function isModificationHistoryEvent(Patient $patient, array $event): bool
     {
-        $events = collect($this->build($patient)['events'])->filter($filter)->values();
+        if (in_array($event['type'], ['modification_requested', 'modification_plan_uploaded', 'plan_rejected'], true)) {
+            return true;
+        }
 
-        return $this->finalizeTimeline($events);
+        $plan = $this->planFromEventId($patient, $event['id'] ?? '');
+
+        if ($plan === null || $plan->refinement_id !== null) {
+            return false;
+        }
+
+        if ($event['type'] === 'plan_uploaded') {
+            return $plan->version > 1;
+        }
+
+        if ($event['type'] === 'plan_approved') {
+            return $plan->version > 1
+                || $patient->caseModifications->contains('treatment_plan_id', $plan->id);
+        }
+
+        return false;
+    }
+
+    /** @param  array<string, mixed>  $event */
+    protected function isRefinementHistoryEvent(Patient $patient, array $event): bool
+    {
+        if ($event['type'] === 'refinement_ordered') {
+            return true;
+        }
+
+        if (in_array($event['type'], ['modification_requested', 'modification_plan_uploaded'], true)) {
+            $modification = $this->modificationFromEventId($patient, $event['id'] ?? '');
+
+            return $modification !== null && $modification->treatmentPlan?->refinement_id !== null;
+        }
+
+        $plan = $this->planFromEventId($patient, $event['id'] ?? '');
+
+        if ($plan !== null && $plan->refinement_id !== null) {
+            return in_array($event['type'], ['plan_uploaded', 'plan_approved', 'plan_rejected'], true);
+        }
+
+        return false;
     }
 
     /**

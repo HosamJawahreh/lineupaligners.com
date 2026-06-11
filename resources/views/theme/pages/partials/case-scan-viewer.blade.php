@@ -225,48 +225,6 @@
             </nav>
             </div>
             <div class="case-scan-canvas-wrap" id="case-scan-canvas-wrap">
-                <aside class="case-scan-files__panel case-scan-files__panel--overlay @if(! $hasAnyScanFiles) is-hidden @endif"
-                       id="case-scan-files-panel"
-                       aria-label="Uploaded scan files">
-                    <div class="case-scan-files__head">
-                        <h4 class="case-scan-files__title">Scan files</h4>
-                    </div>
-                    <ul class="case-scan-files__list" id="case-scan-files-list">
-                        @foreach($scanFiles as $file)
-                        @php
-                            $thumbUrl = ($file['id'] ?? '') === 'lower' ? $lowerScanPlaceholder : $upperScanPlaceholder;
-                            $jawLabel = ($file['id'] ?? '') === 'lower' ? 'Lower' : 'Upper';
-                        @endphp
-                        <li class="case-scan-file-card case-scan-file-card--panel" data-scan-id="{{ $file['id'] }}">
-                            <div class="case-scan-file__body">
-                                <img class="case-scan-file__thumb" src="{{ $thumbUrl }}" alt="" width="48" height="32">
-                                <div class="case-scan-file__info">
-                                    <span class="case-scan-file__jaw">{{ $file['label'] ?? $jawLabel }}</span>
-                                    <span class="case-scan-file__name" title="{{ $file['name'] }}">{{ $file['name'] }}</span>
-                                    <span class="case-scan-file__size">@if($file['size']){{ $file['size'] }}@else{{ $file['ext'] }}@endif</span>
-                                </div>
-                                <div class="case-scan-file__actions">
-                                    <label class="case-scan-file__action case-scan-file__action--view"
-                                           for="case-scan-vis-{{ $file['id'] }}"
-                                           title="Show in viewer">
-                                        <input type="checkbox"
-                                               id="case-scan-vis-{{ $file['id'] }}"
-                                               checked
-                                               data-scan-id="{{ $file['id'] }}">
-                                        <i class="zmdi zmdi-eye" aria-hidden="true"></i>
-                                    </label>
-                                    <a href="{{ $file['download_url'] }}"
-                                       class="case-scan-file__action case-scan-file__action--download"
-                                       download
-                                       title="Download file">
-                                        <i class="zmdi zmdi-download" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        @endforeach
-                    </ul>
-                </aside>
                 <div class="case-scan-screen-grid" id="case-scan-screen-grid" aria-hidden="true"></div>
                 <canvas id="case-scan-canvas" aria-label="3D models preview"></canvas>
                 <div class="case-scan-canvas-overlay is-hidden" id="case-scan-loading">
@@ -282,6 +240,48 @@
                     <span id="case-scan-error-text">Could not load models.</span>
                 </div>
             </div>
+            <aside class="case-scan-files__panel case-scan-files__panel--overlay @if(! $hasAnyScanFiles) is-hidden @endif"
+                   id="case-scan-files-panel"
+                   aria-label="Uploaded scan files">
+                <div class="case-scan-files__head">
+                    <h4 class="case-scan-files__title">Scan files</h4>
+                </div>
+                <ul class="case-scan-files__list" id="case-scan-files-list">
+                    @foreach($scanFiles as $file)
+                    @php
+                        $thumbUrl = ($file['id'] ?? '') === 'lower' ? $lowerScanPlaceholder : $upperScanPlaceholder;
+                        $jawLabel = ($file['id'] ?? '') === 'lower' ? 'Lower' : 'Upper';
+                    @endphp
+                    <li class="case-scan-file-card case-scan-file-card--panel" data-scan-id="{{ $file['id'] }}">
+                        <div class="case-scan-file__body">
+                            <img class="case-scan-file__thumb" src="{{ $thumbUrl }}" alt="" width="48" height="32">
+                            <div class="case-scan-file__info">
+                                <span class="case-scan-file__jaw">{{ $file['label'] ?? $jawLabel }}</span>
+                                <span class="case-scan-file__name" title="{{ $file['name'] }}">{{ $file['name'] }}</span>
+                                <span class="case-scan-file__size">@if($file['size']){{ $file['size'] }}@else{{ $file['ext'] }}@endif</span>
+                            </div>
+                            <div class="case-scan-file__actions">
+                                <label class="case-scan-file__action case-scan-file__action--view"
+                                       for="case-scan-vis-{{ $file['id'] }}"
+                                       title="Show in viewer">
+                                    <input type="checkbox"
+                                           id="case-scan-vis-{{ $file['id'] }}"
+                                           checked
+                                           data-scan-id="{{ $file['id'] }}">
+                                    <i class="zmdi zmdi-eye" aria-hidden="true"></i>
+                                </label>
+                                <a href="{{ $file['download_url'] }}"
+                                   class="case-scan-file__action case-scan-file__action--download"
+                                   download
+                                   title="Download file">
+                                    <i class="zmdi zmdi-download" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                    @endforeach
+                </ul>
+            </aside>
         </div>
         </div>
         </div>

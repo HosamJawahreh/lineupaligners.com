@@ -194,9 +194,10 @@ class PatientController extends Controller
                 ->values()
                 ->all(),
             'modificationRecords' => $patient->modificationRecords(),
-            'caseTimeline' => app(CaseTimelineBuilder::class)->build($patient),
-            'modificationTimeline' => app(CaseTimelineBuilder::class)->buildModificationHistory($patient),
-            'refinementTimeline' => app(CaseTimelineBuilder::class)->buildRefinementHistory($patient),
+            ...($caseTimelines = app(CaseTimelineBuilder::class)->buildAllForPatient($patient)),
+            'caseTimeline' => $caseTimelines['full'],
+            'modificationTimeline' => $caseTimelines['modification'],
+            'refinementTimeline' => $caseTimelines['refinement'],
             'canRequestModification' => auth()->user()->can('requestModification', $patient),
             'canRequestRefinement' => auth()->user()->can('requestRefinement', $patient),
             'refinementsEnabled' => Schema::hasTable('patient_case_refinements'),
